@@ -30,7 +30,7 @@ import contract
 from contract import ContractError, validate_labels, validate_queries
 
 ROOT = Path(__file__).resolve().parents[1]
-CANDIDATE = "77d28cf6a62b2d091a9ac6269334c9a3e5f78fb1"
+CANDIDATE = "c042024c8020f3763b710b0783a880cd4ff0c305"
 HISTORICAL_CANDIDATES = {
     "2c8daab7ae7a8b06dcfc64863c4043183fd35261": "95c8fe505ba3214788c0ba51e850ee5913bfeb376102f0e9ab8ef89eb8ced3d3",
 }
@@ -178,7 +178,7 @@ def materialize(destination: Path, candidate: str | None = None) -> dict[str, st
         archive.extractall(destination, members=members, filter="data")
     scout_sha = HISTORICAL_CANDIDATES.get(
         target_candidate,
-        "0eb9a0b99f61ef5656a8fa1e38f94879cf3f9889df193b3008618317a2aed38c",
+        "af1c1ee3a93a70c433ccd29426b847b7fd0c7730d82c6e8486ece160ad1550bc",
     )
     pinned = {
         "skills/skill-pilot/scripts/skill_scout.py": scout_sha,
