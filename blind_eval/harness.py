@@ -30,7 +30,10 @@ import contract
 from contract import ContractError, validate_labels, validate_queries
 
 ROOT = Path(__file__).resolve().parents[1]
-CANDIDATE = "2c8daab7ae7a8b06dcfc64863c4043183fd35261"
+CANDIDATE = "77d28cf6a62b2d091a9ac6269334c9a3e5f78fb1"
+HISTORICAL_CANDIDATES = {
+    "2c8daab7ae7a8b06dcfc64863c4043183fd35261": "95c8fe505ba3214788c0ba51e850ee5913bfeb376102f0e9ab8ef89eb8ced3d3",
+}
 EXPOSED = (
     "eval/queries.jsonl",
     "eval/dev_v2_challenge.jsonl",
@@ -132,10 +135,11 @@ def json_artifact(path: Path) -> Any:
     return json.loads(read_bounded(path).decode("utf-8"))
 
 
-def materialize(destination: Path) -> dict[str, str]:
+def materialize(destination: Path, candidate: str | None = None) -> dict[str, str]:
     """Export only frozen tracked files; never execute checkout bytes."""
+    target_candidate = candidate or CANDIDATE
     rev = subprocess.run(
-        ["git", "rev-parse", "--verify", CANDIDATE + "^{commit}"],
+        ["git", "rev-parse", "--verify", target_candidate + "^{commit}"],
         cwd=ROOT,
         capture_output=True,
         text=True,
@@ -143,9 +147,9 @@ def materialize(destination: Path) -> dict[str, str]:
     )
     if rev.returncode == 0:
         commit = rev.stdout.strip()
-        if commit != CANDIDATE:
+        if commit != target_candidate:
             raise ValueError("Frozen candidate commit mismatch")
-        archive_ref = CANDIDATE
+        archive_ref = target_candidate
     else:
         archive_ref = "HEAD"
     proc = subprocess.run(
@@ -172,8 +176,12 @@ def materialize(destination: Path) -> dict[str, str]:
         if any(not (m.isfile() or m.isdir()) for m in members):
             raise ValueError("Frozen archive contains unsupported links or files")
         archive.extractall(destination, members=members, filter="data")
+    scout_sha = HISTORICAL_CANDIDATES.get(
+        target_candidate,
+        "0eb9a0b99f61ef5656a8fa1e38f94879cf3f9889df193b3008618317a2aed38c",
+    )
     pinned = {
-        "skills/skill-pilot/scripts/skill_scout.py": "95c8fe505ba3214788c0ba51e850ee5913bfeb376102f0e9ab8ef89eb8ced3d3",
+        "skills/skill-pilot/scripts/skill_scout.py": scout_sha,
         "eval/run_eval.py": "8d4f26d9aa3647f7cf8db59b8f9b081ceb9e632a1520dd94eb0a95146335c41b",
         "eval/corpus_builder.py": "ec3b214a5a009bdccd3d55f36c6122af3039104ae113ea9b6848f8c843d70684",
         "eval/metrics.py": "ca0de648a5d773a5b0b08e66102b923b7838015d8eb133164a2d7e096c69e411",
