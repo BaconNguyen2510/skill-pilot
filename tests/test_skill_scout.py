@@ -871,6 +871,8 @@ class ScoutTests(unittest.TestCase):
             )
         )
         self.assertEqual(antigravity["name"], codex["name"])
+        self.assertEqual(antigravity["version"], "2.1.1")
+        self.assertEqual(antigravity["version"], codex["version"])
         self.assertEqual(codex["version"], marketplace["plugins"][0]["version"])
         self.assertEqual(codex["license"], "MIT")
         self.assertTrue((ROOT / antigravity["logo"]).is_file())

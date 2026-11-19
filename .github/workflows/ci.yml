@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
+    tags: ["v*"]
   pull_request:
     branches: [main]
 
@@ -31,7 +32,7 @@ jobs:
 
       - name: Validate JSON manifests
         run: |
-          python -c "import json, pathlib; [json.loads(pathlib.Path(p).read_text(encoding='utf-8')) for p in ['plugin.json', '.codex-plugin/plugin.json', '.agents/plugins/marketplace.json']]; print('JSON manifests valid')"
+          python -c "import json, os, pathlib; agy = json.loads(pathlib.Path('plugin.json').read_text(encoding='utf-8')); codex = json.loads(pathlib.Path('.codex-plugin/plugin.json').read_text(encoding='utf-8')); mkt = json.loads(pathlib.Path('.agents/plugins/marketplace.json').read_text(encoding='utf-8')); versions = [str(agy.get('version') or ''), str(codex.get('version') or ''), str(mkt['plugins'][0].get('version') or '')]; assert all(versions) and len(set(versions)) == 1, versions; ref_type, ref_name = os.environ.get('GITHUB_REF_TYPE'), os.environ.get('GITHUB_REF_NAME'); assert ref_type != 'tag' or ref_name == 'v' + versions[0], (ref_name, versions[0]); print('JSON manifests valid:', versions[0])"
 
       - name: Run unit tests
         run: python -m unittest discover -s tests -v
