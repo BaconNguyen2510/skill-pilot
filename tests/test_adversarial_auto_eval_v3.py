@@ -191,7 +191,6 @@ class AdversarialAutoEvalV3Tests(unittest.TestCase):
         names = self._top_names("🚀 deploy app với docker 🐳")
         self.assertIn("docker-ops", names)
 
-    @unittest.expectedFailure  # Known v3.0.0 limitation: Vietnamese 'trừ' cue deferred to v3.1 (2c8daab frozen)
     def test_17_vietnamese_tru_negation(self) -> None:
         names = self._top_names("chọn công cụ thiết kế trừ figma")
         self.assertNotIn("figma-design", names)
