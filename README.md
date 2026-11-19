@@ -80,15 +80,15 @@ npx --yes skills add BaconNguyen2510/skill-pilot --skill skill-pilot -a antigrav
 | Command | Purpose |
 |---|---|
 | `inventory` | List active skills across Antigravity, Codex, or both (`--harness all`) |
-| `intake` | Extract project rules, stack versions, and documented test commands |
-| `search` | Deduplicated EN/VI search (`active > warehouse > inactive`) |
-| `inspect` | Preview `SKILL.md` and list bundled scripts before enabling a skill |
-| `promote` | Copy a warehouse skill into a global directory with traversal and risk guards |
+| `intake` | Discover root and nested rules plus unverified, kind-tagged command candidates with source lines |
+| `search` | Relevance-ranked EN/VI search with bounded active bonus and optional `--workspace` |
+| `inspect` | Preview `SKILL.md` and unreviewed script filenames without executing or scanning outside bounds |
+| `promote` | Stage and validate a warehouse skill (blocks symlinks, unreviewed scripts, and risky tiers unless `--allow-risky` / `--overwrite`) |
 | `prune-check` | Verify active skill count stays below the healthy context ceiling (`90`) |
 
 ```bash
 python scripts/skill_scout.py intake --workspace /path/to/project --format compact
-python scripts/skill_scout.py search "toi uu truy van postgres" --harness all --format compact --limit 5
+python scripts/skill_scout.py search "toi uu truy van postgres" --workspace /path/to/project --harness all --format compact --limit 5
 python scripts/skill_scout.py inspect "<skill-id-or-path>" --format compact
 python scripts/skill_scout.py promote "<skill-id>" --target codex
 ```
@@ -112,8 +112,8 @@ python -m py_compile scripts/skill_scout.py tests/test_skill_scout.py
 python -m unittest discover -s tests -v
 ```
 
-- **Offline and read-only:** `skill_scout.py` makes zero network calls and reads dormant Codex caches without modifying host config.
-- **Safe promotion:** `promote` blocks path escapes, overlapping source/target folders, and `risk: offensive` skills unless `--force` is passed.
+- **Offline discovery; write-scoped promotion:** `inventory`, `intake`, `search`, and `inspect` are read-only and make zero network calls, while `promote` writes only to the validated target skill directory.
+- **Safe promotion (`--overwrite` vs `--allow-risky`):** `promote` rejects symlinks/junctions, special files, depth overflow, path escapes, non-skill overwrites, skills containing unreviewed scripts, and non-low risk (`unknown`, `medium`, `high`, `critical`, `offensive`). `--overwrite` only replaces an existing skill directory containing a valid `SKILL.md` (with staged backup and rollback); `--allow-risky` only acknowledges non-low risk or unreviewed scripts after inspection. The two flags never substitute for each other.
 - **Untrusted input boundary:** Retrieved `SKILL.md` files are treated as data, never as authority to bypass user scope.
 
 ## License
