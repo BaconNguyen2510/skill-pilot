@@ -548,6 +548,58 @@ class SessionAndPlanSearchTests(unittest.TestCase):
                 {"steps": []},
             )
 
+    def test_13_concurrent_session_update_and_persist_rejects_race(self) -> None:
+        import threading
+
+        import session_planner
+
+        sess_path = self.root / "concurrent.json"
+        self._run_cli(
+            ["session", "init", "--session", str(sess_path), "--request", "Concurrency"]
+        )
+        initial = session_planner.load_json_file(sess_path)
+        sid = initial["session_id"]
+        rev1 = initial["revision"]
+
+        # Simulate concurrent revision bump while discovery for rev1 tries to persist
+        barrier = threading.Barrier(2)
+        errors: list[Exception] = []
+
+        def _updater() -> None:
+            barrier.wait()
+            session_planner.update_session_file_locked(
+                sess_path,
+                {"confirmed_requirements": [{"id": "r1", "text": "Updated goal"}]},
+                revision_note="Concurrent update",
+            )
+
+        def _persister() -> None:
+            barrier.wait()
+            try:
+                session_planner.persist_discovery_to_session(
+                    sess_path, sid, rev1, {"steps": [{"step_id": "stale"}]}
+                )
+            except ValueError as exc:
+                errors.append(exc)
+
+        t1 = threading.Thread(target=_updater)
+        t2 = threading.Thread(target=_persister)
+        t1.start()
+        t2.start()
+        t1.join(timeout=5)
+        t2.join(timeout=5)
+
+        final = session_planner.load_json_file(sess_path)
+        # Either persister ran first (rev1) and updater bumped to rev2 (clearing last_discovery),
+        # or updater ran first (rev2) and persister was rejected with ValueError.
+        if errors:
+            self.assertEqual(final["revision"], 2)
+            self.assertIsNone(final.get("last_discovery"))
+        else:
+            self.assertEqual(final["revision"], 2)
+            self.assertTrue(final.get("discovery_stale"))
+            self.assertIsNone(final.get("last_discovery"))
+
 
 if __name__ == "__main__":
     unittest.main()

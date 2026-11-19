@@ -10,6 +10,7 @@ import json
 import os
 import pathlib
 import tempfile
+import time
 import uuid
 from typing import Any
 
@@ -346,6 +347,28 @@ def load_json_file(path: pathlib.Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+@contextlib.contextmanager
+def session_lock(path: pathlib.Path, timeout_s: float = 5.0):
+    """Cross-platform exclusive lockfile guard for concurrent session writers."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = path.with_name(f".{path.name}.lock")
+    deadline = time.monotonic() + timeout_s
+    while True:
+        try:
+            fd = os.open(str(lock_path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.close(fd)
+            break
+        except FileExistsError:
+            if time.monotonic() >= deadline:
+                raise TimeoutError(f"Timed out waiting for session lock: {lock_path}")
+            time.sleep(0.01)
+    try:
+        yield
+    finally:
+        with contextlib.suppress(FileNotFoundError):
+            os.unlink(lock_path)
+
+
 def save_json_file(path: pathlib.Path, data: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = json.dumps(data, indent=2, ensure_ascii=False) + "\n"
@@ -355,11 +378,27 @@ def save_json_file(path: pathlib.Path, data: dict[str, Any]) -> None:
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
             handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
         os.replace(tmp_name, path)
     except Exception:
         if os.path.exists(tmp_name):
             os.unlink(tmp_name)
         raise
+
+
+def update_session_file_locked(
+    session_path: pathlib.Path,
+    patch: dict[str, Any],
+    *,
+    revision_note: str = "Session updated",
+) -> dict[str, Any]:
+    """Update and atomically persist a session file under exclusive lock."""
+    with session_lock(session_path):
+        existing = load_json_file(session_path)
+        data = update_session(existing, patch, revision_note=revision_note)
+        save_json_file(session_path, data)
+        return data
 
 
 def persist_discovery_to_session(
@@ -368,22 +407,23 @@ def persist_discovery_to_session(
     expected_revision: int,
     discovery: dict[str, Any],
 ) -> dict[str, Any]:
-    """Atomically persist discovery results only if session_id and revision still match."""
-    current = load_json_file(session_path)
-    if current.get("session_id") != expected_session_id:
-        raise ValueError(
-            f"Session identity mismatch: expected {expected_session_id}, got {current.get('session_id')}."
-        )
-    if int(current.get("revision", 0)) != int(expected_revision):
-        raise ValueError(
-            f"Session revision changed during discovery ({expected_revision} -> {current.get('revision')}); stale discovery rejected."
-        )
-    annotated = copy.deepcopy(discovery)
-    annotated["for_revision"] = expected_revision
-    current["last_discovery"] = annotated
-    current["discovery_stale"] = False
-    save_json_file(session_path, current)
-    return current
+    """Atomically persist discovery results under lock only if session_id and revision match."""
+    with session_lock(session_path):
+        current = load_json_file(session_path)
+        if current.get("session_id") != expected_session_id:
+            raise ValueError(
+                f"Session identity mismatch: expected {expected_session_id}, got {current.get('session_id')}."
+            )
+        if int(current.get("revision", 0)) != int(expected_revision):
+            raise ValueError(
+                f"Session revision changed during discovery ({expected_revision} -> {current.get('revision')}); stale discovery rejected."
+            )
+        annotated = copy.deepcopy(discovery)
+        annotated["for_revision"] = expected_revision
+        current["last_discovery"] = annotated
+        current["discovery_stale"] = False
+        save_json_file(session_path, current)
+        return current
 
 
 def render_specification(

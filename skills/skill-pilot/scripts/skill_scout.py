@@ -3642,7 +3642,6 @@ def cmd_session(args: argparse.Namespace) -> int:
         data = session_planner.init_session(args.request, language=args.language)
         session_planner.save_json_file(session_path, data)
     elif args.action in ("update", "revise"):
-        existing = session_planner.load_json_file(session_path)
         patch = (
             session_planner.load_json_file(pathlib.Path(args.patch))
             if args.patch
@@ -3650,8 +3649,9 @@ def cmd_session(args: argparse.Namespace) -> int:
         )
         if args.action == "revise":
             patch["replace_plan"] = True
-        data = session_planner.update_session(existing, patch, revision_note=args.note)
-        session_planner.save_json_file(session_path, data)
+        data = session_planner.update_session_file_locked(
+            session_path, patch, revision_note=args.note
+        )
     elif args.action == "spec":
         data = session_planner.load_json_file(session_path)
         print(session_planner.render_specification(data, data.get("last_discovery")))
