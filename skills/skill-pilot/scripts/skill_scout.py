@@ -3697,6 +3697,13 @@ def cmd_plan_search(args: argparse.Namespace) -> int:
         return cmd_search(step_args)
 
     result = session_planner.run_plan_search(steps, _search_step, limit=args.limit)
+    if args.session and isinstance(source, dict):
+        session_planner.persist_discovery_to_session(
+            pathlib.Path(args.session),
+            str(source.get("session_id", "")),
+            int(source.get("revision", 1)),
+            result,
+        )
     print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0
 

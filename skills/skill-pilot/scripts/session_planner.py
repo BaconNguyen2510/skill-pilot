@@ -7,7 +7,9 @@ import copy
 import datetime as dt
 import io
 import json
+import os
 import pathlib
+import tempfile
 import uuid
 from typing import Any
 
@@ -346,23 +348,71 @@ def load_json_file(path: pathlib.Path) -> dict[str, Any]:
 
 def save_json_file(path: pathlib.Path, data: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    payload = json.dumps(data, indent=2, ensure_ascii=False) + "\n"
+    fd, tmp_name = tempfile.mkstemp(
+        dir=str(path.parent), prefix=f".{path.name}.", suffix=".tmp"
     )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(payload)
+        os.replace(tmp_name, path)
+    except Exception:
+        if os.path.exists(tmp_name):
+            os.unlink(tmp_name)
+        raise
+
+
+def persist_discovery_to_session(
+    session_path: pathlib.Path,
+    expected_session_id: str,
+    expected_revision: int,
+    discovery: dict[str, Any],
+) -> dict[str, Any]:
+    """Atomically persist discovery results only if session_id and revision still match."""
+    current = load_json_file(session_path)
+    if current.get("session_id") != expected_session_id:
+        raise ValueError(
+            f"Session identity mismatch: expected {expected_session_id}, got {current.get('session_id')}."
+        )
+    if int(current.get("revision", 0)) != int(expected_revision):
+        raise ValueError(
+            f"Session revision changed during discovery ({expected_revision} -> {current.get('revision')}); stale discovery rejected."
+        )
+    annotated = copy.deepcopy(discovery)
+    annotated["for_revision"] = expected_revision
+    current["last_discovery"] = annotated
+    current["discovery_stale"] = False
+    save_json_file(session_path, current)
+    return current
 
 
 def render_specification(
     session: dict[str, Any], discovery: dict[str, Any] | None = None
 ) -> str:
     """Render a structured Markdown specification and execution-ready workflow."""
+    is_stale = bool(session.get("discovery_stale")) or bool(session.get("plan_stale"))
+    if (
+        discovery is not None
+        and discovery.get("for_revision") is not None
+        and int(discovery["for_revision"]) != int(session.get("revision", 1))
+    ):
+        is_stale = True
+    effective_discovery = None if is_stale else discovery
+
     lines: list[str] = [
         f"# Project Specification: {session.get('initial_request', 'Untitled')}",
         "",
         f"- **Session ID:** `{session.get('session_id', 'unknown')}` (Revision {session.get('revision', 1)})",
         f"- **Language:** `{session.get('language', 'en')}`",
-        "",
-        "## 1. Confirmed Requirements",
     ]
+    if is_stale or effective_discovery is None:
+        lines.extend(
+            [
+                "",
+                "> **WARNING:** Discovery results are stale or missing for the current revision; run `plan-search --session <path>` before executing.",
+            ]
+        )
+    lines.extend(["", "## 1. Confirmed Requirements"])
     for r in session.get("confirmed_requirements", []):
         lines.append(f"- `{r.get('id', '')}`: {r.get('text', '')}")
     if not session.get("confirmed_requirements"):
@@ -382,7 +432,7 @@ def render_specification(
         lines.append(f"- **Acceptance** `{s.get('id', '')}`: {s.get('text', '')}")
 
     lines.extend(["", "## 4. Dependency-Aware Execution Plan & Verified Skills"])
-    steps = (discovery or {}).get("steps", [])
+    steps = (effective_discovery or {}).get("steps", [])
     if steps:
         for st in steps:
             deps = ", ".join(st.get("depends_on", [])) or "none"
@@ -412,7 +462,7 @@ def render_specification(
                 f"- `{st.get('id', '')}`: {st.get('title', '')} (depends_on: {deps})"
             )
 
-    gaps = (discovery or {}).get("capability_gaps", [])
+    gaps = (effective_discovery or {}).get("capability_gaps", [])
     lines.extend(["", "## 5. Uncovered Capability Gaps"])
     if gaps:
         for g in gaps:

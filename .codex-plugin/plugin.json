@@ -1,6 +1,6 @@
 {
   "name": "skill-pilot",
-  "version": "3.0.0",
+  "version": "3.0.0-rc.1",
   "description": "Adaptive task triage, grounded execution contracts, and local skill discovery for Antigravity and Codex.",
   "author": {
     "name": "BaconNguyen2510",

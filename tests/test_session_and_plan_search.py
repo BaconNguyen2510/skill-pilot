@@ -454,6 +454,100 @@ class SessionAndPlanSearchTests(unittest.TestCase):
             status["session"]["confirmed_requirements"][0]["text"], "React web app"
         )
 
+    def test_11_plan_search_persists_and_spec_blocks_stale_after_revise(self) -> None:
+        sess_path = self.root / "persist_sess.json"
+        self._run_cli(
+            [
+                "session",
+                "init",
+                "--session",
+                str(sess_path),
+                "--request",
+                "Build React app",
+            ]
+        )
+        patch = self.root / "p1.json"
+        patch.write_text(
+            json.dumps(
+                {
+                    "confirmed_requirements": [{"id": "r1", "text": "React web app"}],
+                    "plan_steps": [
+                        {
+                            "id": "s1",
+                            "title": "React UI",
+                            "query": "react ui",
+                            "coverage_level": "direct",
+                            "capability_evidence": "SKILL.md covers React UI.",
+                            "depends_on": [],
+                        }
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+        self._run_cli(
+            ["session", "update", "--session", str(sess_path), "--patch", str(patch)]
+        )
+        rc, _ = self._run_cli(["plan-search", "--session", str(sess_path)])
+        self.assertEqual(rc, 0)
+
+        # Spec consumes persisted discovery automatically
+        buf = io.StringIO()
+        with (
+            mock.patch.object(
+                sys,
+                "argv",
+                ["skill_scout.py", "session", "spec", "--session", str(sess_path)],
+            ),
+            contextlib.redirect_stdout(buf),
+        ):
+            rc = scout.main()
+        self.assertEqual(rc, 0)
+        spec_md = buf.getvalue()
+        self.assertIn("react-ui", spec_md)
+        self.assertNotIn("WARNING:", spec_md)
+
+        # Revise requirements -> spec must refuse stale recommendations
+        rev = self.root / "p2.json"
+        rev.write_text(
+            json.dumps(
+                {"confirmed_requirements": [{"id": "r1", "text": "FastAPI API only"}]}
+            ),
+            encoding="utf-8",
+        )
+        self._run_cli(
+            ["session", "revise", "--session", str(sess_path), "--patch", str(rev)]
+        )
+        buf2 = io.StringIO()
+        with (
+            mock.patch.object(
+                sys,
+                "argv",
+                ["skill_scout.py", "session", "spec", "--session", str(sess_path)],
+            ),
+            contextlib.redirect_stdout(buf2),
+        ):
+            rc = scout.main()
+        self.assertEqual(rc, 0)
+        stale_spec = buf2.getvalue()
+        self.assertIn("WARNING:", stale_spec)
+        self.assertNotIn("react-ui", stale_spec)
+
+    def test_12_persist_discovery_rejects_revision_mismatch(self) -> None:
+        import session_planner
+
+        sess_path = self.root / "race.json"
+        self._run_cli(
+            ["session", "init", "--session", str(sess_path), "--request", "Race test"]
+        )
+        with self.assertRaisesRegex(ValueError, "revision changed"):
+            session_planner.persist_discovery_to_session(
+                sess_path,
+                session_planner.load_json_file(sess_path)["session_id"],
+                999,
+                {"steps": []},
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
