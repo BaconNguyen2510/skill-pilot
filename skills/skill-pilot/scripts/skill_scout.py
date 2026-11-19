@@ -3595,7 +3595,9 @@ def build_parser() -> argparse.ArgumentParser:
         help="Initialize, update, revise, or inspect a structured discovery session",
     )
     sess.add_argument(
-        "action", choices=["init", "update", "revise", "status"], help="Session action"
+        "action",
+        choices=["init", "update", "revise", "status", "spec"],
+        help="Session action",
     )
     sess.add_argument("--session", required=True, help="Path to session JSON file")
     sess.add_argument("--request", default="", help="Initial user request (for init)")
@@ -3650,6 +3652,10 @@ def cmd_session(args: argparse.Namespace) -> int:
             patch["replace_plan"] = True
         data = session_planner.update_session(existing, patch, revision_note=args.note)
         session_planner.save_json_file(session_path, data)
+    elif args.action == "spec":
+        data = session_planner.load_json_file(session_path)
+        print(session_planner.render_specification(data, data.get("last_discovery")))
+        return 0
     else:
         data = session_planner.load_json_file(session_path)
 

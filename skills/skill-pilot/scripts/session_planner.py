@@ -28,25 +28,39 @@ def compute_readiness(session: dict[str, Any]) -> dict[str, Any]:
     ]
     plan_steps = session.get("plan_steps", [])
 
+    dep_check = validate_plan_dependencies(plan_steps)
     criteria = {
         "has_confirmed_goal": len(confirmed) > 0,
         "has_success_criteria": len(success) > 0,
         "no_blocking_unresolved_questions": len(unresolved) == 0,
         "assumptions_acknowledged": len(unack_assumptions) == 0,
         "has_plan_steps": len(plan_steps) > 0,
+        "plan_dependencies_valid": dep_check["valid"] if plan_steps else False,
     }
-    missing = [k for k, v in criteria.items() if not v]
-    ready_for_planning = (
-        criteria["has_confirmed_goal"]
-        and criteria["no_blocking_unresolved_questions"]
-        and criteria["assumptions_acknowledged"]
+    missing_for_planning = [
+        k
+        for k in (
+            "has_confirmed_goal",
+            "no_blocking_unresolved_questions",
+            "assumptions_acknowledged",
+        )
+        if not criteria[k]
+    ]
+    missing_for_discovery = [k for k, v in criteria.items() if not v]
+    ready_for_planning = len(missing_for_planning) == 0
+    ready_for_discovery = (
+        ready_for_planning
+        and criteria["has_plan_steps"]
+        and criteria["plan_dependencies_valid"]
     )
-    ready_for_discovery = ready_for_planning and criteria["has_plan_steps"]
     return {
         "criteria": criteria,
-        "missing_criteria": missing,
+        "missing_for_planning": missing_for_planning,
+        "missing_criteria": missing_for_discovery,
         "ready_for_planning": ready_for_planning,
         "ready_for_discovery": ready_for_discovery,
+        "plan_stale": bool(session.get("plan_stale", False)),
+        "discovery_stale": bool(session.get("discovery_stale", False)),
         "unresolved_question_count": len(unresolved),
         "unacknowledged_assumption_count": len(unack_assumptions),
     }
@@ -128,6 +142,20 @@ def update_session(
 
     if patch.get("language"):
         updated["language"] = patch["language"]
+
+    # Invalidate stale plan/discovery when requirements, constraints, or plan change
+    req_changed = any(
+        k in patch
+        for k in ("confirmed_requirements", "constraints", "success_criteria")
+    )
+    if req_changed and "plan_steps" not in patch and updated.get("plan_steps"):
+        updated["plan_stale"] = True
+    elif "plan_steps" in patch:
+        updated["plan_stale"] = False
+
+    if req_changed or "plan_steps" in patch:
+        updated["discovery_stale"] = True
+        updated["last_discovery"] = None
 
     now = _utc_now()
     updated["updated_at"] = now
@@ -267,3 +295,68 @@ def save_json_file(path: pathlib.Path, data: dict[str, Any]) -> None:
     path.write_text(
         json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
+
+
+def render_specification(
+    session: dict[str, Any], discovery: dict[str, Any] | None = None
+) -> str:
+    """Render a structured Markdown specification and execution-ready workflow."""
+    lines: list[str] = [
+        f"# Project Specification: {session.get('initial_request', 'Untitled')}",
+        "",
+        f"- **Session ID:** `{session.get('session_id', 'unknown')}` (Revision {session.get('revision', 1)})",
+        f"- **Language:** `{session.get('language', 'en')}`",
+        "",
+        "## 1. Confirmed Requirements",
+    ]
+    for r in session.get("confirmed_requirements", []):
+        lines.append(f"- `{r.get('id', '')}`: {r.get('text', '')}")
+    if not session.get("confirmed_requirements"):
+        lines.append("- *(None confirmed yet)*")
+
+    lines.extend(["", "## 2. Acknowledged Assumptions"])
+    for a in session.get("assumptions", []):
+        ack = "acknowledged" if a.get("acknowledged") else "UNACKNOWLEDGED"
+        lines.append(f"- `{a.get('id', '')}` ({ack}): {a.get('text', '')}")
+    if not session.get("assumptions"):
+        lines.append("- *(None)*")
+
+    lines.extend(["", "## 3. Constraints & Acceptance Criteria"])
+    for c in session.get("constraints", []):
+        lines.append(f"- **Constraint** `{c.get('id', '')}`: {c.get('text', '')}")
+    for s in session.get("success_criteria", []):
+        lines.append(f"- **Acceptance** `{s.get('id', '')}`: {s.get('text', '')}")
+
+    lines.extend(["", "## 4. Dependency-Aware Execution Plan & Verified Skills"])
+    steps = (discovery or {}).get("steps", [])
+    if steps:
+        for st in steps:
+            deps = ", ".join(st.get("depends_on", [])) or "none"
+            lines.append(
+                f"### {st.get('step_id', '')}: {st.get('title', '')} (depends_on: {deps})"
+            )
+            if st.get("capability_gap"):
+                lines.append("- **Gap:** No verified local skill matched this step.")
+            else:
+                for m in st.get("matches", []):
+                    lines.append(
+                        f"- **Skill:** `{m.get('id')}` (score={m.get('score')}, risk={m.get('risk')}, path=`{m.get('skill_md_path')}`)"
+                    )
+    else:
+        for st in session.get("plan_steps", []):
+            deps = ", ".join(st.get("depends_on", [])) or "none"
+            lines.append(
+                f"- `{st.get('id', '')}`: {st.get('title', '')} (depends_on: {deps})"
+            )
+
+    gaps = (discovery or {}).get("capability_gaps", [])
+    lines.extend(["", "## 5. Uncovered Capability Gaps"])
+    if gaps:
+        for g in gaps:
+            lines.append(
+                f"- `{g.get('step_id')}` ({g.get('title')}): {g.get('reason')}"
+            )
+    else:
+        lines.append("- *(None)*")
+
+    return "\n".join(lines) + "\n"
