@@ -3590,7 +3590,109 @@ def build_parser() -> argparse.ArgumentParser:
     )
     val.set_defaults(func=cmd_validate)
 
+    sess = sub.add_parser(
+        "session",
+        help="Initialize, update, revise, or inspect a structured discovery session",
+    )
+    sess.add_argument(
+        "action", choices=["init", "update", "revise", "status"], help="Session action"
+    )
+    sess.add_argument("--session", required=True, help="Path to session JSON file")
+    sess.add_argument("--request", default="", help="Initial user request (for init)")
+    sess.add_argument(
+        "--language", default="en", help="Session language (en, vi, mixed)"
+    )
+    sess.add_argument("--patch", help="Path to JSON patch file (for update/revise)")
+    sess.add_argument("--note", default="Session updated", help="Revision note")
+    sess.set_defaults(func=cmd_session)
+
+    psearch = sub.add_parser(
+        "plan-search",
+        help="Run per-step skill discovery and gap detection for a structured plan",
+    )
+    psearch.add_argument("--plan", help="Path to JSON file containing plan_steps")
+    psearch.add_argument(
+        "--session", help="Path to session JSON file containing plan_steps"
+    )
+    psearch.add_argument("--limit", type=positive_int, default=3)
+    psearch.add_argument("--workspace", help="Optional workspace root path")
+    psearch.add_argument(
+        "--harness",
+        choices=["auto", "antigravity", "codex", "all"],
+        default="antigravity",
+    )
+    psearch.add_argument(
+        "--warehouse", help="Override path to a local skill warehouse directory"
+    )
+    psearch.add_argument("--include-active", action="store_true", default=True)
+    psearch.add_argument("--no-active", dest="include_active", action="store_false")
+    psearch.add_argument("--allow-risky", action="store_true")
+    psearch.set_defaults(func=cmd_plan_search)
+
     return parser
+
+
+def cmd_session(args: argparse.Namespace) -> int:
+    import session_planner
+
+    session_path = pathlib.Path(args.session)
+    if args.action == "init":
+        data = session_planner.init_session(args.request, language=args.language)
+        session_planner.save_json_file(session_path, data)
+    elif args.action in ("update", "revise"):
+        existing = session_planner.load_json_file(session_path)
+        patch = (
+            session_planner.load_json_file(pathlib.Path(args.patch))
+            if args.patch
+            else {}
+        )
+        if args.action == "revise":
+            patch["replace_plan"] = True
+        data = session_planner.update_session(existing, patch, revision_note=args.note)
+        session_planner.save_json_file(session_path, data)
+    else:
+        data = session_planner.load_json_file(session_path)
+
+    out = {
+        "session": data,
+        "readiness": session_planner.compute_readiness(data),
+    }
+    print(json.dumps(out, indent=2, ensure_ascii=False))
+    return 0
+
+
+def cmd_plan_search(args: argparse.Namespace) -> int:
+    import session_planner
+
+    if args.session:
+        source = session_planner.load_json_file(pathlib.Path(args.session))
+    elif args.plan:
+        source = session_planner.load_json_file(pathlib.Path(args.plan))
+    else:
+        print(
+            json.dumps(_error_payload("MISSING_PLAN", "Provide --plan or --session."))
+        )
+        return 1
+
+    steps = source.get("plan_steps", []) if isinstance(source, dict) else source
+
+    def _search_step(query: str, limit: int) -> int:
+        step_args = argparse.Namespace(
+            query=[query],
+            limit=limit,
+            workspace=args.workspace,
+            harness=args.harness,
+            warehouse=args.warehouse,
+            include_active=args.include_active,
+            allow_risky=args.allow_risky,
+            explain=False,
+            format="json",
+        )
+        return cmd_search(step_args)
+
+    result = session_planner.run_plan_search(steps, _search_step, limit=args.limit)
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+    return 0
 
 
 def positive_int(value: str) -> int:

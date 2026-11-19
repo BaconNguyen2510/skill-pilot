@@ -17,15 +17,16 @@ Respond in the user's language, including questions, summaries, and handoffs, un
 Classify by ambiguity, blast radius, and stakes; upgrade the track if evidence changes.
 
 - **Fast:** Bounded, clear, low-risk task. Act directly with one appropriate check; no interview or mandatory search.
-- **Guided:** Open-ended design, normal multi-step task, or a material unknown. Inspect context and run the scout before choosing tools, design defaults, or skills. Ask at most 1–2 focused questions only for consequential blockers; proceed on independent work.
-- **Deep:** High-stakes, uncertain, or cross-module work. Inspect context; run the scout; communicate a concise outcome, scope, acceptance criteria, and plan. Resolve real blockers; use bounded parallel work and an independent verification pass only when feasible and permitted. Existing authorization is sufficient for ordinary work.
+- **Guided:** Open-ended design, normal multi-step task, or a material unknown. Run an adaptive interview until material ambiguity is resolved or explicitly acknowledged as an assumption, build a dependency-aware plan, then run `plan-search` before choosing tools, design defaults, or skills.
+- **Deep:** High-stakes, uncertain, or cross-module work. Initialize a structured session (`skill_scout.py session init`), conduct an adaptive interview (`session update` / `session revise` if goals change), verify observable readiness (`ready_for_discovery`), decompose into dependency-aware `plan_steps`, run `plan-search`, inspect selected `SKILL.md` files, and present a detailed specification and execution-ready workflow. Existing authorization is sufficient for ordinary work.
 
-## Scout and ground
+## Scout, plan, and ground
 
-Resolve `<skill-dir>` from this file's directory. For Guided or Deep, run the local scout with the host's Python runner. Pass `--workspace "<project-root>"` and run `intake` only when a project root exists; for standalone tasks omit `--workspace`, skip `intake`, and mark project facts unavailable:
+Resolve `<skill-dir>` from this file's directory. For `Guided` or `Deep`, use the host's Python runner:
 
 ```text
-python <skill-dir>/scripts/skill_scout.py search "<task keywords>" --workspace "<project-root>" --harness all --format compact --limit 5
+python <skill-dir>/scripts/skill_scout.py session init --session .skill-pilot/session.json --request "<user request>"
+python <skill-dir>/scripts/skill_scout.py plan-search --session .skill-pilot/session.json --workspace "<project-root>" --harness all
 python <skill-dir>/scripts/skill_scout.py intake --workspace "<project-root>" --format compact
 ```
 
