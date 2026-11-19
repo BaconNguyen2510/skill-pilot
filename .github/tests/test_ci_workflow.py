@@ -176,6 +176,15 @@ class WorkflowControlTests(unittest.TestCase):
         )
         self.assertNotEqual(result.returncode, 0)
 
+    def test_workflow_supports_both_historical_and_rc_candidates(self):
+        workflow = (Path(__file__).parents[1] / "workflows/ci.yml").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("feat/v3-project-discovery", workflow)
+        self.assertIn("FROZEN_GIT_BLOB_HASHES_V3.json", workflow)
+        self.assertIn("CANDIDATE_MANIFEST_V3_RC.json", workflow)
+        self.assertIn("2c8daab7ae7a8b06dcfc64863c4043183fd35261", workflow)
+
 
 if __name__ == "__main__":
     unittest.main()

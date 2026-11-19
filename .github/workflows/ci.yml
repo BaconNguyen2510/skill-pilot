@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, feat/v3-research-program, ci/v3-public-safe]
+    branches: [main, feat/v3-research-program, ci/v3-public-safe, feat/v3-project-discovery]
     tags: ["v*"]
   pull_request:
     branches: [main]
@@ -64,18 +64,26 @@ jobs:
               if result.returncode:
                   raise SystemExit(result.returncode)
 
-          candidate = "2c8daab7ae7a8b06dcfc64863c4043183fd35261"
+          rc_manifest_path = Path("docs/v3/CANDIDATE_MANIFEST_V3_RC.json")
+          branch_ref = os.environ.get("GITHUB_REF_NAME", "")
+          if rc_manifest_path.exists() and branch_ref == "feat/v3-project-discovery":
+              manifest = json.loads(rc_manifest_path.read_text(encoding="utf-8"))
+              candidate = manifest["runtime_commit"]
+              expected_files = manifest["file_sha256_lf_git_archive"]
+          else:
+              candidate = "2c8daab7ae7a8b06dcfc64863c4043183fd35261"
+              manifest = json.loads(Path("docs/v3/FROZEN_GIT_BLOB_HASHES_V3.json").read_text(encoding="utf-8"))
+              assert manifest["candidate"] == candidate and len(manifest["files"]) == 32
+              expected_files = manifest["files"]
           identity = {"head": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
-                      "candidate": candidate, "python": sys.version, "executable": sys.executable,
-                      "platform": platform.platform(),
+                      "candidate": candidate, "branch": branch_ref, "python": sys.version,
+                      "executable": sys.executable, "platform": platform.platform(),
                       "git": subprocess.check_output(["git", "--version"], text=True).strip()}
           (evidence / "identity.json").write_text(json.dumps(identity, indent=2), encoding="utf-8")
-          manifest = json.loads(Path("docs/v3/FROZEN_GIT_BLOB_HASHES_V3.json").read_text(encoding="utf-8"))
-          assert manifest["candidate"] == candidate and len(manifest["files"]) == 32
           tracked = set(subprocess.check_output(["git", "ls-files"], text=True).splitlines())
           assert "eval/sealed_queries.jsonl" not in tracked and "docs/v3/SEALED_EVAL_REPORT.json" not in tracked
           verified = {}
-          for name, expected in manifest["files"].items():
+          for name, expected in expected_files.items():
               actual = hashlib.sha256(subprocess.check_output(["git", "show", "HEAD:" + name])).hexdigest()
               verified[name] = {"expected": expected, "actual": actual}
           (evidence / "canonical-hashes.json").write_text(json.dumps(verified, indent=2), encoding="utf-8")
