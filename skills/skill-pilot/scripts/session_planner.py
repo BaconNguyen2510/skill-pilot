@@ -242,34 +242,34 @@ _EVIDENCE_STOPWORDS = frozenset(
 
 
 def extract_skill_capabilities(skill_md_path: str | pathlib.Path) -> dict[str, Any]:
-    """Extract real headings and body text from a verified SKILL.md on disk."""
+    """Extract real headings and normalized text from a verified SKILL.md on disk."""
     path = pathlib.Path(skill_md_path)
     if not path.is_file():
-        return {"readable": False, "headings": [], "tokens": set()}
+        return {"readable": False, "headings": [], "lower_text": ""}
     text = path.read_text(encoding="utf-8", errors="replace")
     headings = [
         m.group(1).strip()
         for m in re.finditer(r"^#{1,3}\s+(.+)$", text, flags=re.MULTILINE)
-    ][:8]
-    tokens = {
-        tok
-        for tok in re.findall(r"[a-z0-9]{3,}", text.lower())
-        if tok not in _EVIDENCE_STOPWORDS
+    ]
+    return {
+        "readable": True,
+        "headings": headings,
+        "lower_text": re.sub(r"\s+", " ", text.lower()),
     }
-    return {"readable": True, "headings": headings, "tokens": tokens}
 
 
 def verify_capability_evidence(
     evidence_text: str, matches: list[dict[str, Any]]
 ) -> dict[str, Any]:
-    """Verify capability_evidence against actual SKILL.md content (not just skill title)."""
-    ev_tokens = {
-        tok
-        for tok in re.findall(r"[a-z0-9]{3,}", evidence_text.lower())
-        if tok not in _EVIDENCE_STOPWORDS
-    }
-    if not ev_tokens or not matches:
-        return {"verified": False, "matched_skill_id": None, "overlap_tokens": []}
+    """Verify capability_evidence via exact quoted passage or exact SKILL.md heading match."""
+    cleaned = re.sub(r"\s+", " ", evidence_text.strip())
+    if not cleaned or not matches:
+        return {"verified": False, "matched_skill_id": None, "grounding_type": "none"}
+
+    # Extract quoted spans if present, otherwise evaluate the whole cleaned evidence string
+    quoted = [q.strip() for q in re.findall(r'"([^"]{12,})"', cleaned)]
+    candidates = quoted or [cleaned]
+    lower_cleaned = cleaned.lower()
 
     for m in matches:
         md_path = m.get("skill_md_path")
@@ -278,16 +278,24 @@ def verify_capability_evidence(
         caps = extract_skill_capabilities(md_path)
         if not caps["readable"]:
             continue
-        name_tokens = set(re.findall(r"[a-z0-9]{3,}", str(m.get("id", "")).lower()))
-        # Require overlap with SKILL.md content beyond just the skill's own ID/title tokens
-        overlap = sorted((ev_tokens & caps["tokens"]) - name_tokens)
-        if overlap:
-            return {
-                "verified": True,
-                "matched_skill_id": m.get("id"),
-                "overlap_tokens": overlap[:8],
-            }
-    return {"verified": False, "matched_skill_id": None, "overlap_tokens": []}
+        skill_id = str(m.get("id", "")).lower()
+        for h in caps["headings"]:
+            hl = h.lower()
+            if len(hl) >= 4 and hl != skill_id and hl in lower_cleaned:
+                return {
+                    "verified": True,
+                    "matched_skill_id": m.get("id"),
+                    "grounding_type": "exact_heading",
+                }
+        for cand in candidates:
+            cl = cand.lower()
+            if len(cl) >= 12 and cl != skill_id and cl in caps["lower_text"]:
+                return {
+                    "verified": True,
+                    "matched_skill_id": m.get("id"),
+                    "grounding_type": "exact_quote",
+                }
+    return {"verified": False, "matched_skill_id": None, "grounding_type": "none"}
 
 
 def normalize_step_coverage(step: dict[str, Any]) -> dict[str, Any]:
@@ -406,7 +414,7 @@ def run_plan_search(
                 "coverage_level": coverage_level,
                 "capability_evidence": assessed["capability_evidence"],
                 "evidence_verified": ev_check["verified"],
-                "evidence_overlap_tokens": ev_check["overlap_tokens"],
+                "grounding_type": ev_check["grounding_type"],
                 "uncovered_capabilities": assessed["uncovered_capabilities"],
                 "matches": verified_matches,
                 "unverified_candidates_filtered": len(matches) - len(verified_matches),

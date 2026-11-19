@@ -124,7 +124,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
                             "title": "Design PostgreSQL database",
                             "query": "postgres database",
                             "coverage_level": "direct",
-                            "capability_evidence": "SKILL.md covers PostgreSQL schemas.",
+                            "capability_evidence": '"Design PostgreSQL database schemas."',
                             "depends_on": [],
                         },
                         {
@@ -132,7 +132,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
                             "title": "Build FastAPI backend",
                             "query": "fastapi backend",
                             "coverage_level": "direct",
-                            "capability_evidence": "SKILL.md covers FastAPI REST backends.",
+                            "capability_evidence": '"Build Python FastAPI REST backends."',
                             "depends_on": ["step-1"],
                         },
                         {
@@ -140,7 +140,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
                             "title": "Build React UI",
                             "query": "react ui",
                             "coverage_level": "direct",
-                            "capability_evidence": "SKILL.md covers React UI components.",
+                            "capability_evidence": '"Build React web and mobile UI components."',
                             "depends_on": ["step-2"],
                         },
                     ],
@@ -365,7 +365,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
                             "title": "Build React UI",
                             "query": "react ui",
                             "coverage_level": "direct",
-                            "capability_evidence": "SKILL.md covers React components and hooks.",
+                            "capability_evidence": '"Build React web and mobile UI components."',
                             "depends_on": [],
                         },
                         {
@@ -477,7 +477,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
                             "title": "React UI",
                             "query": "react ui",
                             "coverage_level": "direct",
-                            "capability_evidence": "SKILL.md covers React web and mobile UI components.",
+                            "capability_evidence": '"Build React web and mobile UI components."',
                             "depends_on": [],
                         }
                     ],
@@ -651,10 +651,10 @@ class SessionAndPlanSearchTests(unittest.TestCase):
                         },
                         {
                             "id": "s2",
-                            "title": "React UI title-only",
+                            "title": "React UI scattered-tokens-only",
                             "query": "react ui",
                             "coverage_level": "direct",
-                            "capability_evidence": "react-ui",
+                            "capability_evidence": "React components",
                             "depends_on": [],
                         },
                     ]
