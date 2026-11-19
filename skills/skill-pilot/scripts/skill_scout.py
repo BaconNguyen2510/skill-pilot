@@ -218,6 +218,34 @@ def _copy_fd_stream(
     return file_bytes, total_bytes
 
 
+def _bounded_scandir(
+    target: int | pathlib.Path,
+    remaining_budget: int,
+    *,
+    skip_dir_names: frozenset[str] = frozenset(),
+) -> tuple[list[os.DirEntry[str]], bool]:
+    """Read directory entries up to remaining_budget before sorting to bound traversal."""
+    collected: list[os.DirEntry[str]] = []
+    overflow = False
+    limit = max(remaining_budget, 0)
+    with os.scandir(target) as it:
+        for entry in it:
+            if (
+                skip_dir_names
+                and entry.name in skip_dir_names
+                and entry.is_dir(follow_symlinks=False)
+                and not _is_link_or_reparse(pathlib.Path(entry.path))
+            ):
+                continue
+            if len(collected) >= limit:
+                overflow = True
+                break
+            collected.append(entry)
+    if not overflow:
+        collected.sort(key=lambda e: e.name)
+    return collected, overflow
+
+
 def _copy_skill_tree_safely(
     src_dir: pathlib.Path,
     stage_dir: pathlib.Path,
@@ -248,8 +276,10 @@ def _copy_skill_tree_safely(
     def copy_posix(
         src_fd: int, dst_dir: pathlib.Path, rel_prefix: str = "", depth: int = 0
     ) -> None:
-        with os.scandir(src_fd) as it:
-            entries = sorted(it, key=lambda e: e.name)
+        remaining = MAX_SKILL_ENTRIES - counts["entries"]
+        entries, overflow = _bounded_scandir(src_fd, remaining)
+        if overflow:
+            raise ValueError(f"Skill exceeds maximum entry limit ({MAX_SKILL_ENTRIES})")
         for entry in entries:
             counts["entries"] += 1
             if counts["entries"] > MAX_SKILL_ENTRIES:
@@ -308,8 +338,10 @@ def _copy_skill_tree_safely(
         rel_prefix: str = "",
         depth: int = 0,
     ) -> None:
-        with os.scandir(cur_src) as it:
-            entries = sorted(it, key=lambda e: e.name)
+        remaining = MAX_SKILL_ENTRIES - counts["entries"]
+        entries, overflow = _bounded_scandir(cur_src, remaining)
+        if overflow:
+            raise ValueError(f"Skill exceeds maximum entry limit ({MAX_SKILL_ENTRIES})")
         for entry in entries:
             counts["entries"] += 1
             if counts["entries"] > MAX_SKILL_ENTRIES:
@@ -664,13 +696,32 @@ def _skill_content_digest(skill_md_str: str) -> str | None:
 
 
 def _same_skill_identity(a: dict[str, Any], b: dict[str, Any]) -> bool:
-    """Return True only when two entries refer to the same physical file or verified identical tree."""
+    """Return True only when two entries refer to the same canonical physical file."""
     path_a = _safe_resolved_str(str(a.get("skill_md_path") or ""))
     path_b = _safe_resolved_str(str(b.get("skill_md_path") or ""))
-    if path_a and path_b and path_a == path_b:
-        return True
-    digest_a = _skill_content_digest(str(a.get("skill_md_path") or ""))
-    digest_b = _skill_content_digest(str(b.get("skill_md_path") or ""))
+    return bool(path_a and path_b and path_a == path_b)
+
+
+def _cached_skill_digest(
+    item: dict[str, Any], digest_cache: dict[str, str | None]
+) -> str | None:
+    raw_path = str(item.get("skill_md_path") or "")
+    key = _safe_resolved_str(raw_path) or raw_path
+    if not key:
+        return None
+    if key not in digest_cache:
+        digest_cache[key] = _skill_content_digest(raw_path)
+    return digest_cache[key]
+
+
+def _same_skill_content(
+    a: dict[str, Any],
+    b: dict[str, Any],
+    digest_cache: dict[str, str | None],
+) -> bool:
+    """Return True when two entries share a verified identical tree digest."""
+    digest_a = _cached_skill_digest(a, digest_cache)
+    digest_b = _cached_skill_digest(b, digest_cache)
     return digest_a is not None and digest_b is not None and digest_a == digest_b
 
 
@@ -699,6 +750,8 @@ def collect_active_skills(
             file=sys.stderr,
         )
 
+    digest_cache: dict[str, str | None] = {}
+
     def register_item(item: dict[str, Any]) -> None:
         resolved = _safe_resolved_str(str(item.get("skill_md_path") or ""))
         if resolved and resolved in seen_paths:
@@ -707,9 +760,27 @@ def collect_active_skills(
             seen_paths.add(resolved)
         name = str(item.get("name") or "")
         item_copy = dict(item)
-        item_copy["shadowed"] = any(
-            _same_skill_identity(prev, item_copy) for prev in by_name.get(name, [])
-        )
+        item_source = str(item_copy.get("source") or "")
+        siblings = by_name.get(name, [])
+        same_source_shadow = False
+        for prev in siblings:
+            same_source = str(prev.get("source") or "") == item_source
+            same_content = _same_skill_identity(prev, item_copy) or _same_skill_content(
+                prev, item_copy, digest_cache
+            )
+            if same_source:
+                if same_content:
+                    same_source_shadow = True
+                else:
+                    prev["name_collision"] = True
+                    item_copy["name_collision"] = True
+            elif same_content:
+                prev["duplicate_candidate"] = True
+                item_copy["duplicate_candidate"] = True
+            else:
+                prev["name_collision"] = True
+                item_copy["name_collision"] = True
+        item_copy["shadowed"] = same_source_shadow
         skills.append(item_copy)
         by_name.setdefault(name, []).append(item_copy)
 
@@ -1742,6 +1813,7 @@ def cmd_search(args: argparse.Namespace) -> int:
 
     by_identity: dict[str, list[tuple[str, dict[str, Any]]]] = {}
     seen_skill_paths: set[str] = set()
+    digest_cache: dict[str, str | None] = {}
     kept_entries: list[tuple[str, dict[str, Any]]] = []
     for label, matches in (
         ("active", tier1_hits),
@@ -1763,8 +1835,42 @@ def cmd_search(args: argparse.Namespace) -> int:
                 continue
             if resolved:
                 seen_skill_paths.add(resolved)
+            cur_source = str(item.get("source") or item.get("warehouse") or "")
+            collapse_target: dict[str, Any] | None = None
+            active_content_peers: list[dict[str, Any]] = []
+            for prev_label, prev_item in existing_group:
+                if not _same_skill_content(prev_item, item, digest_cache):
+                    continue
+                prev_source = str(
+                    prev_item.get("source") or prev_item.get("warehouse") or ""
+                )
+                if (
+                    prev_label == "active"
+                    and label == "active"
+                    and prev_source != cur_source
+                ):
+                    active_content_peers.append(prev_item)
+                else:
+                    collapse_target = prev_item
+                    break
+            if collapse_target is not None:
+                collapse_target["duplicate_candidate"] = True
+                collapse_target.setdefault("duplicate_candidates", []).append(
+                    {
+                        "tier": label,
+                        "source": cur_source,
+                        "skill_md_path": str(item.get("skill_md_path") or ""),
+                    }
+                )
+                continue
             item_copy = dict(item)
-            if existing_group:
+            if active_content_peers:
+                for prev_item in active_content_peers:
+                    prev_item["duplicate_candidate"] = True
+                    prev_item["name_collision"] = True
+                item_copy["duplicate_candidate"] = True
+                item_copy["name_collision"] = True
+            elif existing_group:
                 for _, prev_item in existing_group:
                     prev_item["name_collision"] = True
                 item_copy["name_collision"] = True
@@ -1930,50 +2036,58 @@ def _scan_skill_dir_metadata(
     special_files_detected: list[str] = []
     truncated = False
     entries_seen = 0
-    for dirpath, dirnames, filenames in os.walk(sdir, followlinks=False):
-        cur_dir = pathlib.Path(dirpath)
-        rel_dir = cur_dir.relative_to(sdir)
-        depth = 0 if cur_dir == sdir else len(rel_dir.parts)
-
-        kept_dirs: list[str] = []
-        for d in sorted(dirnames):
-            if not include_hidden_dirs and d in SKIP_WALK_DIRS:
-                continue
-            dpath = cur_dir / d
-            rel_item = str(dpath.relative_to(sdir)).replace("\\", "/")
-            if _is_link_or_reparse(dpath):
-                symlinks_detected.append(rel_item)
-                continue
-            if depth < MAX_INSPECT_DEPTH:
-                kept_dirs.append(d)
-            else:
-                truncated = True
-        dirnames[:] = kept_dirs
-
-        for fname in sorted(filenames):
+    skip_dirs = frozenset() if include_hidden_dirs else SKIP_WALK_DIRS
+    stack: list[tuple[pathlib.Path, int]] = [(sdir, 0)]
+    while stack:
+        cur_dir, depth = stack.pop()
+        remaining = MAX_SKILL_ENTRIES - entries_seen
+        try:
+            entries, overflow = _bounded_scandir(
+                cur_dir, remaining, skip_dir_names=skip_dirs
+            )
+        except OSError:
+            rel_cur = (
+                "."
+                if cur_dir == sdir
+                else str(cur_dir.relative_to(sdir)).replace("\\", "/")
+            )
+            special_files_detected.append(rel_cur)
+            truncated = True
+            break
+        if overflow:
+            truncated = True
+            break
+        child_dirs: list[tuple[pathlib.Path, int]] = []
+        for entry in entries:
             entries_seen += 1
             if entries_seen > MAX_SKILL_ENTRIES:
                 truncated = True
                 break
-            fpath = cur_dir / fname
-            rel_item = str(fpath.relative_to(sdir)).replace("\\", "/")
-            if _is_link_or_reparse(fpath):
+            entry_path = pathlib.Path(entry.path)
+            rel_item = str(entry_path.relative_to(sdir)).replace("\\", "/")
+            if _is_link_or_reparse(entry_path):
                 symlinks_detected.append(rel_item)
                 continue
             try:
-                st = os.lstat(fpath)
+                st = os.lstat(entry_path)
             except OSError:
                 special_files_detected.append(rel_item)
+                continue
+            if stat.S_ISDIR(st.st_mode):
+                if depth < MAX_INSPECT_DEPTH:
+                    child_dirs.append((entry_path, depth + 1))
+                else:
+                    truncated = True
                 continue
             if not stat.S_ISREG(st.st_mode):
                 special_files_detected.append(rel_item)
                 continue
             files.append(rel_item)
-            if _is_script_or_executable(fpath, rel_item, st):
+            if _is_script_or_executable(entry_path, rel_item, st):
                 scripts.append(rel_item)
         if truncated:
-            dirnames[:] = []
             break
+        stack.extend(reversed(child_dirs))
     return {
         "files": files,
         "scripts": scripts,

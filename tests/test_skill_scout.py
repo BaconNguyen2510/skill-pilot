@@ -1426,6 +1426,107 @@ class ScoutTests(unittest.TestCase):
         self.assertEqual(wrapper_run.returncode, 0, wrapper_run.stderr)
         self.assertIn("warehouse | finance-tool |", wrapper_run.stdout)
 
+    def test_empty_directory_flood_exceeds_entry_budget_n01(self):
+        wh = self.root / "wh-flood"
+        flood = self.skill(wh / "skills", "flood-skill", "Directory budget test")
+        for bucket in range(5):
+            parent = flood / f"bucket-{bucket}"
+            parent.mkdir()
+            for child in range(100):
+                (parent / f"empty-{child:03d}").mkdir()
+
+        scan = scout._scan_skill_dir_metadata(flood, include_hidden_dirs=True)
+        self.assertTrue(scan["truncated"])
+
+        dest_dir = self.root / "dest"
+        status, raw = self.run_command(
+            "promote",
+            "flood-skill",
+            "--warehouse",
+            str(wh),
+            "--dest",
+            str(dest_dir),
+            "--allow-risky",
+        )
+        self.assertEqual(status, 1, raw)
+        self.assertIn("entry budget", raw)
+        self.assertFalse((dest_dir / "flood-skill").exists())
+
+        stage_dir = self.root / "stage-flood"
+        stage_dir.mkdir()
+        with self.assertRaisesRegex(ValueError, "maximum entry limit"):
+            scout._copy_skill_tree_safely(flood, stage_dir, allow_scripts=True)
+
+    def test_equal_content_across_different_active_plugins_preserves_both_sources_n02(
+        self,
+    ):
+        plugins_dir = self.root / "plugins"
+        wh = self.root / "warehouse"
+        body = (
+            "---\n"
+            "name: finance-audit\n"
+            "description: Audit corporate cash flow statements and balance sheet ratios\n"
+            "---\n"
+            "# Finance Audit\n"
+            "Run standardized ratio checks.\n"
+        )
+        for plugin_name in ("alpha", "beta"):
+            skill_dir = plugins_dir / plugin_name / "skills" / "finance-audit"
+            skill_dir.mkdir(parents=True, exist_ok=True)
+            (skill_dir / "SKILL.md").write_text(body, encoding="utf-8")
+        wh_skill = wh / "skills" / "finance-audit"
+        wh_skill.mkdir(parents=True, exist_ok=True)
+        (wh_skill / "SKILL.md").write_text(body, encoding="utf-8")
+
+        with (
+            mock.patch.object(scout, "PLUGINS_DIR", plugins_dir),
+            mock.patch.object(scout, "GLOBAL_SKILLS_DIR", self.root / "missing-global"),
+            mock.patch.object(
+                scout, "BUILTIN_SKILLS_DIR", self.root / "missing-builtin"
+            ),
+            mock.patch.object(
+                scout, "_disabled_plugin_dirs", return_value=(set(), set(), None)
+            ),
+            mock.patch.object(scout, "collect_codex_skills", return_value=[]),
+            mock.patch.object(scout, "resolve_warehouses", return_value=[wh]),
+        ):
+            active = scout.collect_active_skills(harness="antigravity")
+            self.assertEqual(len(active), 2)
+            self.assertEqual(
+                {item["source"] for item in active},
+                {"plugin:alpha", "plugin:beta"},
+            )
+            self.assertFalse(any(item["shadowed"] for item in active))
+            self.assertTrue(
+                all(item.get("duplicate_candidate") is True for item in active)
+            )
+
+            status, raw = self.run_command(
+                "search",
+                "finance audit ratios",
+                "--harness",
+                "antigravity",
+                "--warehouse",
+                str(wh),
+                "--format",
+                "json",
+            )
+        self.assertEqual(status, 0, raw)
+        payload = json.loads(raw)
+        ranked = payload["ranked_matches"]
+        self.assertEqual(len(ranked), 2)
+        self.assertEqual(
+            {item["source"] for item in ranked},
+            {"plugin:alpha", "plugin:beta"},
+        )
+        self.assertTrue(all(item.get("duplicate_candidate") is True for item in ranked))
+        self.assertTrue(all(item.get("name_collision") is True for item in ranked))
+        dup_entries = [
+            dup for item in ranked for dup in item.get("duplicate_candidates", [])
+        ]
+        self.assertEqual(len(dup_entries), 1)
+        self.assertEqual(dup_entries[0]["tier"], "warehouse")
+
 
 if __name__ == "__main__":
     unittest.main()
