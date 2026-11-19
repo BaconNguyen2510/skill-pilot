@@ -9,6 +9,7 @@ import io
 import json
 import os
 import pathlib
+import re
 import tempfile
 import time
 import uuid
@@ -217,6 +218,78 @@ def validate_plan_dependencies(steps: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+_EVIDENCE_STOPWORDS = frozenset(
+    {
+        "skill",
+        "skills",
+        "covers",
+        "cover",
+        "supports",
+        "support",
+        "based",
+        "using",
+        "with",
+        "from",
+        "this",
+        "that",
+        "step",
+        "task",
+        "the",
+        "and",
+        "for",
+    }
+)
+
+
+def extract_skill_capabilities(skill_md_path: str | pathlib.Path) -> dict[str, Any]:
+    """Extract real headings and body text from a verified SKILL.md on disk."""
+    path = pathlib.Path(skill_md_path)
+    if not path.is_file():
+        return {"readable": False, "headings": [], "tokens": set()}
+    text = path.read_text(encoding="utf-8", errors="replace")
+    headings = [
+        m.group(1).strip()
+        for m in re.finditer(r"^#{1,3}\s+(.+)$", text, flags=re.MULTILINE)
+    ][:8]
+    tokens = {
+        tok
+        for tok in re.findall(r"[a-z0-9]{3,}", text.lower())
+        if tok not in _EVIDENCE_STOPWORDS
+    }
+    return {"readable": True, "headings": headings, "tokens": tokens}
+
+
+def verify_capability_evidence(
+    evidence_text: str, matches: list[dict[str, Any]]
+) -> dict[str, Any]:
+    """Verify capability_evidence against actual SKILL.md content (not just skill title)."""
+    ev_tokens = {
+        tok
+        for tok in re.findall(r"[a-z0-9]{3,}", evidence_text.lower())
+        if tok not in _EVIDENCE_STOPWORDS
+    }
+    if not ev_tokens or not matches:
+        return {"verified": False, "matched_skill_id": None, "overlap_tokens": []}
+
+    for m in matches:
+        md_path = m.get("skill_md_path")
+        if not md_path:
+            continue
+        caps = extract_skill_capabilities(md_path)
+        if not caps["readable"]:
+            continue
+        name_tokens = set(re.findall(r"[a-z0-9]{3,}", str(m.get("id", "")).lower()))
+        # Require overlap with SKILL.md content beyond just the skill's own ID/title tokens
+        overlap = sorted((ev_tokens & caps["tokens"]) - name_tokens)
+        if overlap:
+            return {
+                "verified": True,
+                "matched_skill_id": m.get("id"),
+                "overlap_tokens": overlap[:8],
+            }
+    return {"verified": False, "matched_skill_id": None, "overlap_tokens": []}
+
+
 def normalize_step_coverage(step: dict[str, Any]) -> dict[str, Any]:
     """Validate host-assessed skill coverage; never promote ranking score to direct coverage."""
     raw_level = str(step.get("coverage_level", "unverified_fit")).lower()
@@ -278,10 +351,15 @@ def run_plan_search(
 
         verified_matches = [m for m in matches if m.get("verified_on_disk")]
         assessed = normalize_step_coverage(step)
+        ev_check = verify_capability_evidence(
+            assessed["capability_evidence"], verified_matches
+        )
         if not verified_matches:
             coverage_level = "none"
-        elif assessed["coverage_level"] in ("direct", "partial"):
-            coverage_level = assessed["coverage_level"]
+        elif assessed["coverage_level"] == "direct":
+            coverage_level = "direct" if ev_check["verified"] else "unverified_fit"
+        elif assessed["coverage_level"] == "partial":
+            coverage_level = "partial"
         else:
             # Score is a ranking signal only; without inspected SKILL.md evidence, fit is unverified.
             coverage_level = "unverified_fit"
@@ -327,6 +405,8 @@ def run_plan_search(
                 "query": query,
                 "coverage_level": coverage_level,
                 "capability_evidence": assessed["capability_evidence"],
+                "evidence_verified": ev_check["verified"],
+                "evidence_overlap_tokens": ev_check["overlap_tokens"],
                 "uncovered_capabilities": assessed["uncovered_capabilities"],
                 "matches": verified_matches,
                 "unverified_candidates_filtered": len(matches) - len(verified_matches),
