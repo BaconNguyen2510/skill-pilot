@@ -1485,7 +1485,7 @@ class ScoutTests(unittest.TestCase):
                 scout, "BUILTIN_SKILLS_DIR", self.root / "missing-builtin"
             ),
             mock.patch.object(
-                scout, "_disabled_plugin_dirs", return_value=(set(), set(), None)
+                scout, "_parse_plugin_states", return_value=(set(), set(), None)
             ),
             mock.patch.object(scout, "collect_codex_skills", return_value=[]),
             mock.patch.object(scout, "resolve_warehouses", return_value=[wh]),
@@ -1500,6 +1500,7 @@ class ScoutTests(unittest.TestCase):
             self.assertTrue(
                 all(item.get("duplicate_candidate") is True for item in active)
             )
+            self.assertTrue(all(item.get("name_collision") is True for item in active))
 
             status, raw = self.run_command(
                 "search",
@@ -1511,21 +1512,130 @@ class ScoutTests(unittest.TestCase):
                 "--format",
                 "json",
             )
+            self.assertEqual(status, 0, raw)
+            payload = json.loads(raw)
+            ranked = payload["ranked_matches"]
+            self.assertEqual(len(ranked), 2)
+            self.assertEqual(
+                {item["source"] for item in ranked},
+                {"plugin:alpha", "plugin:beta"},
+            )
+            self.assertTrue(
+                all(item.get("duplicate_candidate") is True for item in ranked)
+            )
+            self.assertTrue(all(item.get("name_collision") is True for item in ranked))
+            dup_entries = [
+                dup for item in ranked for dup in item.get("duplicate_candidates", [])
+            ]
+            self.assertEqual(len(dup_entries), 1)
+            self.assertEqual(dup_entries[0]["tier"], "warehouse")
+
+            for plugin_name in ("alpha", "beta"):
+                (plugins_dir / plugin_name / "plugin.json").write_text(
+                    '{"name": "shared-suite"}\n', encoding="utf-8"
+                )
+            shared_active = scout.collect_active_skills(harness="antigravity")
+            self.assertEqual(len(shared_active), 2)
+            self.assertEqual(
+                {item["source"] for item in shared_active}, {"plugin:shared-suite"}
+            )
+            self.assertFalse(any(item["shadowed"] for item in shared_active))
+            self.assertTrue(
+                all(item.get("duplicate_candidate") is True for item in shared_active)
+            )
+            status, shared_raw = self.run_command(
+                "search",
+                "finance audit ratios",
+                "--harness",
+                "antigravity",
+                "--warehouse",
+                str(wh),
+                "--format",
+                "json",
+            )
+            self.assertEqual(status, 0, shared_raw)
+            shared_ranked = json.loads(shared_raw)["ranked_matches"]
+            self.assertEqual(len(shared_ranked), 2)
+            self.assertTrue(
+                all(item.get("duplicate_candidate") is True for item in shared_ranked)
+            )
+            self.assertTrue(
+                all(item.get("name_collision") is True for item in shared_ranked)
+            )
+
+    def test_codex_global_skills_same_name_different_dirs_preserved_n02(self):
+        codex_skills = self.root / "codex-skills"
+        dir_a = codex_skills / "deploy-alpha"
+        dir_b = codex_skills / "deploy-beta"
+        dir_a.mkdir(parents=True)
+        dir_b.mkdir(parents=True)
+        (dir_a / "SKILL.md").write_text(
+            "---\n"
+            "name: deploy-helper\n"
+            "description: Deploy container builds to staging Kubernetes clusters\n"
+            "---\n"
+            "# Kubernetes Deploy\n",
+            encoding="utf-8",
+        )
+        (dir_b / "SKILL.md").write_text(
+            "---\n"
+            "name: deploy-helper\n"
+            "description: Deploy static documentation bundles to edge hosting\n"
+            "---\n"
+            "# Docs Deploy\n",
+            encoding="utf-8",
+        )
+
+        with (
+            mock.patch.object(scout, "CODEX_SKILLS_DIR", codex_skills),
+            mock.patch.object(
+                scout, "CODEX_INACTIVE_SKILLS_DIR", self.root / "no-codex-inactive"
+            ),
+            mock.patch.object(scout, "_codex_plugin_sources", return_value=[]),
+            mock.patch.object(scout, "PLUGINS_DIR", self.root / "no-plugins"),
+            mock.patch.object(scout, "GLOBAL_SKILLS_DIR", self.root / "no-global"),
+            mock.patch.object(scout, "BUILTIN_SKILLS_DIR", self.root / "no-builtin"),
+            mock.patch.object(
+                scout, "_parse_plugin_states", return_value=(set(), set(), None)
+            ),
+            mock.patch.object(scout, "resolve_warehouses", return_value=[]),
+        ):
+            codex_items = scout.collect_codex_skills()
+            self.assertEqual(len(codex_items), 2)
+            self.assertEqual(
+                {item["source"] for item in codex_items}, {"codex:global-skills"}
+            )
+            self.assertEqual(
+                {Path(item["skill_md_path"]).parent.name for item in codex_items},
+                {"deploy-alpha", "deploy-beta"},
+            )
+
+            active_items = scout.collect_active_skills(harness="codex")
+            self.assertEqual(len(active_items), 2)
+            self.assertFalse(any(item["shadowed"] for item in active_items))
+            self.assertTrue(
+                all(item.get("name_collision") is True for item in active_items)
+            )
+            self.assertFalse(
+                any(item.get("duplicate_candidate") for item in active_items)
+            )
+
+            status, raw = self.run_command(
+                "search",
+                "deploy helper",
+                "--harness",
+                "codex",
+                "--format",
+                "json",
+            )
         self.assertEqual(status, 0, raw)
-        payload = json.loads(raw)
-        ranked = payload["ranked_matches"]
+        ranked = json.loads(raw)["ranked_matches"]
         self.assertEqual(len(ranked), 2)
         self.assertEqual(
-            {item["source"] for item in ranked},
-            {"plugin:alpha", "plugin:beta"},
+            {Path(item["skill_md_path"]).parent.name for item in ranked},
+            {"deploy-alpha", "deploy-beta"},
         )
-        self.assertTrue(all(item.get("duplicate_candidate") is True for item in ranked))
         self.assertTrue(all(item.get("name_collision") is True for item in ranked))
-        dup_entries = [
-            dup for item in ranked for dup in item.get("duplicate_candidates", [])
-        ]
-        self.assertEqual(len(dup_entries), 1)
-        self.assertEqual(dup_entries[0]["tier"], "warehouse")
 
 
 if __name__ == "__main__":

@@ -760,27 +760,18 @@ def collect_active_skills(
             seen_paths.add(resolved)
         name = str(item.get("name") or "")
         item_copy = dict(item)
-        item_source = str(item_copy.get("source") or "")
         siblings = by_name.get(name, [])
-        same_source_shadow = False
+        same_identity_shadow = False
         for prev in siblings:
-            same_source = str(prev.get("source") or "") == item_source
-            same_content = _same_skill_identity(prev, item_copy) or _same_skill_content(
-                prev, item_copy, digest_cache
-            )
-            if same_source:
-                if same_content:
-                    same_source_shadow = True
-                else:
-                    prev["name_collision"] = True
-                    item_copy["name_collision"] = True
-            elif same_content:
+            if _same_skill_identity(prev, item_copy):
+                same_identity_shadow = True
+                continue
+            if _same_skill_content(prev, item_copy, digest_cache):
                 prev["duplicate_candidate"] = True
                 item_copy["duplicate_candidate"] = True
-            else:
-                prev["name_collision"] = True
-                item_copy["name_collision"] = True
-        item_copy["shadowed"] = same_source_shadow
+            prev["name_collision"] = True
+            item_copy["name_collision"] = True
+        item_copy["shadowed"] = same_identity_shadow
         skills.append(item_copy)
         by_name.setdefault(name, []).append(item_copy)
 
@@ -872,6 +863,7 @@ def _codex_plugin_sources(
             str(marketplace.get("source", "")) if isinstance(marketplace, dict) else ""
         )
         local_source = local_source.removeprefix("\\\\?\\")
+        candidate_roots: list[pathlib.Path] = []
         if (
             isinstance(marketplace, dict)
             and marketplace.get("source_type") == "local"
@@ -879,7 +871,7 @@ def _codex_plugin_sources(
         ):
             local_path = pathlib.Path(local_source)
             if local_path.is_dir():
-                sources.append((plugin_id, local_path, enabled))
+                candidate_roots.append(local_path)
         cache_root = CODEX_CACHE_DIR / marketplace_name / plugin_name
         if cache_root.is_dir():
             version_dirs = sorted(
@@ -887,23 +879,32 @@ def _codex_plugin_sources(
                 key=_version_sort_key,
                 reverse=True,
             )
-            sources.extend(
-                (plugin_id, version_dir, enabled) for version_dir in version_dirs
+            candidate_roots.extend(version_dirs)
+        if candidate_roots:
+            chosen_root = next(
+                (
+                    root
+                    for root in candidate_roots
+                    if any(root.glob("skills/*/SKILL.md"))
+                ),
+                candidate_roots[0],
             )
+            sources.append((plugin_id, chosen_root, enabled))
     return sources
 
 
 def collect_codex_skills(include_inactive: bool = False) -> list[dict[str, Any]]:
     """Collect Codex skills, optionally including disabled plugin skills as candidates."""
     skills: list[dict[str, Any]] = []
-    seen_skills: set[tuple[str, str]] = set()
+    seen_paths: set[str] = set()
 
     def add(skill_md: pathlib.Path, source: str, tier: str, priority: int) -> None:
-        meta = parse_frontmatter(skill_md)
-        key = (source, meta["name"])
-        if key in seen_skills:
+        resolved = _safe_resolved_str(str(skill_md))
+        if resolved and resolved in seen_paths:
             return
-        seen_skills.add(key)
+        if resolved:
+            seen_paths.add(resolved)
+        meta = parse_frontmatter(skill_md)
         skills.append(
             {
                 "name": meta["name"],
@@ -1841,14 +1842,7 @@ def cmd_search(args: argparse.Namespace) -> int:
             for prev_label, prev_item in existing_group:
                 if not _same_skill_content(prev_item, item, digest_cache):
                     continue
-                prev_source = str(
-                    prev_item.get("source") or prev_item.get("warehouse") or ""
-                )
-                if (
-                    prev_label == "active"
-                    and label == "active"
-                    and prev_source != cur_source
-                ):
+                if prev_label == "active" and label == "active":
                     active_content_peers.append(prev_item)
                 else:
                     collapse_target = prev_item
