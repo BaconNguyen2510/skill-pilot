@@ -22,11 +22,11 @@ Classify by ambiguity, blast radius, and stakes; upgrade the track if evidence c
 
 ## Scout and ground
 
-Resolve `<plugin-root>` from this file (`../../`). For Guided or Deep, run the local scout using the host's supported Python runner:
+Resolve `<skill-dir>` from this file's directory. For Guided or Deep, run the local scout with the host's Python runner. Pass `--workspace "<project-root>"` and run `intake` only when a project root exists; for standalone tasks omit `--workspace`, skip `intake`, and mark project facts unavailable:
 
 ```text
-python <plugin-root>/scripts/skill_scout.py search "<task keywords>" --harness all --format compact --limit 5
-python <plugin-root>/scripts/skill_scout.py intake --workspace "<project-root>" --format compact
+python <skill-dir>/scripts/skill_scout.py search "<task keywords>" --workspace "<project-root>" --harness all --format compact --limit 5
+python <skill-dir>/scripts/skill_scout.py intake --workspace "<project-root>" --format compact
 ```
 
 Use intake for project work and handoffs; read applicable rule files, the actual target files, and relevant test definitions before stating a cause, scope, or verification command. If a path or tool is unavailable, state that and keep it unverified. Intake lists candidates, not permission to execute them. For each selected skill, inspect its `SKILL.md`; dormant skills can be read directly without enabling their plugin. Select a focused, non-redundant set. Disabled plugin tools and hooks remain unavailable. Search online only for real gaps; obey installation permissions.

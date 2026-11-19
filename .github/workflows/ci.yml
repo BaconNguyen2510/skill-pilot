@@ -26,6 +26,7 @@ jobs:
       - name: Syntax check
         run: |
           python -m py_compile scripts/skill_scout.py
+          python -m py_compile skills/skill-pilot/scripts/skill_scout.py
           python -m py_compile tests/test_skill_scout.py
 
       - name: Validate JSON manifests
