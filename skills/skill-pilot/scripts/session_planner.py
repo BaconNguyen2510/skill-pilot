@@ -254,14 +254,35 @@ def run_plan_search(
                     )
 
         verified_matches = [m for m in matches if m.get("verified_on_disk")]
-        is_gap = len(verified_matches) == 0
-        if is_gap:
+        top_score = (
+            float(verified_matches[0].get("score") or 0.0) if verified_matches else 0.0
+        )
+        if not verified_matches:
+            coverage_level = "none"
+        elif top_score >= 10.0:
+            coverage_level = "direct"
+        else:
+            coverage_level = "partial"
+
+        is_gap = coverage_level == "none"
+        if coverage_level == "none":
             capability_gaps.append(
                 {
                     "step_id": sid,
                     "title": title,
                     "query": query,
+                    "coverage_level": "none",
                     "reason": "No verified local skill matched this step.",
+                }
+            )
+        elif coverage_level == "partial":
+            capability_gaps.append(
+                {
+                    "step_id": sid,
+                    "title": title,
+                    "query": query,
+                    "coverage_level": "partial",
+                    "reason": f"Partial coverage only (top score {top_score} < 10.0); specialized capability may be missing.",
                 }
             )
 
@@ -271,6 +292,7 @@ def run_plan_search(
                 "title": title,
                 "depends_on": step.get("depends_on", []),
                 "query": query,
+                "coverage_level": coverage_level,
                 "matches": verified_matches,
                 "unverified_candidates_filtered": len(matches) - len(verified_matches),
                 "capability_gap": is_gap,
@@ -332,8 +354,9 @@ def render_specification(
     if steps:
         for st in steps:
             deps = ", ".join(st.get("depends_on", [])) or "none"
+            cov = str(st.get("coverage_level", "unknown")).upper()
             lines.append(
-                f"### {st.get('step_id', '')}: {st.get('title', '')} (depends_on: {deps})"
+                f"### {st.get('step_id', '')}: {st.get('title', '')} [{cov}] (depends_on: {deps})"
             )
             if st.get("capability_gap"):
                 lines.append("- **Gap:** No verified local skill matched this step.")
