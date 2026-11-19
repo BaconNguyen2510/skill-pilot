@@ -1,15 +1,18 @@
 {
-  "schema_version": "3.0",
-  "candidate_version": "3.0.0",
-  "runtime_commit": "d7e845c3d9bb5262c4a44fcb7f4925bf62eb1f95",
+  "schema_version": "3.1",
+  "candidate_version": "3.1.0-rc.1",
+  "runtime_commit": "a963c5d9fc7b506306a3047b39d0f7709eb1d9ed",
   "historical_candidates": {
     "2c8daab7ae7a8b06dcfc64863c4043183fd35261": {
       "skills/skill-pilot/scripts/skill_scout.py": "95c8fe505ba3214788c0ba51e850ee5913bfeb376102f0e9ab8ef89eb8ced3d3"
+    },
+    "d7e845c3d9bb5262c4a44fcb7f4925bf62eb1f95": {
+      "skills/skill-pilot/scripts/skill_scout.py": "0ae9b25688eda134826e7dc4a81f3bf625e1480b57e795b1738fb23a5f369174"
     }
   },
   "file_sha256_lf_git_archive": {
-    "skills/skill-pilot/scripts/skill_scout.py": "0ae9b25688eda134826e7dc4a81f3bf625e1480b57e795b1738fb23a5f369174",
-    "skills/skill-pilot/scripts/session_planner.py": "072184ead1d62042b0d0ad47bb434ea8cd52eac76587b0e4dca95b5070f67b0d",
+    "skills/skill-pilot/scripts/skill_scout.py": "f5a130691e2cef8a4285e0e670b49c03b6a1116b3072343954932068057dd113",
+    "skills/skill-pilot/scripts/session_planner.py": "e8ad2148720b6c5b634b49beac171f5401a7b38e75168a91cc5d6285d6321e7d",
     "skills/skill-pilot/SKILL.md": "9ddc1a4f83a0483cf2b5561b31448f79c635ffcfaf947ec26131db291c088606",
     "eval/run_eval.py": "8d4f26d9aa3647f7cf8db59b8f9b081ceb9e632a1520dd94eb0a95146335c41b",
     "eval/corpus_builder.py": "ec3b214a5a009bdccd3d55f36c6122af3039104ae113ea9b6848f8c843d70684",
@@ -17,8 +20,8 @@
     "eval/validate_eval.py": "0b10c322477c1c1f9b107d52faa1743a42ee5876f2d0b9e40077da456f2f797e",
     "eval/queries.jsonl": "19fa39acb0d3cefe6ac825ee340b31fe73b901a1b514b56129603254519d475f",
     "eval/dev_v2_challenge.jsonl": "aa3080e38bf4780799e530df333583956e97626e63ac935b9855c319f371e81f",
-    "plugin.json": "81e1894c2b9512a9bb7dfce43a2fa3a69e944ea39a5c6fb83ab2fef912ba5be3",
-    ".codex-plugin/plugin.json": "5a2cd1f988d2cda27b9bf2b9c5d99ce3578494ccf346ed20fc8e71b543e76e57",
-    ".agents/plugins/marketplace.json": "c0474479808dfe282c09831824dc6513a43148640cc04cbf15bf589178bde470"
+    "plugin.json": "a6cc30b510d06c4d814361b21caabd011734ddbba2a44d58f0468fc33890ed00",
+    ".codex-plugin/plugin.json": "07b58aed65f2165ac5aa407ceefe24bdc6aff3a02aa8c17b973a7e6a6428965e",
+    ".agents/plugins/marketplace.json": "739891c4de493ee6cc2ef587c847b737ec659575809fe6f2db11706397548f39"
   }
 }
