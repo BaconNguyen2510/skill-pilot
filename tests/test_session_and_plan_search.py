@@ -600,6 +600,41 @@ class SessionAndPlanSearchTests(unittest.TestCase):
             self.assertTrue(final.get("discovery_stale"))
             self.assertIsNone(final.get("last_discovery"))
 
+    def test_14_session_lock_recovers_stale_abandoned_lock(self) -> None:
+        import os
+        import time
+
+        import session_planner
+
+        sess_path = self.root / "stale_lock.json"
+        self._run_cli(
+            ["session", "init", "--session", str(sess_path), "--request", "Stale lock"]
+        )
+        lock_path = sess_path.with_name(f".{sess_path.name}.lock")
+        lock_path.write_text("999999\n", encoding="utf-8")
+        old_ts = time.time() - 120.0
+        os.utime(lock_path, (old_ts, old_ts))
+
+        updated = session_planner.update_session_file_locked(
+            sess_path,
+            {"confirmed_requirements": [{"id": "r1", "text": "Recovered"}]},
+            revision_note="Recovered stale lock",
+        )
+        self.assertEqual(updated["revision"], 2)
+        self.assertFalse(lock_path.exists())
+
+    def test_15_session_lock_times_out_on_active_lock(self) -> None:
+        import session_planner
+
+        sess_path = self.root / "active_lock.json"
+        lock_path = sess_path.with_name(f".{sess_path.name}.lock")
+        lock_path.write_text("12345\n", encoding="utf-8")
+        with (
+            self.assertRaises(TimeoutError),
+            session_planner.session_lock(sess_path, timeout_s=0.05, stale_after_s=60.0),
+        ):
+            pass
+
 
 if __name__ == "__main__":
     unittest.main()

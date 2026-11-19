@@ -348,17 +348,32 @@ def load_json_file(path: pathlib.Path) -> dict[str, Any]:
 
 
 @contextlib.contextmanager
-def session_lock(path: pathlib.Path, timeout_s: float = 5.0):
-    """Cross-platform exclusive lockfile guard for concurrent session writers."""
+def session_lock(
+    path: pathlib.Path,
+    timeout_s: float = 5.0,
+    stale_after_s: float = 60.0,
+):
+    """Cross-platform exclusive lockfile guard with bounded stale-lock recovery."""
     path.parent.mkdir(parents=True, exist_ok=True)
     lock_path = path.with_name(f".{path.name}.lock")
     deadline = time.monotonic() + timeout_s
     while True:
         try:
             fd = os.open(str(lock_path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-            os.close(fd)
+            try:
+                os.write(fd, f"{os.getpid()}\n".encode("ascii"))
+            finally:
+                os.close(fd)
             break
         except FileExistsError:
+            try:
+                age_s = time.time() - lock_path.stat().st_mtime
+            except FileNotFoundError:
+                continue
+            if age_s >= stale_after_s:
+                with contextlib.suppress(FileNotFoundError):
+                    os.unlink(lock_path)
+                continue
             if time.monotonic() >= deadline:
                 raise TimeoutError(f"Timed out waiting for session lock: {lock_path}")
             time.sleep(0.01)
