@@ -1,7 +1,7 @@
 {
   "schema_version": "3.1",
-  "candidate_version": "3.1.0-rc.1",
-  "runtime_commit": "a963c5d9fc7b506306a3047b39d0f7709eb1d9ed",
+  "candidate_version": "3.1.0",
+  "runtime_commit": "344713a48433d6f2153549285ea2f0399592a79c",
   "historical_candidates": {
     "2c8daab7ae7a8b06dcfc64863c4043183fd35261": {
       "skills/skill-pilot/scripts/skill_scout.py": "95c8fe505ba3214788c0ba51e850ee5913bfeb376102f0e9ab8ef89eb8ced3d3"
@@ -11,7 +11,7 @@
     }
   },
   "file_sha256_lf_git_archive": {
-    "skills/skill-pilot/scripts/skill_scout.py": "f5a130691e2cef8a4285e0e670b49c03b6a1116b3072343954932068057dd113",
+    "skills/skill-pilot/scripts/skill_scout.py": "7e86f4452781c83f45a4ed917a1028c6ce877f16a0309ff0b0a16c327ac82aec",
     "skills/skill-pilot/scripts/session_planner.py": "e8ad2148720b6c5b634b49beac171f5401a7b38e75168a91cc5d6285d6321e7d",
     "skills/skill-pilot/SKILL.md": "9ddc1a4f83a0483cf2b5561b31448f79c635ffcfaf947ec26131db291c088606",
     "eval/run_eval.py": "8d4f26d9aa3647f7cf8db59b8f9b081ceb9e632a1520dd94eb0a95146335c41b",
@@ -20,8 +20,8 @@
     "eval/validate_eval.py": "0b10c322477c1c1f9b107d52faa1743a42ee5876f2d0b9e40077da456f2f797e",
     "eval/queries.jsonl": "19fa39acb0d3cefe6ac825ee340b31fe73b901a1b514b56129603254519d475f",
     "eval/dev_v2_challenge.jsonl": "aa3080e38bf4780799e530df333583956e97626e63ac935b9855c319f371e81f",
-    "plugin.json": "a6cc30b510d06c4d814361b21caabd011734ddbba2a44d58f0468fc33890ed00",
-    ".codex-plugin/plugin.json": "07b58aed65f2165ac5aa407ceefe24bdc6aff3a02aa8c17b973a7e6a6428965e",
-    ".agents/plugins/marketplace.json": "739891c4de493ee6cc2ef587c847b737ec659575809fe6f2db11706397548f39"
+    "plugin.json": "85d26acf55ef436de69eb0865303c1aea3e5d2ec7d0798432c127239e69b9893",
+    ".codex-plugin/plugin.json": "134b8bde8cb42a8de90e6d8749c301beb270a4b4bd7ebf8f7e6a66358f38103d",
+    ".agents/plugins/marketplace.json": "3e2ba72e1440d754ed73333de8384da6aa59a3963017bd7d7fdcd3bce25a55dd"
   }
 }
