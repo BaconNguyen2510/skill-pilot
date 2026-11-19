@@ -1,22 +1,22 @@
 {
   "schema_version": "3.0",
   "candidate_version": "3.0.0-rc.1",
-  "candidate_commit": "77d28cf6a62b2d091a9ac6269334c9a3e5f78fb1",
+  "runtime_commit": "77d28cf6a62b2d091a9ac6269334c9a3e5f78fb1",
   "historical_candidates": {
     "2c8daab7ae7a8b06dcfc64863c4043183fd35261": {
       "skills/skill-pilot/scripts/skill_scout.py": "95c8fe505ba3214788c0ba51e850ee5913bfeb376102f0e9ab8ef89eb8ced3d3"
     }
   },
-  "file_sha256": {
+  "file_sha256_lf_git_archive": {
     "skills/skill-pilot/scripts/skill_scout.py": "0eb9a0b99f61ef5656a8fa1e38f94879cf3f9889df193b3008618317a2aed38c",
     "skills/skill-pilot/scripts/session_planner.py": "a79ecdd663938be21c3996432bc218c57983a5bad382775b92e9aac0832c2558",
-    "skills/skill-pilot/SKILL.md": "82b302b29ce7cca4eb987369d7c6db9e6b9b52da93c4b487209df2fff14f93d9",
-    "eval/run_eval.py": "97ec336efabbb3bccee433453e3cf7b49af27a9ea674703db9b26685f593e6dc",
-    "eval/corpus_builder.py": "bd4243a52c87a42644b3f3dac3f0e94eebdeefb11ab9619af784a9b3869a04f8",
-    "eval/metrics.py": "72fc3190678c6a12b5de0211dd381470f2d46dc01259af7cea0bafdf0687fd13",
-    "eval/validate_eval.py": "caceae50959963064bba23b23f4ff8e38f6071315be4ccd90100b24d1b809f5a",
-    "eval/queries.jsonl": "f8cf6a7d255a4a7dbaa954fb44748e277d16df0d156b54d956fa8f819b229a41",
-    "eval/dev_v2_challenge.jsonl": "5f79b4108e9628b8a28c009d056f827a268a82ca593b13efc0ffad4bb344aa8b",
+    "skills/skill-pilot/SKILL.md": "9ddc1a4f83a0483cf2b5561b31448f79c635ffcfaf947ec26131db291c088606",
+    "eval/run_eval.py": "8d4f26d9aa3647f7cf8db59b8f9b081ceb9e632a1520dd94eb0a95146335c41b",
+    "eval/corpus_builder.py": "ec3b214a5a009bdccd3d55f36c6122af3039104ae113ea9b6848f8c843d70684",
+    "eval/metrics.py": "ca0de648a5d773a5b0b08e66102b923b7838015d8eb133164a2d7e096c69e411",
+    "eval/validate_eval.py": "0b10c322477c1c1f9b107d52faa1743a42ee5876f2d0b9e40077da456f2f797e",
+    "eval/queries.jsonl": "19fa39acb0d3cefe6ac825ee340b31fe73b901a1b514b56129603254519d475f",
+    "eval/dev_v2_challenge.jsonl": "aa3080e38bf4780799e530df333583956e97626e63ac935b9855c319f371e81f",
     "plugin.json": "c7b09dde8b86161a165c0f662315057c26f3f23a624f03b6735da16b470c19d5",
     ".codex-plugin/plugin.json": "5bbfb6dbe9d6e3adbfe90707e8ab1a405e7e606c9adf29e8ae56b742196a7732",
     ".agents/plugins/marketplace.json": "23b3102971d7806303a32e1f2269c40db62b164f641cd08b4fe73ec51fbd8901"
