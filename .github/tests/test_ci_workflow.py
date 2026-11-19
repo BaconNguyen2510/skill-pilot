@@ -55,6 +55,9 @@ class WorkflowControlTests(unittest.TestCase):
             ),
             body=tree.body[doctor_start:],
             decorator_list=[],
+            returns=None,
+            type_comment=None,
+            type_params=[],
         )
         doctor_module = compile(
             ast.fix_missing_locations(
