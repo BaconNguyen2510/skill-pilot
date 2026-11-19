@@ -214,6 +214,26 @@ def validate_plan_dependencies(steps: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def normalize_step_coverage(step: dict[str, Any]) -> dict[str, Any]:
+    """Validate host-assessed skill coverage; never promote ranking score to direct coverage."""
+    raw_level = str(step.get("coverage_level", "unverified_fit")).lower()
+    evidence = str(step.get("capability_evidence", "")).strip()
+    uncovered = str(step.get("uncovered_capabilities", "")).strip()
+
+    if raw_level == "direct" and not evidence:
+        level = "unverified_fit"
+    elif raw_level in ("direct", "partial", "none", "unverified_fit"):
+        level = raw_level
+    else:
+        level = "unverified_fit"
+
+    return {
+        "coverage_level": level,
+        "capability_evidence": evidence,
+        "uncovered_capabilities": uncovered,
+    }
+
+
 def run_plan_search(
     steps: list[dict[str, Any]],
     search_fn: Any,
@@ -254,15 +274,14 @@ def run_plan_search(
                     )
 
         verified_matches = [m for m in matches if m.get("verified_on_disk")]
-        top_score = (
-            float(verified_matches[0].get("score") or 0.0) if verified_matches else 0.0
-        )
+        assessed = normalize_step_coverage(step)
         if not verified_matches:
             coverage_level = "none"
-        elif top_score >= 10.0:
-            coverage_level = "direct"
+        elif assessed["coverage_level"] in ("direct", "partial"):
+            coverage_level = assessed["coverage_level"]
         else:
-            coverage_level = "partial"
+            # Score is a ranking signal only; without inspected SKILL.md evidence, fit is unverified.
+            coverage_level = "unverified_fit"
 
         is_gap = coverage_level == "none"
         if coverage_level == "none":
@@ -282,7 +301,18 @@ def run_plan_search(
                     "title": title,
                     "query": query,
                     "coverage_level": "partial",
-                    "reason": f"Partial coverage only (top score {top_score} < 10.0); specialized capability may be missing.",
+                    "reason": assessed["uncovered_capabilities"]
+                    or "Partial coverage; specialized capability remains uncovered.",
+                }
+            )
+        elif coverage_level == "unverified_fit":
+            capability_gaps.append(
+                {
+                    "step_id": sid,
+                    "title": title,
+                    "query": query,
+                    "coverage_level": "unverified_fit",
+                    "reason": "Candidate(s) ranked on disk, but SKILL.md capability fit has not been verified yet.",
                 }
             )
 
@@ -293,6 +323,8 @@ def run_plan_search(
                 "depends_on": step.get("depends_on", []),
                 "query": query,
                 "coverage_level": coverage_level,
+                "capability_evidence": assessed["capability_evidence"],
+                "uncovered_capabilities": assessed["uncovered_capabilities"],
                 "matches": verified_matches,
                 "unverified_candidates_filtered": len(matches) - len(verified_matches),
                 "capability_gap": is_gap,
@@ -358,12 +390,20 @@ def render_specification(
             lines.append(
                 f"### {st.get('step_id', '')}: {st.get('title', '')} [{cov}] (depends_on: {deps})"
             )
+            if st.get("capability_evidence"):
+                lines.append(
+                    f"- **Capability Evidence:** {st.get('capability_evidence')}"
+                )
+            if st.get("uncovered_capabilities"):
+                lines.append(
+                    f"- **Uncovered Capabilities:** {st.get('uncovered_capabilities')}"
+                )
             if st.get("capability_gap"):
                 lines.append("- **Gap:** No verified local skill matched this step.")
             else:
                 for m in st.get("matches", []):
                     lines.append(
-                        f"- **Skill:** `{m.get('id')}` (score={m.get('score')}, risk={m.get('risk')}, path=`{m.get('skill_md_path')}`)"
+                        f"- **Skill:** `{m.get('id')}` (ranking_score={m.get('score')}, risk={m.get('risk')}, path=`{m.get('skill_md_path')}`)"
                     )
     else:
         for st in session.get("plan_steps", []):
