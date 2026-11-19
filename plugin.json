@@ -1,0 +1,15 @@
+{
+  "name": "skill-pilot",
+  "displayName": "Skill Pilot",
+  "version": "2.0.0",
+  "description": "Adaptive task triage, grounded execution contracts, and local skill discovery for Antigravity and Codex.",
+  "homepage": "https://github.com/BaconNguyen2510/skill-pilot",
+  "repository": "https://github.com/BaconNguyen2510/skill-pilot",
+  "license": "MIT",
+  "logo": "assets/logo.svg",
+  "suggestedPrompts": [
+    "/skill-pilot Triage this task, pick only the needed local skills, and execute with verification.",
+    "/skill-pilot Inspect the project rules and target files, then write one grounded handoff prompt.",
+    "/skill-pilot Phân tích yêu cầu, tìm skill phù hợp nhất và đề xuất hướng triển khai ngắn gọn."
+  ]
+}

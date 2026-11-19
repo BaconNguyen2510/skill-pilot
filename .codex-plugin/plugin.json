@@ -1,0 +1,25 @@
+{
+  "name": "skill-pilot",
+  "version": "2.0.0",
+  "description": "Adaptive task triage, grounded execution contracts, and local skill discovery for Antigravity and Codex.",
+  "author": {
+    "name": "BaconNguyen2510",
+    "url": "https://github.com/BaconNguyen2510"
+  },
+  "homepage": "https://github.com/BaconNguyen2510/skill-pilot",
+  "repository": "https://github.com/BaconNguyen2510/skill-pilot",
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Skill Pilot",
+    "shortDescription": "Adaptive task triage, grounded handoffs, and local skill discovery.",
+    "longDescription": "Turns rough English or Vietnamese requests into grounded execution or single-block handoff contracts, discovers relevant skills across Antigravity, Codex, and local skill warehouses, and enforces evidence before claims.",
+    "developerName": "BaconNguyen2510",
+    "category": "Productivity",
+    "capabilities": ["Interactive", "Read", "Write"],
+    "defaultPrompt": [
+      "Triage this task, find the best matching skills, and produce a grounded plan or execution.",
+      "Inspect the project rules and target files, then write a single grounded handoff prompt."
+    ]
+  }
+}
