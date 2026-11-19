@@ -30,7 +30,7 @@ import contract
 from contract import ContractError, validate_labels, validate_queries
 
 ROOT = Path(__file__).resolve().parents[1]
-CANDIDATE = "c042024c8020f3763b710b0783a880cd4ff0c305"
+CANDIDATE = "a385bc985f7228a2d8034fd8cf89f954be2eafd1"
 HISTORICAL_CANDIDATES = {
     "2c8daab7ae7a8b06dcfc64863c4043183fd35261": "95c8fe505ba3214788c0ba51e850ee5913bfeb376102f0e9ab8ef89eb8ced3d3",
 }

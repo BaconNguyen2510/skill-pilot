@@ -1,7 +1,7 @@
 {
   "schema_version": "3.0",
   "candidate_version": "3.0.0-rc.1",
-  "runtime_commit": "c042024c8020f3763b710b0783a880cd4ff0c305",
+  "runtime_commit": "a385bc985f7228a2d8034fd8cf89f954be2eafd1",
   "historical_candidates": {
     "2c8daab7ae7a8b06dcfc64863c4043183fd35261": {
       "skills/skill-pilot/scripts/skill_scout.py": "95c8fe505ba3214788c0ba51e850ee5913bfeb376102f0e9ab8ef89eb8ced3d3"
@@ -9,7 +9,7 @@
   },
   "file_sha256_lf_git_archive": {
     "skills/skill-pilot/scripts/skill_scout.py": "af1c1ee3a93a70c433ccd29426b847b7fd0c7730d82c6e8486ece160ad1550bc",
-    "skills/skill-pilot/scripts/session_planner.py": "32e60d481e4fabaae283d1d69fc2f2856880279437228a979bd3223dce143abb",
+    "skills/skill-pilot/scripts/session_planner.py": "072184ead1d62042b0d0ad47bb434ea8cd52eac76587b0e4dca95b5070f67b0d",
     "skills/skill-pilot/SKILL.md": "9ddc1a4f83a0483cf2b5561b31448f79c635ffcfaf947ec26131db291c088606",
     "eval/run_eval.py": "8d4f26d9aa3647f7cf8db59b8f9b081ceb9e632a1520dd94eb0a95146335c41b",
     "eval/corpus_builder.py": "ec3b214a5a009bdccd3d55f36c6122af3039104ae113ea9b6848f8c843d70684",
