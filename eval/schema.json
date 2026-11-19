@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skill-pilot.local/eval/schema.json",
+  "title": "Skill Pilot Evaluation Query",
+  "description": "Schema for a single gold evaluation query record in eval/queries.jsonl.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "query",
+    "language",
+    "domain",
+    "split",
+    "intent_family",
+    "required_skills",
+    "acceptable_alternates",
+    "forbidden_skills",
+    "ambiguity_tags",
+    "expected_abstain",
+    "expected_skill_count"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique identifier for the evaluation query."
+    },
+    "query": {
+      "type": "string",
+      "minLength": 1,
+      "description": "User prompt or request text to route to skills."
+    },
+    "language": {
+      "type": "string",
+      "enum": ["en", "vi", "vi_no_diacritic", "mixed"],
+      "description": "Language classification of the query."
+    },
+    "domain": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Primary task domain (for example: frontend, finance, data, devops)."
+    },
+    "split": {
+      "type": "string",
+      "enum": ["dev", "holdout"],
+      "description": "Dataset partition; intent_family values must not leak between dev and holdout."
+    },
+    "intent_family": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Canonical intent group used to prevent train/dev and holdout leakage."
+    },
+    "required_skills": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true,
+      "description": "Skills that must be retrieved for a correct match. Must be empty when expected_abstain is true."
+    },
+    "acceptable_alternates": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true,
+      "description": "Secondary skills that are acceptable substitutes or complements."
+    },
+    "forbidden_skills": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true,
+      "description": "Skills that must not be recommended for this query."
+    },
+    "ambiguity_tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true,
+      "description": "Tags describing ambiguity or difficulty characteristics of the query."
+    },
+    "expected_abstain": {
+      "type": "boolean",
+      "description": "True when the router should abstain and return no skill recommendations."
+    },
+    "expected_skill_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Expected number of skills needed to satisfy the query."
+    }
+  }
+}

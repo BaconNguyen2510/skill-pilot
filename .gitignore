@@ -10,6 +10,11 @@ __pycache__/
 *.local.json
 .skill-pilot.local.json
 
+# Sealed and independent final evaluation artifacts (never commit to public branches)
+eval/sealed_queries.jsonl
+eval/holdout_v3_final.jsonl
+docs/v3/SEALED_EVAL_REPORT.json
+
 # OS
 .DS_Store
 Thumbs.db

@@ -1,0 +1,42 @@
+{
+  "candidate": "2c8daab7ae7a8b06dcfc64863c4043183fd35261",
+  "algorithm": "sha256",
+  "byte_source": "canonical git show <candidate>:<path> blobs; no checkout line-ending conversion",
+  "files": {
+    ".agents/plugins/marketplace.json": "8d980a332f9f1f94cbed636057631045fb49ac291cf3219489f258507d0f392c",
+    ".codex-plugin/plugin.json": "f26cab81ceb7a249e5a00f2bd381ef6beded414e674f34f911140beca9b8fbce",
+    "eval/corpus_builder.py": "ec3b214a5a009bdccd3d55f36c6122af3039104ae113ea9b6848f8c843d70684",
+    "eval/dev_v2_challenge.jsonl": "aa3080e38bf4780799e530df333583956e97626e63ac935b9855c319f371e81f",
+    "eval/intake_benchmark.py": "144c4b96df8ba864966add3e8b596d3a88ae18a3b90db78710e9392ee69cb630",
+    "eval/metrics.py": "ca0de648a5d773a5b0b08e66102b923b7838015d8eb133164a2d7e096c69e411",
+    "eval/multi_intent_exp.py": "c43d7123d001a76e846688f8a241d40d60d5ca9dbfc2ffa443371cf31ab22cf3",
+    "eval/perf_bench.py": "71d700a7bd6ffa877608050b02fdb320f176815fcf8b9ca8aa11afaf1635fda1",
+    "eval/prompt_benchmark.py": "85b746365dc384b8c0ef52d436ea213e2b75ad2b91afa93119e138b339f273c6",
+    "eval/prompt_cases.jsonl": "357fddcef3f989628068c072f25c19a1d079f3c27a06054e23a381e48a2f9998",
+    "eval/queries.jsonl": "19fa39acb0d3cefe6ac825ee340b31fe73b901a1b514b56129603254519d475f",
+    "eval/run_eval.py": "8d4f26d9aa3647f7cf8db59b8f9b081ceb9e632a1520dd94eb0a95146335c41b",
+    "eval/schema.json": "cdb87e495344b18706ad68257f11d69ba593ff96e297989bd4a838b05a45858d",
+    "eval/sprint_gh_ablation.py": "2ac3aa2af85496017f136fd30b12d4e1a39cd6d701f46d2ea3932bdf54e5a535",
+    "eval/tournament.py": "d2ea8a43b5083cf2a753cb493670e433cf4854ab2e57ad90cdd6afa177c246e9",
+    "eval/validate_eval.py": "0b10c322477c1c1f9b107d52faa1743a42ee5876f2d0b9e40077da456f2f797e",
+    "eval/verify_rc.py": "861951fbcab3b09b76e29cbca76951b0fcb33538d2fb83b810aeb0e34e72f3de",
+    "plugin.json": "98459dcd7fa932938051c2a3f5da9f24a5b61550df14f32ccb1ceaa0ca042bef",
+    "skills/skill-pilot/SKILL.md": "75d3051bcd8e37075db42c2fc03a887e8f224c3aae908519bf9520a93dfad1f7",
+    "skills/skill-pilot/references/compiler.md": "36f89133c58fbe1c9a53ce389c416588ef80c4f88f280e2233865ac90b3f206e",
+    "skills/skill-pilot/references/pipeline-blueprints.md": "fd3d76dfd5c15c2558553c81c56805141dbd6c0b66925752bc9f8b750e7dd6c2",
+    "skills/skill-pilot/scripts/skill_scout.py": "95c8fe505ba3214788c0ba51e850ee5913bfeb376102f0e9ab8ef89eb8ced3d3",
+    "tests/test_adversarial_v3.py": "9e2eafadb9420456b003ff1b61f731e383d26537c192534a6797c06c0374b184",
+    "tests/test_eval_harness.py": "16a5a0252f65f0fa719461e1f9d04ef1520a1dddc2bd1d6b0d97ff14690cefbb",
+    "tests/test_host_compatibility_v3.py": "abb97fda04af1318dc207c655aa846acf2e6bb24110b3c87d2b061e42e2f932f",
+    "tests/test_promotion_faults_v3.py": "d64f39fa5370150c33e2ed5a5cc085300ee5ab9801bdd3c1fde9dcdb58ae025c",
+    "tests/test_release_blockers_v3.py": "6c0760ce6d71590e855b3903f36ae3c1045b4ae23ec829c394556c59f8922a8b",
+    "tests/test_security_v3.py": "50c55215320815c46274913004b9ec26a6b3d3f45ac91bca22fa25756e449c0f",
+    "tests/test_skill_scout.py": "75f3c59a5ccd2fb9df31960811f9163a2259746bae2ecabc0fac1ff6191fcd9a",
+    "tests/test_stateful_qa_v3.py": "c67121806c5d6696ad63ea924fdbe220a5437a753dfe05470516c1592e674839",
+    "tests/test_v3_features.py": "4bfee50662872bafe829d9493dea31119ab8c56eecbe611e5a3f1b9c7cdf943f",
+    "tests/test_negation_v3.py": "99aced3005c4fc1421e2e804ae1497ec5162e2d74983e3123fb540c8f6929bab"
+  },
+  "excluded_confidential_files": [
+    "eval/sealed_queries.jsonl"
+  ]
+}
