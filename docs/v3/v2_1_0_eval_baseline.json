@@ -1,0 +1,4360 @@
+{
+  "schema_version": "1.0",
+  "split": "all",
+  "seed": 42,
+  "python_version": "3.12.10",
+  "os": "Windows",
+  "overall": {
+    "count_total": 128,
+    "count_non_abstain": 116,
+    "count_abstain": 12,
+    "hit_rate@1": 0.8966,
+    "hit_rate@3": 0.9138,
+    "hit_rate@5": 0.9138,
+    "recall@1": 0.7586,
+    "recall@3": 0.8606,
+    "recall@5": 0.8664,
+    "mrr@5": 0.9052,
+    "ndcg@5": 0.8819,
+    "precision@5": 0.2224,
+    "forbidden_hit_rate@5": 0.1562,
+    "abstention": {
+      "precision": 0.7143,
+      "recall": 0.8333,
+      "f1": 0.7692,
+      "support": 12.0,
+      "tp": 10.0,
+      "fp": 4.0,
+      "fn": 2.0,
+      "tn": 112.0
+    }
+  },
+  "by_split": {
+    "dev": {
+      "count_total": 80,
+      "count_non_abstain": 72,
+      "count_abstain": 8,
+      "hit_rate@1": 0.9444,
+      "hit_rate@3": 0.9444,
+      "hit_rate@5": 0.9444,
+      "recall@1": 0.8102,
+      "recall@3": 0.9097,
+      "recall@5": 0.9144,
+      "mrr@5": 0.9444,
+      "ndcg@5": 0.9253,
+      "precision@5": 0.2333,
+      "forbidden_hit_rate@5": 0.225,
+      "abstention": {
+        "precision": 0.8,
+        "recall": 1.0,
+        "f1": 0.8889,
+        "support": 8.0,
+        "tp": 8.0,
+        "fp": 2.0,
+        "fn": 0.0,
+        "tn": 70.0
+      }
+    },
+    "holdout": {
+      "count_total": 48,
+      "count_non_abstain": 44,
+      "count_abstain": 4,
+      "hit_rate@1": 0.8182,
+      "hit_rate@3": 0.8636,
+      "hit_rate@5": 0.8636,
+      "recall@1": 0.6742,
+      "recall@3": 0.7803,
+      "recall@5": 0.7879,
+      "mrr@5": 0.8409,
+      "ndcg@5": 0.8109,
+      "precision@5": 0.2045,
+      "forbidden_hit_rate@5": 0.0417,
+      "abstention": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "f1": 0.5,
+        "support": 4.0,
+        "tp": 2.0,
+        "fp": 2.0,
+        "fn": 2.0,
+        "tn": 42.0
+      }
+    }
+  },
+  "by_language": {
+    "en": {
+      "count_total": 32,
+      "count_non_abstain": 29,
+      "count_abstain": 3,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.8333,
+      "recall@3": 0.9425,
+      "recall@5": 0.9655,
+      "mrr@5": 1.0,
+      "ndcg@5": 0.9795,
+      "precision@5": 0.2621,
+      "forbidden_hit_rate@5": 0.0938,
+      "abstention": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 3.0,
+        "tp": 3.0,
+        "fp": 0.0,
+        "fn": 0.0,
+        "tn": 29.0
+      }
+    },
+    "mixed": {
+      "count_total": 32,
+      "count_non_abstain": 29,
+      "count_abstain": 3,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.8333,
+      "recall@3": 0.9598,
+      "recall@5": 0.9598,
+      "mrr@5": 1.0,
+      "ndcg@5": 0.9876,
+      "precision@5": 0.2552,
+      "forbidden_hit_rate@5": 0.1562,
+      "abstention": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 3.0,
+        "tp": 3.0,
+        "fp": 0.0,
+        "fn": 0.0,
+        "tn": 29.0
+      }
+    },
+    "vi": {
+      "count_total": 32,
+      "count_non_abstain": 29,
+      "count_abstain": 3,
+      "hit_rate@1": 0.7931,
+      "hit_rate@3": 0.8276,
+      "hit_rate@5": 0.8276,
+      "recall@1": 0.6839,
+      "recall@3": 0.7701,
+      "recall@5": 0.7701,
+      "mrr@5": 0.8103,
+      "ndcg@5": 0.7802,
+      "precision@5": 0.1862,
+      "forbidden_hit_rate@5": 0.1875,
+      "abstention": {
+        "precision": 0.5,
+        "recall": 0.6667,
+        "f1": 0.5714,
+        "support": 3.0,
+        "tp": 2.0,
+        "fp": 2.0,
+        "fn": 1.0,
+        "tn": 27.0
+      }
+    },
+    "vi_no_diacritic": {
+      "count_total": 32,
+      "count_non_abstain": 29,
+      "count_abstain": 3,
+      "hit_rate@1": 0.7931,
+      "hit_rate@3": 0.8276,
+      "hit_rate@5": 0.8276,
+      "recall@1": 0.6839,
+      "recall@3": 0.7701,
+      "recall@5": 0.7701,
+      "mrr@5": 0.8103,
+      "ndcg@5": 0.7802,
+      "precision@5": 0.1862,
+      "forbidden_hit_rate@5": 0.1875,
+      "abstention": {
+        "precision": 0.5,
+        "recall": 0.6667,
+        "f1": 0.5714,
+        "support": 3.0,
+        "tp": 2.0,
+        "fp": 2.0,
+        "fn": 1.0,
+        "tn": 27.0
+      }
+    }
+  },
+  "by_ambiguity_tag": {
+    "active_tier_decoy": {
+      "count_total": 24,
+      "count_non_abstain": 24,
+      "count_abstain": 0,
+      "hit_rate@1": 0.75,
+      "hit_rate@3": 0.8333,
+      "hit_rate@5": 0.8333,
+      "recall@1": 0.75,
+      "recall@3": 0.8333,
+      "recall@5": 0.8333,
+      "mrr@5": 0.7917,
+      "ndcg@5": 0.8026,
+      "precision@5": 0.1667,
+      "forbidden_hit_rate@5": 0.125,
+      "abstention": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 0.0,
+        "tp": 0.0,
+        "fp": 2.0,
+        "fn": 0.0,
+        "tn": 22.0
+      }
+    },
+    "code_switched_jargon": {
+      "count_total": 16,
+      "count_non_abstain": 16,
+      "count_abstain": 0,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.9688,
+      "recall@3": 0.9688,
+      "recall@5": 0.9688,
+      "mrr@5": 1.0,
+      "ndcg@5": 0.9891,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.125,
+      "abstention": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0,
+        "tn": 16.0
+      }
+    },
+    "compound_multi_skill": {
+      "count_total": 20,
+      "count_non_abstain": 20,
+      "count_abstain": 0,
+      "hit_rate@1": 0.8,
+      "hit_rate@3": 0.8,
+      "hit_rate@5": 0.8,
+      "recall@1": 0.35,
+      "recall@3": 0.6667,
+      "recall@5": 0.7,
+      "mrr@5": 0.8,
+      "ndcg@5": 0.7447,
+      "precision@5": 0.32,
+      "forbidden_hit_rate@5": 0.1,
+      "abstention": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0,
+        "tn": 20.0
+      }
+    },
+    "diacritic_collision": {
+      "count_total": 12,
+      "count_non_abstain": 12,
+      "count_abstain": 0,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.5,
+      "abstention": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 0.0,
+        "tp": 0.0,
+        "fp": 0.0,
+        "fn": 0.0,
+        "tn": 12.0
+      }
+    },
+    "negation": {
+      "count_total": 20,
+      "count_non_abstain": 20,
+      "count_abstain": 0,
+      "hit_rate@1": 0.9,
+      "hit_rate@3": 0.9,
+      "hit_rate@5": 0.9,
+      "recall@1": 0.65,
+      "recall@3": 0.825,
+      "recall@5": 0.825,
+      "mrr@5": 0.9,
+      "ndcg@5": 0.842,
+      "precision@5": 0.25,
+      "forbidden_hit_rate@5": 0.25,
+      "abstention": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 0.0,
+        "tp": 0.0,
+        "fp": 2.0,
+        "fn": 0.0,
+        "tn": 18.0
+      }
+    },
+    "negative_only": {
+      "count_total": 4,
+      "count_non_abstain": 0,
+      "count_abstain": 4,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0,
+      "abstention": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 4.0,
+        "tp": 4.0,
+        "fp": 0.0,
+        "fn": 0.0,
+        "tn": 0.0
+      }
+    },
+    "out_of_domain": {
+      "count_total": 8,
+      "count_non_abstain": 0,
+      "count_abstain": 8,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.25,
+      "abstention": {
+        "precision": 1.0,
+        "recall": 0.75,
+        "f1": 0.8571,
+        "support": 8.0,
+        "tp": 6.0,
+        "fp": 0.0,
+        "fn": 2.0,
+        "tn": 0.0
+      }
+    }
+  },
+  "latency_ms": {
+    "p50": 10.87,
+    "p95": 14.636
+  },
+  "per_query": [
+    {
+      "id": "q-001",
+      "split": "dev",
+      "language": "en",
+      "domain": "finance",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "dcf-valuation"
+      ],
+      "predicted_ids": [
+        "dcf-valuation"
+      ],
+      "latency_ms": 24.186,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-002",
+      "split": "dev",
+      "language": "vi",
+      "domain": "finance",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "dcf-valuation",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "dcf-valuation",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 10.809,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-003",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "finance",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "dcf-valuation",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "dcf-valuation",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 10.476,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-004",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "finance",
+      "ambiguity_tags": [
+        "code_switched_jargon"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "dcf-valuation"
+      ],
+      "predicted_ids": [
+        "dcf-valuation"
+      ],
+      "latency_ms": 9.109,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-005",
+      "split": "dev",
+      "language": "en",
+      "domain": "finance",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "fx-exposure",
+        "rest-api-design"
+      ],
+      "predicted_ids": [
+        "fx-exposure",
+        "rest-api-design"
+      ],
+      "latency_ms": 10.016,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-006",
+      "split": "dev",
+      "language": "vi",
+      "domain": "finance",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cham-tien-do-audit",
+        "cham-soc-khach-hang"
+      ],
+      "predicted_ids": [
+        "cham-tien-do-audit",
+        "cham-soc-khach-hang"
+      ],
+      "latency_ms": 9.927,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-007",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "finance",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cham-tien-do-audit",
+        "cham-soc-khach-hang"
+      ],
+      "predicted_ids": [
+        "cham-tien-do-audit",
+        "cham-soc-khach-hang"
+      ],
+      "latency_ms": 10.688,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-008",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "finance",
+      "ambiguity_tags": [
+        "code_switched_jargon"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "fx-exposure",
+        "financial-ratio-audit",
+        "finance-blog-template",
+        "rest-api-design",
+        "dcf-valuation"
+      ],
+      "predicted_ids": [
+        "fx-exposure",
+        "financial-ratio-audit",
+        "finance-blog-template",
+        "rest-api-design",
+        "dcf-valuation"
+      ],
+      "latency_ms": 15.186,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-009",
+      "split": "dev",
+      "language": "en",
+      "domain": "frontend",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "react-accessibility",
+        "react-legacy-v1",
+        "financial-ratio-audit",
+        "cham-tien-do-audit",
+        "kubernetes-helm-audit"
+      ],
+      "predicted_ids": [
+        "react-accessibility",
+        "react-legacy-v1",
+        "financial-ratio-audit",
+        "cham-tien-do-audit",
+        "kubernetes-helm-audit"
+      ],
+      "latency_ms": 16.447,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-010",
+      "split": "dev",
+      "language": "vi",
+      "domain": "frontend",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "react-accessibility",
+        "react-legacy-v1",
+        "cham-tien-do-audit",
+        "expo-native-ui",
+        "cham-soc-khach-hang"
+      ],
+      "predicted_ids": [
+        "react-accessibility",
+        "react-legacy-v1",
+        "cham-tien-do-audit",
+        "expo-native-ui",
+        "cham-soc-khach-hang"
+      ],
+      "latency_ms": 14.347,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-011",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "frontend",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "react-accessibility",
+        "react-legacy-v1",
+        "cham-tien-do-audit",
+        "expo-native-ui",
+        "cham-soc-khach-hang"
+      ],
+      "predicted_ids": [
+        "react-accessibility",
+        "react-legacy-v1",
+        "cham-tien-do-audit",
+        "expo-native-ui",
+        "cham-soc-khach-hang"
+      ],
+      "latency_ms": 14.333,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-012",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "frontend",
+      "ambiguity_tags": [
+        "code_switched_jargon"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "react-accessibility",
+        "react-legacy-v1",
+        "expo-native-ui"
+      ],
+      "predicted_ids": [
+        "react-accessibility",
+        "react-legacy-v1",
+        "expo-native-ui"
+      ],
+      "latency_ms": 12.756,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-013",
+      "split": "dev",
+      "language": "en",
+      "domain": "frontend",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "tailwind-design-tokens",
+        "animation-perf"
+      ],
+      "predicted_ids": [
+        "tailwind-design-tokens",
+        "animation-perf"
+      ],
+      "latency_ms": 12.732,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-014",
+      "split": "dev",
+      "language": "vi",
+      "domain": "frontend",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "tailwind-design-tokens",
+        "animation-perf"
+      ],
+      "predicted_ids": [
+        "tailwind-design-tokens",
+        "animation-perf"
+      ],
+      "latency_ms": 11.892,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-015",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "frontend",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "tailwind-design-tokens",
+        "animation-perf"
+      ],
+      "predicted_ids": [
+        "tailwind-design-tokens",
+        "animation-perf"
+      ],
+      "latency_ms": 11.924,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-016",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "frontend",
+      "ambiguity_tags": [
+        "code_switched_jargon"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "tailwind-design-tokens",
+        "rest-api-design"
+      ],
+      "predicted_ids": [
+        "tailwind-design-tokens",
+        "rest-api-design"
+      ],
+      "latency_ms": 11.928,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-017",
+      "split": "dev",
+      "language": "en",
+      "domain": "backend",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "postgres-query-tuning"
+      ],
+      "predicted_ids": [
+        "postgres-query-tuning"
+      ],
+      "latency_ms": 9.24,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-018",
+      "split": "dev",
+      "language": "vi",
+      "domain": "backend",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "postgres-query-tuning",
+        "cham-soc-khach-hang",
+        "cham-tien-do-audit",
+        "animation-perf"
+      ],
+      "predicted_ids": [
+        "postgres-query-tuning",
+        "cham-soc-khach-hang",
+        "cham-tien-do-audit",
+        "animation-perf"
+      ],
+      "latency_ms": 11.83,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-019",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "backend",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "postgres-query-tuning",
+        "cham-soc-khach-hang",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "postgres-query-tuning",
+        "cham-soc-khach-hang",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 10.976,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-020",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "backend",
+      "ambiguity_tags": [
+        "code_switched_jargon"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "postgres-query-tuning"
+      ],
+      "predicted_ids": [
+        "postgres-query-tuning"
+      ],
+      "latency_ms": 9.229,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-021",
+      "split": "dev",
+      "language": "en",
+      "domain": "backend",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "oauth-hardening",
+        "tailwind-design-tokens",
+        "docker-compose-hardening"
+      ],
+      "predicted_ids": [
+        "oauth-hardening",
+        "tailwind-design-tokens",
+        "docker-compose-hardening"
+      ],
+      "latency_ms": 12.747,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-022",
+      "split": "dev",
+      "language": "vi",
+      "domain": "backend",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "oauth-hardening",
+        "tailwind-design-tokens",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "oauth-hardening",
+        "tailwind-design-tokens",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 12.843,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-023",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "backend",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "oauth-hardening",
+        "tailwind-design-tokens",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "oauth-hardening",
+        "tailwind-design-tokens",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 12.842,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-024",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "backend",
+      "ambiguity_tags": [
+        "code_switched_jargon"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "oauth-hardening",
+        "kubernetes-helm-audit",
+        "financial-ratio-audit",
+        "cham-tien-do-audit",
+        "secret-scanning"
+      ],
+      "predicted_ids": [
+        "oauth-hardening",
+        "kubernetes-helm-audit",
+        "financial-ratio-audit",
+        "cham-tien-do-audit",
+        "secret-scanning"
+      ],
+      "latency_ms": 14.636,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-025",
+      "split": "dev",
+      "language": "en",
+      "domain": "mobile",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "flutter-state-riverpod"
+      ],
+      "predicted_ids": [
+        "flutter-state-riverpod"
+      ],
+      "latency_ms": 9.392,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-026",
+      "split": "dev",
+      "language": "vi",
+      "domain": "mobile",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "flutter-state-riverpod"
+      ],
+      "predicted_ids": [
+        "flutter-state-riverpod"
+      ],
+      "latency_ms": 9.621,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-027",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "mobile",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "flutter-state-riverpod"
+      ],
+      "predicted_ids": [
+        "flutter-state-riverpod"
+      ],
+      "latency_ms": 9.856,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-028",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "mobile",
+      "ambiguity_tags": [
+        "code_switched_jargon"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "flutter-state-riverpod"
+      ],
+      "predicted_ids": [
+        "flutter-state-riverpod"
+      ],
+      "latency_ms": 9.076,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-029",
+      "split": "dev",
+      "language": "en",
+      "domain": "devops",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "github-actions-pinning",
+        "tailwind-design-tokens"
+      ],
+      "predicted_ids": [
+        "github-actions-pinning",
+        "tailwind-design-tokens"
+      ],
+      "latency_ms": 11.997,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-030",
+      "split": "dev",
+      "language": "vi",
+      "domain": "devops",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "github-actions-pinning",
+        "tailwind-design-tokens",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "github-actions-pinning",
+        "tailwind-design-tokens",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 12.743,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-031",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "devops",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "github-actions-pinning",
+        "tailwind-design-tokens",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "github-actions-pinning",
+        "tailwind-design-tokens",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 12.809,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-032",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "devops",
+      "ambiguity_tags": [
+        "code_switched_jargon"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "github-actions-pinning",
+        "docker-compose-hardening",
+        "oauth-hardening"
+      ],
+      "predicted_ids": [
+        "github-actions-pinning",
+        "docker-compose-hardening",
+        "oauth-hardening"
+      ],
+      "latency_ms": 10.679,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-033",
+      "split": "dev",
+      "language": "en",
+      "domain": "academic",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "apa-citation-audit",
+        "cham-soc-khach-hang",
+        "dep-code-formatter"
+      ],
+      "predicted_ids": [
+        "apa-citation-audit",
+        "cham-soc-khach-hang",
+        "dep-code-formatter"
+      ],
+      "latency_ms": 10.918,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-034",
+      "split": "dev",
+      "language": "vi",
+      "domain": "academic",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "apa-citation-audit",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "apa-citation-audit",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 10.15,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-035",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "academic",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "apa-citation-audit",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "apa-citation-audit",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 10.011,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-036",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "academic",
+      "ambiguity_tags": [
+        "code_switched_jargon"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "apa-citation-audit",
+        "financial-ratio-audit",
+        "cham-tien-do-audit",
+        "kubernetes-helm-audit"
+      ],
+      "predicted_ids": [
+        "apa-citation-audit",
+        "financial-ratio-audit",
+        "cham-tien-do-audit",
+        "kubernetes-helm-audit"
+      ],
+      "latency_ms": 11.539,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-037",
+      "split": "dev",
+      "language": "en",
+      "domain": "testing",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "python-unittest-fixtures"
+      ],
+      "predicted_ids": [
+        "python-unittest-fixtures"
+      ],
+      "latency_ms": 12.254,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-038",
+      "split": "dev",
+      "language": "vi",
+      "domain": "testing",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "python-unittest-fixtures"
+      ],
+      "predicted_ids": [
+        "python-unittest-fixtures"
+      ],
+      "latency_ms": 11.305,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-039",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "testing",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "python-unittest-fixtures"
+      ],
+      "predicted_ids": [
+        "python-unittest-fixtures"
+      ],
+      "latency_ms": 10.936,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-040",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "testing",
+      "ambiguity_tags": [
+        "code_switched_jargon"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "python-unittest-fixtures"
+      ],
+      "predicted_ids": [
+        "python-unittest-fixtures"
+      ],
+      "latency_ms": 10.9,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-041",
+      "split": "dev",
+      "language": "en",
+      "domain": "operations",
+      "ambiguity_tags": [
+        "diacritic_collision"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cham-soc-khach-hang",
+        "tailwind-design-tokens",
+        "rest-api-design"
+      ],
+      "predicted_ids": [
+        "cham-soc-khach-hang",
+        "tailwind-design-tokens",
+        "rest-api-design"
+      ],
+      "latency_ms": 12.421,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-042",
+      "split": "dev",
+      "language": "vi",
+      "domain": "operations",
+      "ambiguity_tags": [
+        "diacritic_collision"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cham-soc-khach-hang",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "cham-soc-khach-hang",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 9.874,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-043",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "operations",
+      "ambiguity_tags": [
+        "diacritic_collision"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cham-soc-khach-hang",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "cham-soc-khach-hang",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 9.96,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-044",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "operations",
+      "ambiguity_tags": [
+        "diacritic_collision"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cham-soc-khach-hang",
+        "cham-tien-do-audit",
+        "malformed-metadata-skill"
+      ],
+      "predicted_ids": [
+        "cham-soc-khach-hang",
+        "cham-tien-do-audit",
+        "malformed-metadata-skill"
+      ],
+      "latency_ms": 10.699,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-045",
+      "split": "dev",
+      "language": "en",
+      "domain": "operations",
+      "ambiguity_tags": [
+        "diacritic_collision"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cham-tien-do-audit",
+        "financial-ratio-audit",
+        "kubernetes-helm-audit",
+        "apa-citation-audit"
+      ],
+      "predicted_ids": [
+        "cham-tien-do-audit",
+        "financial-ratio-audit",
+        "kubernetes-helm-audit",
+        "apa-citation-audit"
+      ],
+      "latency_ms": 11.403,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-046",
+      "split": "dev",
+      "language": "vi",
+      "domain": "operations",
+      "ambiguity_tags": [
+        "diacritic_collision"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cham-tien-do-audit",
+        "cham-soc-khach-hang",
+        "animation-perf",
+        "postgres-query-tuning"
+      ],
+      "predicted_ids": [
+        "cham-tien-do-audit",
+        "cham-soc-khach-hang",
+        "animation-perf",
+        "postgres-query-tuning"
+      ],
+      "latency_ms": 11.601,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-047",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "operations",
+      "ambiguity_tags": [
+        "diacritic_collision"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cham-tien-do-audit",
+        "cham-soc-khach-hang"
+      ],
+      "predicted_ids": [
+        "cham-tien-do-audit",
+        "cham-soc-khach-hang"
+      ],
+      "latency_ms": 10.045,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-048",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "operations",
+      "ambiguity_tags": [
+        "diacritic_collision"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cham-tien-do-audit",
+        "cham-soc-khach-hang",
+        "animation-perf",
+        "postgres-query-tuning"
+      ],
+      "predicted_ids": [
+        "cham-tien-do-audit",
+        "cham-soc-khach-hang",
+        "animation-perf",
+        "postgres-query-tuning"
+      ],
+      "latency_ms": 11.807,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-049",
+      "split": "dev",
+      "language": "en",
+      "domain": "devops",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "kubernetes-helm-audit",
+        "cloudflare-d1-worker",
+        "cloudflare-dns-only",
+        "financial-ratio-audit",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "kubernetes-helm-audit",
+        "cloudflare-d1-worker",
+        "cloudflare-dns-only",
+        "financial-ratio-audit",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 17.706,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-050",
+      "split": "dev",
+      "language": "vi",
+      "domain": "devops",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cloudflare-d1-worker",
+        "kubernetes-helm-audit",
+        "cloudflare-dns-only",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "cloudflare-d1-worker",
+        "kubernetes-helm-audit",
+        "cloudflare-dns-only",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 13.309,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-051",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "devops",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cloudflare-d1-worker",
+        "kubernetes-helm-audit",
+        "cloudflare-dns-only",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "cloudflare-d1-worker",
+        "kubernetes-helm-audit",
+        "cloudflare-dns-only",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 13.59,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-052",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "devops",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cloudflare-d1-worker",
+        "kubernetes-helm-audit",
+        "cloudflare-dns-only",
+        "financial-ratio-audit",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "cloudflare-d1-worker",
+        "kubernetes-helm-audit",
+        "cloudflare-dns-only",
+        "financial-ratio-audit",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 15.397,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-053",
+      "split": "dev",
+      "language": "en",
+      "domain": "frontend",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "animation-perf",
+        "postgres-query-tuning"
+      ],
+      "predicted_ids": [
+        "animation-perf",
+        "postgres-query-tuning"
+      ],
+      "latency_ms": 9.828,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 0.5,
+      "recall@5": 0.5,
+      "mrr@5": 1.0,
+      "ndcg@5": 0.6131471927654584,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-054",
+      "split": "dev",
+      "language": "vi",
+      "domain": "frontend",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 1,
+      "ranked_ids": [],
+      "predicted_ids": [],
+      "latency_ms": 0.254,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-055",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "frontend",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 1,
+      "ranked_ids": [],
+      "predicted_ids": [],
+      "latency_ms": 0.219,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-056",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "frontend",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "animation-perf",
+        "react-accessibility",
+        "expo-native-ui",
+        "landing-page-builder"
+      ],
+      "predicted_ids": [
+        "animation-perf",
+        "react-accessibility",
+        "expo-native-ui",
+        "landing-page-builder"
+      ],
+      "latency_ms": 11.571,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-057",
+      "split": "dev",
+      "language": "en",
+      "domain": "devops",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cloudflare-d1-worker",
+        "sqlite-migrations",
+        "deploy-unsafe-script",
+        "mobile-offline-sync"
+      ],
+      "predicted_ids": [
+        "cloudflare-d1-worker",
+        "sqlite-migrations",
+        "deploy-unsafe-script",
+        "mobile-offline-sync"
+      ],
+      "latency_ms": 13.976,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-058",
+      "split": "dev",
+      "language": "vi",
+      "domain": "devops",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cloudflare-d1-worker"
+      ],
+      "predicted_ids": [
+        "cloudflare-d1-worker"
+      ],
+      "latency_ms": 9.363,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-059",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "devops",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cloudflare-d1-worker"
+      ],
+      "predicted_ids": [
+        "cloudflare-d1-worker"
+      ],
+      "latency_ms": 9.206,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-060",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "devops",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cloudflare-d1-worker"
+      ],
+      "predicted_ids": [
+        "cloudflare-d1-worker"
+      ],
+      "latency_ms": 9.194,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-061",
+      "split": "dev",
+      "language": "en",
+      "domain": "frontend",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "tailwind-design-tokens",
+        "landing-page-builder",
+        "rest-api-design",
+        "animation-perf"
+      ],
+      "predicted_ids": [
+        "tailwind-design-tokens",
+        "landing-page-builder",
+        "rest-api-design",
+        "animation-perf"
+      ],
+      "latency_ms": 13.374,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.3333333333333333,
+      "recall@3": 0.6666666666666666,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 0.9871451602176229,
+      "precision@5": 0.6,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-062",
+      "split": "dev",
+      "language": "vi",
+      "domain": "frontend",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "tailwind-design-tokens",
+        "cham-soc-khach-hang",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "tailwind-design-tokens",
+        "cham-soc-khach-hang",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 12.733,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.3333333333333333,
+      "recall@3": 0.3333333333333333,
+      "recall@5": 0.3333333333333333,
+      "mrr@5": 1.0,
+      "ndcg@5": 0.5562983930884396,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-063",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "frontend",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "tailwind-design-tokens",
+        "cham-soc-khach-hang",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "tailwind-design-tokens",
+        "cham-soc-khach-hang",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 12.597,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.3333333333333333,
+      "recall@3": 0.3333333333333333,
+      "recall@5": 0.3333333333333333,
+      "mrr@5": 1.0,
+      "ndcg@5": 0.5562983930884396,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-064",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "frontend",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "landing-page-builder",
+        "tailwind-design-tokens",
+        "rest-api-design"
+      ],
+      "predicted_ids": [
+        "landing-page-builder",
+        "tailwind-design-tokens",
+        "rest-api-design"
+      ],
+      "latency_ms": 12.813,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.3333333333333333,
+      "recall@3": 0.6666666666666666,
+      "recall@5": 0.6666666666666666,
+      "mrr@5": 1.0,
+      "ndcg@5": 0.9072836011519267,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-065",
+      "split": "dev",
+      "language": "en",
+      "domain": "backend",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "sqlite-migrations",
+        "rest-api-design",
+        "tailwind-design-tokens",
+        "mobile-offline-sync"
+      ],
+      "predicted_ids": [
+        "sqlite-migrations",
+        "rest-api-design",
+        "tailwind-design-tokens",
+        "mobile-offline-sync"
+      ],
+      "latency_ms": 13.798,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-066",
+      "split": "dev",
+      "language": "vi",
+      "domain": "backend",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "rest-api-design",
+        "sqlite-migrations",
+        "mobile-offline-sync"
+      ],
+      "predicted_ids": [
+        "rest-api-design",
+        "sqlite-migrations",
+        "mobile-offline-sync"
+      ],
+      "latency_ms": 11.944,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-067",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "backend",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "rest-api-design",
+        "sqlite-migrations",
+        "mobile-offline-sync"
+      ],
+      "predicted_ids": [
+        "rest-api-design",
+        "sqlite-migrations",
+        "mobile-offline-sync"
+      ],
+      "latency_ms": 10.772,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-068",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "backend",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "rest-api-design",
+        "sqlite-migrations",
+        "tailwind-design-tokens",
+        "mobile-offline-sync",
+        "secret-scanning"
+      ],
+      "predicted_ids": [
+        "rest-api-design",
+        "sqlite-migrations",
+        "tailwind-design-tokens",
+        "mobile-offline-sync",
+        "secret-scanning"
+      ],
+      "latency_ms": 14.158,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-069",
+      "split": "dev",
+      "language": "en",
+      "domain": "finance",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "financial-ratio-audit",
+        "dcf-valuation",
+        "cham-tien-do-audit",
+        "kubernetes-helm-audit",
+        "apa-citation-audit"
+      ],
+      "predicted_ids": [
+        "financial-ratio-audit",
+        "dcf-valuation",
+        "cham-tien-do-audit",
+        "kubernetes-helm-audit",
+        "apa-citation-audit"
+      ],
+      "latency_ms": 12.235,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-070",
+      "split": "dev",
+      "language": "vi",
+      "domain": "finance",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "dcf-valuation",
+        "financial-ratio-audit",
+        "finance-blog-template",
+        "fx-exposure"
+      ],
+      "predicted_ids": [
+        "dcf-valuation",
+        "financial-ratio-audit",
+        "finance-blog-template",
+        "fx-exposure"
+      ],
+      "latency_ms": 13.714,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-071",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "finance",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "dcf-valuation",
+        "financial-ratio-audit",
+        "finance-blog-template",
+        "fx-exposure"
+      ],
+      "predicted_ids": [
+        "dcf-valuation",
+        "financial-ratio-audit",
+        "finance-blog-template",
+        "fx-exposure"
+      ],
+      "latency_ms": 13.479,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-072",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "finance",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "financial-ratio-audit",
+        "dcf-valuation",
+        "cham-tien-do-audit",
+        "kubernetes-helm-audit",
+        "apa-citation-audit"
+      ],
+      "predicted_ids": [
+        "financial-ratio-audit",
+        "dcf-valuation",
+        "cham-tien-do-audit",
+        "kubernetes-helm-audit",
+        "apa-citation-audit"
+      ],
+      "latency_ms": 12.256,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-073",
+      "split": "dev",
+      "language": "en",
+      "domain": "out_of_domain",
+      "ambiguity_tags": [
+        "out_of_domain"
+      ],
+      "expected_abstain": true,
+      "expected_skill_count": 0,
+      "exit_code": 0,
+      "ranked_ids": [],
+      "predicted_ids": [],
+      "latency_ms": 8.439,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-074",
+      "split": "dev",
+      "language": "vi",
+      "domain": "out_of_domain",
+      "ambiguity_tags": [
+        "out_of_domain"
+      ],
+      "expected_abstain": true,
+      "expected_skill_count": 0,
+      "exit_code": 0,
+      "ranked_ids": [],
+      "predicted_ids": [],
+      "latency_ms": 8.658,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-075",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "out_of_domain",
+      "ambiguity_tags": [
+        "out_of_domain"
+      ],
+      "expected_abstain": true,
+      "expected_skill_count": 0,
+      "exit_code": 0,
+      "ranked_ids": [],
+      "predicted_ids": [],
+      "latency_ms": 8.504,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-076",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "out_of_domain",
+      "ambiguity_tags": [
+        "out_of_domain"
+      ],
+      "expected_abstain": true,
+      "expected_skill_count": 0,
+      "exit_code": 0,
+      "ranked_ids": [],
+      "predicted_ids": [],
+      "latency_ms": 8.821,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-077",
+      "split": "dev",
+      "language": "en",
+      "domain": "out_of_domain",
+      "ambiguity_tags": [
+        "negative_only"
+      ],
+      "expected_abstain": true,
+      "expected_skill_count": 0,
+      "exit_code": 1,
+      "ranked_ids": [],
+      "predicted_ids": [],
+      "latency_ms": 0.29,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-078",
+      "split": "dev",
+      "language": "vi",
+      "domain": "out_of_domain",
+      "ambiguity_tags": [
+        "negative_only"
+      ],
+      "expected_abstain": true,
+      "expected_skill_count": 0,
+      "exit_code": 1,
+      "ranked_ids": [],
+      "predicted_ids": [],
+      "latency_ms": 0.216,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-079",
+      "split": "dev",
+      "language": "vi_no_diacritic",
+      "domain": "out_of_domain",
+      "ambiguity_tags": [
+        "negative_only"
+      ],
+      "expected_abstain": true,
+      "expected_skill_count": 0,
+      "exit_code": 1,
+      "ranked_ids": [],
+      "predicted_ids": [],
+      "latency_ms": 0.278,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-080",
+      "split": "dev",
+      "language": "mixed",
+      "domain": "out_of_domain",
+      "ambiguity_tags": [
+        "negative_only"
+      ],
+      "expected_abstain": true,
+      "expected_skill_count": 0,
+      "exit_code": 1,
+      "ranked_ids": [],
+      "predicted_ids": [],
+      "latency_ms": 0.216,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-081",
+      "split": "holdout",
+      "language": "en",
+      "domain": "finance",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "financial-ratio-audit"
+      ],
+      "predicted_ids": [
+        "financial-ratio-audit"
+      ],
+      "latency_ms": 9.224,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-082",
+      "split": "holdout",
+      "language": "vi",
+      "domain": "finance",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [],
+      "predicted_ids": [],
+      "latency_ms": 8.475,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-083",
+      "split": "holdout",
+      "language": "vi_no_diacritic",
+      "domain": "finance",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [],
+      "predicted_ids": [],
+      "latency_ms": 8.29,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-084",
+      "split": "holdout",
+      "language": "mixed",
+      "domain": "finance",
+      "ambiguity_tags": [
+        "code_switched_jargon"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "financial-ratio-audit",
+        "cham-tien-do-audit",
+        "kubernetes-helm-audit",
+        "apa-citation-audit"
+      ],
+      "predicted_ids": [
+        "financial-ratio-audit",
+        "cham-tien-do-audit",
+        "kubernetes-helm-audit",
+        "apa-citation-audit"
+      ],
+      "latency_ms": 11.546,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-085",
+      "split": "holdout",
+      "language": "en",
+      "domain": "frontend",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "animation-perf",
+        "expo-native-ui",
+        "landing-page-builder"
+      ],
+      "predicted_ids": [
+        "animation-perf",
+        "expo-native-ui",
+        "landing-page-builder"
+      ],
+      "latency_ms": 12.127,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-086",
+      "split": "holdout",
+      "language": "vi",
+      "domain": "frontend",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "animation-perf",
+        "tailwind-design-tokens",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "animation-perf",
+        "tailwind-design-tokens",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 12.308,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-087",
+      "split": "holdout",
+      "language": "vi_no_diacritic",
+      "domain": "frontend",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "animation-perf",
+        "tailwind-design-tokens",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "animation-perf",
+        "tailwind-design-tokens",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 10.903,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-088",
+      "split": "holdout",
+      "language": "mixed",
+      "domain": "frontend",
+      "ambiguity_tags": [
+        "code_switched_jargon"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "animation-perf"
+      ],
+      "predicted_ids": [
+        "animation-perf"
+      ],
+      "latency_ms": 9.319,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-089",
+      "split": "holdout",
+      "language": "en",
+      "domain": "backend",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "sqlite-migrations",
+        "postgres-query-tuning",
+        "mobile-offline-sync"
+      ],
+      "predicted_ids": [
+        "sqlite-migrations",
+        "postgres-query-tuning",
+        "mobile-offline-sync"
+      ],
+      "latency_ms": 10.979,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-090",
+      "split": "holdout",
+      "language": "vi",
+      "domain": "backend",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "sqlite-migrations",
+        "mobile-offline-sync",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "sqlite-migrations",
+        "mobile-offline-sync",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 10.786,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-091",
+      "split": "holdout",
+      "language": "vi_no_diacritic",
+      "domain": "backend",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "sqlite-migrations",
+        "mobile-offline-sync",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "sqlite-migrations",
+        "mobile-offline-sync",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 10.841,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-092",
+      "split": "holdout",
+      "language": "mixed",
+      "domain": "backend",
+      "ambiguity_tags": [
+        "code_switched_jargon"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "sqlite-migrations",
+        "deploy-unsafe-script",
+        "mobile-offline-sync",
+        "shell-exec-unreviewed"
+      ],
+      "predicted_ids": [
+        "sqlite-migrations",
+        "deploy-unsafe-script",
+        "mobile-offline-sync",
+        "shell-exec-unreviewed"
+      ],
+      "latency_ms": 13.392,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-093",
+      "split": "holdout",
+      "language": "en",
+      "domain": "mobile",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "expo-native-ui",
+        "react-accessibility",
+        "react-legacy-v1"
+      ],
+      "predicted_ids": [
+        "expo-native-ui",
+        "react-accessibility",
+        "react-legacy-v1"
+      ],
+      "latency_ms": 12.637,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-094",
+      "split": "holdout",
+      "language": "vi",
+      "domain": "mobile",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "expo-native-ui",
+        "react-accessibility",
+        "react-legacy-v1",
+        "tailwind-design-tokens",
+        "animation-perf"
+      ],
+      "predicted_ids": [
+        "expo-native-ui",
+        "react-accessibility",
+        "react-legacy-v1",
+        "tailwind-design-tokens",
+        "animation-perf"
+      ],
+      "latency_ms": 17.501,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-095",
+      "split": "holdout",
+      "language": "vi_no_diacritic",
+      "domain": "mobile",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "expo-native-ui",
+        "react-accessibility",
+        "react-legacy-v1",
+        "tailwind-design-tokens",
+        "animation-perf"
+      ],
+      "predicted_ids": [
+        "expo-native-ui",
+        "react-accessibility",
+        "react-legacy-v1",
+        "tailwind-design-tokens",
+        "animation-perf"
+      ],
+      "latency_ms": 17.578,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-096",
+      "split": "holdout",
+      "language": "mixed",
+      "domain": "mobile",
+      "ambiguity_tags": [
+        "code_switched_jargon"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "expo-native-ui",
+        "landing-page-builder"
+      ],
+      "predicted_ids": [
+        "expo-native-ui",
+        "landing-page-builder"
+      ],
+      "latency_ms": 10.012,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-097",
+      "split": "holdout",
+      "language": "en",
+      "domain": "security",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "secret-scanning",
+        "rest-api-design"
+      ],
+      "predicted_ids": [
+        "secret-scanning",
+        "rest-api-design"
+      ],
+      "latency_ms": 10.058,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-098",
+      "split": "holdout",
+      "language": "vi",
+      "domain": "security",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "rest-api-design",
+        "secret-scanning"
+      ],
+      "predicted_ids": [
+        "rest-api-design",
+        "secret-scanning"
+      ],
+      "latency_ms": 10.241,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 0.5,
+      "ndcg@5": 0.6309297535714574,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-099",
+      "split": "holdout",
+      "language": "vi_no_diacritic",
+      "domain": "security",
+      "ambiguity_tags": [
+        "active_tier_decoy"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "rest-api-design",
+        "secret-scanning"
+      ],
+      "predicted_ids": [
+        "rest-api-design",
+        "secret-scanning"
+      ],
+      "latency_ms": 10.003,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 0.5,
+      "ndcg@5": 0.6309297535714574,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-100",
+      "split": "holdout",
+      "language": "mixed",
+      "domain": "security",
+      "ambiguity_tags": [
+        "code_switched_jargon"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "secret-scanning"
+      ],
+      "predicted_ids": [
+        "secret-scanning"
+      ],
+      "latency_ms": 9.259,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-101",
+      "split": "holdout",
+      "language": "en",
+      "domain": "academic",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "literature-synthesis"
+      ],
+      "predicted_ids": [
+        "literature-synthesis"
+      ],
+      "latency_ms": 9.749,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 0.5,
+      "recall@5": 0.5,
+      "mrr@5": 1.0,
+      "ndcg@5": 0.8262346571285599,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-102",
+      "split": "holdout",
+      "language": "vi",
+      "domain": "academic",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "literature-synthesis"
+      ],
+      "predicted_ids": [
+        "literature-synthesis"
+      ],
+      "latency_ms": 9.303,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 0.5,
+      "recall@5": 0.5,
+      "mrr@5": 1.0,
+      "ndcg@5": 0.8262346571285599,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-103",
+      "split": "holdout",
+      "language": "vi_no_diacritic",
+      "domain": "academic",
+      "ambiguity_tags": [],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "literature-synthesis"
+      ],
+      "predicted_ids": [
+        "literature-synthesis"
+      ],
+      "latency_ms": 9.737,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 0.5,
+      "recall@5": 0.5,
+      "mrr@5": 1.0,
+      "ndcg@5": 0.8262346571285599,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-104",
+      "split": "holdout",
+      "language": "mixed",
+      "domain": "academic",
+      "ambiguity_tags": [
+        "code_switched_jargon"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "literature-synthesis"
+      ],
+      "predicted_ids": [
+        "literature-synthesis"
+      ],
+      "latency_ms": 9.366,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 0.5,
+      "recall@5": 0.5,
+      "mrr@5": 1.0,
+      "ndcg@5": 0.8262346571285599,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-105",
+      "split": "holdout",
+      "language": "en",
+      "domain": "tooling",
+      "ambiguity_tags": [
+        "diacritic_collision"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "dep-code-formatter"
+      ],
+      "predicted_ids": [
+        "dep-code-formatter"
+      ],
+      "latency_ms": 12.196,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-106",
+      "split": "holdout",
+      "language": "vi",
+      "domain": "tooling",
+      "ambiguity_tags": [
+        "diacritic_collision"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "dep-code-formatter"
+      ],
+      "predicted_ids": [
+        "dep-code-formatter"
+      ],
+      "latency_ms": 11.243,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-107",
+      "split": "holdout",
+      "language": "vi_no_diacritic",
+      "domain": "tooling",
+      "ambiguity_tags": [
+        "diacritic_collision"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "dep-code-formatter"
+      ],
+      "predicted_ids": [
+        "dep-code-formatter"
+      ],
+      "latency_ms": 11.271,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-108",
+      "split": "holdout",
+      "language": "mixed",
+      "domain": "tooling",
+      "ambiguity_tags": [
+        "diacritic_collision"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "dep-code-formatter"
+      ],
+      "predicted_ids": [
+        "dep-code-formatter"
+      ],
+      "latency_ms": 11.114,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-109",
+      "split": "holdout",
+      "language": "en",
+      "domain": "devops",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "docker-compose-hardening",
+        "oauth-hardening"
+      ],
+      "predicted_ids": [
+        "docker-compose-hardening",
+        "oauth-hardening"
+      ],
+      "latency_ms": 9.993,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-110",
+      "split": "holdout",
+      "language": "vi",
+      "domain": "devops",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "docker-compose-hardening"
+      ],
+      "predicted_ids": [
+        "docker-compose-hardening"
+      ],
+      "latency_ms": 9.145,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-111",
+      "split": "holdout",
+      "language": "vi_no_diacritic",
+      "domain": "devops",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "docker-compose-hardening"
+      ],
+      "predicted_ids": [
+        "docker-compose-hardening"
+      ],
+      "latency_ms": 9.181,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-112",
+      "split": "holdout",
+      "language": "mixed",
+      "domain": "devops",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 1,
+      "exit_code": 0,
+      "ranked_ids": [
+        "docker-compose-hardening",
+        "oauth-hardening"
+      ],
+      "predicted_ids": [
+        "docker-compose-hardening",
+        "oauth-hardening"
+      ],
+      "latency_ms": 9.93,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-113",
+      "split": "holdout",
+      "language": "en",
+      "domain": "backend",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "secret-scanning",
+        "oauth-hardening",
+        "docker-compose-hardening"
+      ],
+      "predicted_ids": [
+        "secret-scanning",
+        "oauth-hardening",
+        "docker-compose-hardening"
+      ],
+      "latency_ms": 10.773,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-114",
+      "split": "holdout",
+      "language": "vi",
+      "domain": "backend",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "oauth-hardening"
+      ],
+      "predicted_ids": [
+        "oauth-hardening"
+      ],
+      "latency_ms": 9.13,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 0.5,
+      "recall@5": 0.5,
+      "mrr@5": 1.0,
+      "ndcg@5": 0.6131471927654584,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-115",
+      "split": "holdout",
+      "language": "vi_no_diacritic",
+      "domain": "backend",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "oauth-hardening"
+      ],
+      "predicted_ids": [
+        "oauth-hardening"
+      ],
+      "latency_ms": 9.231,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 0.5,
+      "recall@5": 0.5,
+      "mrr@5": 1.0,
+      "ndcg@5": 0.6131471927654584,
+      "precision@5": 0.2,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-116",
+      "split": "holdout",
+      "language": "mixed",
+      "domain": "backend",
+      "ambiguity_tags": [
+        "negation"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "oauth-hardening",
+        "secret-scanning",
+        "docker-compose-hardening",
+        "postgres-query-tuning",
+        "rest-api-design"
+      ],
+      "predicted_ids": [
+        "oauth-hardening",
+        "secret-scanning",
+        "docker-compose-hardening",
+        "postgres-query-tuning",
+        "rest-api-design"
+      ],
+      "latency_ms": 12.925,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-117",
+      "split": "holdout",
+      "language": "en",
+      "domain": "mobile",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "mobile-offline-sync",
+        "browser-e2e-smoke",
+        "expo-native-ui",
+        "flutter-state-riverpod",
+        "property-fuzzing"
+      ],
+      "predicted_ids": [
+        "mobile-offline-sync",
+        "browser-e2e-smoke",
+        "expo-native-ui",
+        "flutter-state-riverpod",
+        "property-fuzzing"
+      ],
+      "latency_ms": 13.114,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.3333333333333333,
+      "recall@3": 0.6666666666666666,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 0.9790187994940358,
+      "precision@5": 0.6,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-118",
+      "split": "holdout",
+      "language": "vi",
+      "domain": "mobile",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cham-soc-khach-hang"
+      ],
+      "predicted_ids": [
+        "cham-soc-khach-hang"
+      ],
+      "latency_ms": 9.39,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-119",
+      "split": "holdout",
+      "language": "vi_no_diacritic",
+      "domain": "mobile",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cham-soc-khach-hang"
+      ],
+      "predicted_ids": [
+        "cham-soc-khach-hang"
+      ],
+      "latency_ms": 9.45,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-120",
+      "split": "holdout",
+      "language": "mixed",
+      "domain": "mobile",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "mobile-offline-sync",
+        "browser-e2e-smoke",
+        "expo-native-ui",
+        "flutter-state-riverpod"
+      ],
+      "predicted_ids": [
+        "mobile-offline-sync",
+        "browser-e2e-smoke",
+        "expo-native-ui",
+        "flutter-state-riverpod"
+      ],
+      "latency_ms": 11.482,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.3333333333333333,
+      "recall@3": 0.6666666666666666,
+      "recall@5": 0.6666666666666666,
+      "mrr@5": 1.0,
+      "ndcg@5": 0.9072836011519267,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-121",
+      "split": "holdout",
+      "language": "en",
+      "domain": "writing",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "landing-page-builder",
+        "vietnamese-copywriting",
+        "cham-soc-khach-hang",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "landing-page-builder",
+        "vietnamese-copywriting",
+        "cham-soc-khach-hang",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 11.692,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-122",
+      "split": "holdout",
+      "language": "vi",
+      "domain": "writing",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cham-soc-khach-hang"
+      ],
+      "predicted_ids": [
+        "cham-soc-khach-hang"
+      ],
+      "latency_ms": 9.305,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-123",
+      "split": "holdout",
+      "language": "vi_no_diacritic",
+      "domain": "writing",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cham-soc-khach-hang"
+      ],
+      "predicted_ids": [
+        "cham-soc-khach-hang"
+      ],
+      "latency_ms": 9.254,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-124",
+      "split": "holdout",
+      "language": "mixed",
+      "domain": "writing",
+      "ambiguity_tags": [
+        "compound_multi_skill"
+      ],
+      "expected_abstain": false,
+      "expected_skill_count": 2,
+      "exit_code": 0,
+      "ranked_ids": [
+        "landing-page-builder",
+        "vietnamese-copywriting",
+        "cham-soc-khach-hang",
+        "cham-tien-do-audit"
+      ],
+      "predicted_ids": [
+        "landing-page-builder",
+        "vietnamese-copywriting",
+        "cham-soc-khach-hang",
+        "cham-tien-do-audit"
+      ],
+      "latency_ms": 11.436,
+      "hit_rate@1": 1.0,
+      "hit_rate@3": 1.0,
+      "hit_rate@5": 1.0,
+      "recall@1": 0.5,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-125",
+      "split": "holdout",
+      "language": "en",
+      "domain": "out_of_domain",
+      "ambiguity_tags": [
+        "out_of_domain"
+      ],
+      "expected_abstain": true,
+      "expected_skill_count": 0,
+      "exit_code": 0,
+      "ranked_ids": [],
+      "predicted_ids": [],
+      "latency_ms": 8.846,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    },
+    {
+      "id": "q-126",
+      "split": "holdout",
+      "language": "vi",
+      "domain": "out_of_domain",
+      "ambiguity_tags": [
+        "out_of_domain"
+      ],
+      "expected_abstain": true,
+      "expected_skill_count": 0,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cham-soc-khach-hang"
+      ],
+      "predicted_ids": [
+        "cham-soc-khach-hang"
+      ],
+      "latency_ms": 9.197,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-127",
+      "split": "holdout",
+      "language": "vi_no_diacritic",
+      "domain": "out_of_domain",
+      "ambiguity_tags": [
+        "out_of_domain"
+      ],
+      "expected_abstain": true,
+      "expected_skill_count": 0,
+      "exit_code": 0,
+      "ranked_ids": [
+        "cham-soc-khach-hang"
+      ],
+      "predicted_ids": [
+        "cham-soc-khach-hang"
+      ],
+      "latency_ms": 9.442,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 1.0
+    },
+    {
+      "id": "q-128",
+      "split": "holdout",
+      "language": "mixed",
+      "domain": "out_of_domain",
+      "ambiguity_tags": [
+        "out_of_domain"
+      ],
+      "expected_abstain": true,
+      "expected_skill_count": 0,
+      "exit_code": 0,
+      "ranked_ids": [],
+      "predicted_ids": [],
+      "latency_ms": 8.555,
+      "hit_rate@1": 0.0,
+      "hit_rate@3": 0.0,
+      "hit_rate@5": 0.0,
+      "recall@1": 0.0,
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "mrr@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "forbidden_hit_rate@5": 0.0
+    }
+  ],
+  "scale_benchmark": [
+    {
+      "records": 10,
+      "cold_ms": 7.366,
+      "warm_p50_ms": 4.752,
+      "warm_p95_ms": 4.849,
+      "peak_tracemalloc_kb": 145.6
+    },
+    {
+      "records": 100,
+      "cold_ms": 40.356,
+      "warm_p50_ms": 30.142,
+      "warm_p95_ms": 30.492,
+      "peak_tracemalloc_kb": 292.51
+    },
+    {
+      "records": 1000,
+      "cold_ms": 319.164,
+      "warm_p50_ms": 274.142,
+      "warm_p95_ms": 281.22,
+      "peak_tracemalloc_kb": 1432.36
+    }
+  ]
+}

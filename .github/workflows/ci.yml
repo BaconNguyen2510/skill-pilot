@@ -2,13 +2,17 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/v3-research-program, ci/v3-public-safe]
     tags: ["v*"]
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   test:
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -18,21 +22,97 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Syntax check
-        run: |
-          python -m py_compile scripts/skill_scout.py
-          python -m py_compile skills/skill-pilot/scripts/skill_scout.py
-          python -m py_compile tests/test_skill_scout.py
+        run: python -m py_compile scripts/skill_scout.py skills/skill-pilot/scripts/skill_scout.py tests/test_skill_scout.py
 
       - name: Validate JSON manifests
         run: |
           python -c "import json, os, pathlib; agy = json.loads(pathlib.Path('plugin.json').read_text(encoding='utf-8')); codex = json.loads(pathlib.Path('.codex-plugin/plugin.json').read_text(encoding='utf-8')); mkt = json.loads(pathlib.Path('.agents/plugins/marketplace.json').read_text(encoding='utf-8')); versions = [str(agy.get('version') or ''), str(codex.get('version') or ''), str(mkt['plugins'][0].get('version') or '')]; assert all(versions) and len(set(versions)) == 1, versions; ref_type, ref_name = os.environ.get('GITHUB_REF_TYPE'), os.environ.get('GITHUB_REF_NAME'); assert ref_type != 'tag' or ref_name == 'v' + versions[0], (ref_name, versions[0]); print('JSON manifests valid:', versions[0])"
 
-      - name: Run unit tests
-        run: python -m unittest discover -s tests -v
+      - name: Candidate integrity and release gates
+        shell: python
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          PYTHONHASHSEED: '0'
+        run: |
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import platform
+          import subprocess
+          import sys
+
+          evidence = Path(os.environ["RUNNER_TEMP"]) / "skill-pilot-ci-evidence"
+          evidence.mkdir(parents=True, exist_ok=True)
+
+          def run(name, args):
+              result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                      text=True, encoding="utf-8", errors="replace")
+              record = {"args": args, "returncode": result.returncode, "output": result.stdout}
+              (evidence / (name + ".json")).write_text(json.dumps(record, indent=2), encoding="utf-8")
+              print(result.stdout)
+              if result.returncode:
+                  raise SystemExit(result.returncode)
+
+          candidate = "2c8daab7ae7a8b06dcfc64863c4043183fd35261"
+          identity = {"head": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+                      "candidate": candidate, "python": sys.version, "executable": sys.executable,
+                      "platform": platform.platform(),
+                      "git": subprocess.check_output(["git", "--version"], text=True).strip()}
+          (evidence / "identity.json").write_text(json.dumps(identity, indent=2), encoding="utf-8")
+          manifest = json.loads(Path("docs/v3/FROZEN_GIT_BLOB_HASHES_V3.json").read_text(encoding="utf-8"))
+          assert manifest["candidate"] == candidate and len(manifest["files"]) == 32
+          tracked = set(subprocess.check_output(["git", "ls-files"], text=True).splitlines())
+          assert "eval/sealed_queries.jsonl" not in tracked and "docs/v3/SEALED_EVAL_REPORT.json" not in tracked
+          verified = {}
+          for name, expected in manifest["files"].items():
+              actual = hashlib.sha256(subprocess.check_output(["git", "show", "HEAD:" + name])).hexdigest()
+              verified[name] = {"expected": expected, "actual": actual}
+          (evidence / "canonical-hashes.json").write_text(json.dumps(verified, indent=2), encoding="utf-8")
+          assert all(row["actual"] == row["expected"] for row in verified.values())
+          run("install-ci-tools", [sys.executable, "-m", "pip", "install", "uv==0.13.6"])
+          run("ruff-format", ["uvx", "--from", "ruff==0.17.5", "ruff", "format", "--check", "--no-cache", "."])
+          run("ruff-check", ["uvx", "--from", "ruff==0.17.5", "ruff", "check", "--no-cache", "."])
+          run("type-check", ["uvx", "--from", "ty==0.0.34", "ty", "check", "blind_eval", ".github/tests",
+                             "--python", sys.executable])
+          run("workflow-tests", ["uv", "run", "--no-project", "--python", sys.executable,
+                                 "python", "-m", "unittest", "discover", "-s", ".github/tests", "-v"])
+          run("blind-tests", ["uv", "run", "--no-project", "--python", sys.executable,
+                             "python", "-m", "unittest", "discover", "-s", "blind_eval/tests", "-v"])
+          run("release-verifier", ["uv", "run", "--no-project", "--python", sys.executable,
+                                  "python", "eval/verify_rc.py"])
+          doctor = subprocess.run(
+              ["uv", "run", "--no-project", "--python", sys.executable,
+               "python", "skills/skill-pilot/scripts/skill_scout.py", "doctor"],
+              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+              text=True, encoding="utf-8", errors="replace")
+          if doctor.returncode:
+              (evidence / "doctor.json").write_text(
+                  json.dumps({"returncode": doctor.returncode}), encoding="utf-8")
+              raise SystemExit(doctor.returncode)
+          health = json.loads(doctor.stdout)
+          version_health = {key: health[key] for key in (
+              "cli_version", "manifest_versions", "manifest_versions_consistent",
+              "cli_matches_manifests")}
+          (evidence / "doctor.json").write_text(
+              json.dumps(version_health, indent=2), encoding="utf-8")
+          print(json.dumps(version_health))
+          assert version_health["manifest_versions_consistent"]
+
+      - name: Upload per-cell evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: skill-pilot-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: ${{ runner.temp }}/skill-pilot-ci-evidence/
+          if-no-files-found: error
