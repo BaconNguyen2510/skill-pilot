@@ -124,7 +124,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
                             "title": "Design PostgreSQL database",
                             "query": "postgres database",
                             "coverage_level": "direct",
-                            "capability_evidence": "SKILL.md covers PostgreSQL schemas.",
+                            "capability_evidence": '"Design PostgreSQL database schemas."',
                             "depends_on": [],
                         },
                         {
@@ -132,7 +132,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
                             "title": "Build FastAPI backend",
                             "query": "fastapi backend",
                             "coverage_level": "direct",
-                            "capability_evidence": "SKILL.md covers FastAPI REST backends.",
+                            "capability_evidence": '"Build Python FastAPI REST backends."',
                             "depends_on": ["step-1"],
                         },
                         {
@@ -140,7 +140,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
                             "title": "Build React UI",
                             "query": "react ui",
                             "coverage_level": "direct",
-                            "capability_evidence": "SKILL.md covers React UI components.",
+                            "capability_evidence": '"Build React web and mobile UI components."',
                             "depends_on": ["step-2"],
                         },
                     ],
@@ -365,7 +365,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
                             "title": "Build React UI",
                             "query": "react ui",
                             "coverage_level": "direct",
-                            "capability_evidence": "SKILL.md covers React components and hooks.",
+                            "capability_evidence": '"Build React web and mobile UI components."',
                             "depends_on": [],
                         },
                         {
@@ -477,7 +477,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
                             "title": "React UI",
                             "query": "react ui",
                             "coverage_level": "direct",
-                            "capability_evidence": "SKILL.md covers React UI.",
+                            "capability_evidence": '"Build React web and mobile UI components."',
                             "depends_on": [],
                         }
                     ],
@@ -634,6 +634,40 @@ class SessionAndPlanSearchTests(unittest.TestCase):
             session_planner.session_lock(sess_path, timeout_s=0.05, stale_after_s=60.0),
         ):
             pass
+
+    def test_16_fabricated_or_title_only_evidence_downgraded(self) -> None:
+        plan_path = self.root / "fake_ev_plan.json"
+        plan_path.write_text(
+            json.dumps(
+                {
+                    "plan_steps": [
+                        {
+                            "id": "s1",
+                            "title": "React UI",
+                            "query": "react ui",
+                            "coverage_level": "direct",
+                            "capability_evidence": "Supports quantum blockchain compiler.",
+                            "depends_on": [],
+                        },
+                        {
+                            "id": "s2",
+                            "title": "React UI scattered-tokens-only",
+                            "query": "react ui",
+                            "coverage_level": "direct",
+                            "capability_evidence": "React components",
+                            "depends_on": [],
+                        },
+                    ]
+                }
+            ),
+            encoding="utf-8",
+        )
+        rc, out = self._run_cli(["plan-search", "--plan", str(plan_path)])
+        self.assertEqual(rc, 0)
+        self.assertEqual(out["steps"][0]["coverage_level"], "unverified_fit")
+        self.assertFalse(out["steps"][0]["evidence_verified"])
+        self.assertEqual(out["steps"][1]["coverage_level"], "unverified_fit")
+        self.assertFalse(out["steps"][1]["evidence_verified"])
 
 
 if __name__ == "__main__":

@@ -24,7 +24,7 @@ import unicodedata
 import uuid
 from typing import Any
 
-__version__ = "3.0.0"
+__version__ = "3.1.0"
 
 HOME = pathlib.Path.home()
 _HERE = pathlib.Path(__file__).resolve()
@@ -1102,8 +1102,11 @@ def resolve_warehouses(cli_warehouse: str | None) -> list[pathlib.Path]:
 
 
 VI_NEGATION_RE = re.compile(
-    r"\b(?:khong can|khong dung|khong su dung|khong muon|khong lam|khong phai|tranh dung|tranh|bo qua|ngoai tru|thay vi|thay cho|dung dung|loai tru|loai bo|khong)\b"
+    r"\b(?:khong can|khong dung|khong su dung|khong muon|khong lam|khong phai|khong tinh|chu khong phai|tranh dung|tranh|bo qua|ngoai tru|thay vi|thay cho|dung dung|loai tru|loai bo|tru ra|khong)\b"
 )
+_VI_UNICODE_TRU_RE = re.compile(r"\btrừ(?:\s+ra)?\b")
+_VI_PSEUDO_TRU_BEFORE_RE = re.compile(r"\b(?:phép|toán|bài\s+toán)\s*$")
+_VI_PSEUDO_TRU_AFTER_RE = re.compile(r"^\s*khi\b")
 EN_NEGATION_RE = re.compile(
     r"\b(?:do not use|don't use|dont use|never use|not using|do not|don't|dont|but not|without|avoid|exclude|excluding|instead of|rather than|except|not)\b"
 )
@@ -1171,6 +1174,7 @@ STOP_WORDS = frozenset(
         "make",
         "create",
         "build",
+        "dung",
         "help",
         "please",
         "with",
@@ -1424,6 +1428,16 @@ def _split_query_negations(query: str) -> tuple[str, str]:
             m_no = EN_NO_RE.search(norm_clause)
             if m_no is not None:
                 matches.append(m_no)
+        clause_lower = clause.lower()
+        for m_tru_u in _VI_UNICODE_TRU_RE.finditer(clause_lower):
+            if _VI_PSEUDO_TRU_BEFORE_RE.search(
+                clause_lower[: m_tru_u.start()]
+            ) or _VI_PSEUDO_TRU_AFTER_RE.search(clause_lower[m_tru_u.end() :]):
+                continue
+            m_tru_n = re.search(r"\btru(?:\s+ra)?\b", norm_clause)
+            if m_tru_n is not None:
+                matches.append(m_tru_n)
+                break
         if not matches:
             pos_parts.append(_unmask(clause))
             continue

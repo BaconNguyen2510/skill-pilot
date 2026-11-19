@@ -9,6 +9,7 @@ import io
 import json
 import os
 import pathlib
+import re
 import tempfile
 import time
 import uuid
@@ -217,6 +218,86 @@ def validate_plan_dependencies(steps: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+_EVIDENCE_STOPWORDS = frozenset(
+    {
+        "skill",
+        "skills",
+        "covers",
+        "cover",
+        "supports",
+        "support",
+        "based",
+        "using",
+        "with",
+        "from",
+        "this",
+        "that",
+        "step",
+        "task",
+        "the",
+        "and",
+        "for",
+    }
+)
+
+
+def extract_skill_capabilities(skill_md_path: str | pathlib.Path) -> dict[str, Any]:
+    """Extract real headings and normalized text from a verified SKILL.md on disk."""
+    path = pathlib.Path(skill_md_path)
+    if not path.is_file():
+        return {"readable": False, "headings": [], "lower_text": ""}
+    text = path.read_text(encoding="utf-8", errors="replace")
+    headings = [
+        m.group(1).strip()
+        for m in re.finditer(r"^#{1,3}\s+(.+)$", text, flags=re.MULTILINE)
+    ]
+    return {
+        "readable": True,
+        "headings": headings,
+        "lower_text": re.sub(r"\s+", " ", text.lower()),
+    }
+
+
+def verify_capability_evidence(
+    evidence_text: str, matches: list[dict[str, Any]]
+) -> dict[str, Any]:
+    """Verify capability_evidence via exact quoted passage or exact SKILL.md heading match."""
+    cleaned = re.sub(r"\s+", " ", evidence_text.strip())
+    if not cleaned or not matches:
+        return {"verified": False, "matched_skill_id": None, "grounding_type": "none"}
+
+    # Extract quoted spans if present, otherwise evaluate the whole cleaned evidence string
+    quoted = [q.strip() for q in re.findall(r'"([^"]{12,})"', cleaned)]
+    candidates = quoted or [cleaned]
+    lower_cleaned = cleaned.lower()
+
+    for m in matches:
+        md_path = m.get("skill_md_path")
+        if not md_path:
+            continue
+        caps = extract_skill_capabilities(md_path)
+        if not caps["readable"]:
+            continue
+        skill_id = str(m.get("id", "")).lower()
+        for h in caps["headings"]:
+            hl = h.lower()
+            if len(hl) >= 4 and hl != skill_id and hl in lower_cleaned:
+                return {
+                    "verified": True,
+                    "matched_skill_id": m.get("id"),
+                    "grounding_type": "exact_heading",
+                }
+        for cand in candidates:
+            cl = cand.lower()
+            if len(cl) >= 12 and cl != skill_id and cl in caps["lower_text"]:
+                return {
+                    "verified": True,
+                    "matched_skill_id": m.get("id"),
+                    "grounding_type": "exact_quote",
+                }
+    return {"verified": False, "matched_skill_id": None, "grounding_type": "none"}
+
+
 def normalize_step_coverage(step: dict[str, Any]) -> dict[str, Any]:
     """Validate host-assessed skill coverage; never promote ranking score to direct coverage."""
     raw_level = str(step.get("coverage_level", "unverified_fit")).lower()
@@ -278,10 +359,15 @@ def run_plan_search(
 
         verified_matches = [m for m in matches if m.get("verified_on_disk")]
         assessed = normalize_step_coverage(step)
+        ev_check = verify_capability_evidence(
+            assessed["capability_evidence"], verified_matches
+        )
         if not verified_matches:
             coverage_level = "none"
-        elif assessed["coverage_level"] in ("direct", "partial"):
-            coverage_level = assessed["coverage_level"]
+        elif assessed["coverage_level"] == "direct":
+            coverage_level = "direct" if ev_check["verified"] else "unverified_fit"
+        elif assessed["coverage_level"] == "partial":
+            coverage_level = "partial"
         else:
             # Score is a ranking signal only; without inspected SKILL.md evidence, fit is unverified.
             coverage_level = "unverified_fit"
@@ -327,6 +413,8 @@ def run_plan_search(
                 "query": query,
                 "coverage_level": coverage_level,
                 "capability_evidence": assessed["capability_evidence"],
+                "evidence_verified": ev_check["verified"],
+                "grounding_type": ev_check["grounding_type"],
                 "uncovered_capabilities": assessed["uncovered_capabilities"],
                 "matches": verified_matches,
                 "unverified_candidates_filtered": len(matches) - len(verified_matches),
