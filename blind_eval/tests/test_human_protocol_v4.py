@@ -178,8 +178,7 @@ class SyntheticHumanProtocolTests(unittest.TestCase):
                     results.append("exists")
 
             threads = [
-                threading.Thread(target=writer, args=(label,))
-                for label in ("q1", "q2")
+                threading.Thread(target=writer, args=(label,)) for label in ("q1", "q2")
             ]
             for thread in threads:
                 thread.start()
