@@ -1,27 +1,30 @@
 {
   "schema_version": "3.1",
-  "candidate_version": "3.1.0",
-  "runtime_commit": "344713a48433d6f2153549285ea2f0399592a79c",
+  "candidate_version": "3.1.1",
+  "runtime_commit": "3e035c806504e99e298b5d3ca9d78629e92f03a4",
   "historical_candidates": {
     "2c8daab7ae7a8b06dcfc64863c4043183fd35261": {
       "skills/skill-pilot/scripts/skill_scout.py": "95c8fe505ba3214788c0ba51e850ee5913bfeb376102f0e9ab8ef89eb8ced3d3"
     },
     "d7e845c3d9bb5262c4a44fcb7f4925bf62eb1f95": {
       "skills/skill-pilot/scripts/skill_scout.py": "0ae9b25688eda134826e7dc4a81f3bf625e1480b57e795b1738fb23a5f369174"
+    },
+    "344713a48433d6f2153549285ea2f0399592a79c": {
+      "skills/skill-pilot/scripts/skill_scout.py": "7e86f4452781c83f45a4ed917a1028c6ce877f16a0309ff0b0a16c327ac82aec"
     }
   },
   "file_sha256_lf_git_archive": {
-    "skills/skill-pilot/scripts/skill_scout.py": "7e86f4452781c83f45a4ed917a1028c6ce877f16a0309ff0b0a16c327ac82aec",
-    "skills/skill-pilot/scripts/session_planner.py": "e8ad2148720b6c5b634b49beac171f5401a7b38e75168a91cc5d6285d6321e7d",
-    "skills/skill-pilot/SKILL.md": "9ddc1a4f83a0483cf2b5561b31448f79c635ffcfaf947ec26131db291c088606",
+    "skills/skill-pilot/scripts/skill_scout.py": "3536017184f57dc85fb92329c000554143f47284ed4ac9ba44d5fdf25c05641d",
+    "skills/skill-pilot/scripts/session_planner.py": "70c6f98264f84c146331e998b562629948d9a414bec6204b98c9e4d9c5470479",
+    "skills/skill-pilot/SKILL.md": "ab5cc853e33e67379bcd5585a52fd6667f31946b61ace05a3c480fa1ef82c9b7",
     "eval/run_eval.py": "8d4f26d9aa3647f7cf8db59b8f9b081ceb9e632a1520dd94eb0a95146335c41b",
     "eval/corpus_builder.py": "ec3b214a5a009bdccd3d55f36c6122af3039104ae113ea9b6848f8c843d70684",
     "eval/metrics.py": "ca0de648a5d773a5b0b08e66102b923b7838015d8eb133164a2d7e096c69e411",
     "eval/validate_eval.py": "0b10c322477c1c1f9b107d52faa1743a42ee5876f2d0b9e40077da456f2f797e",
     "eval/queries.jsonl": "19fa39acb0d3cefe6ac825ee340b31fe73b901a1b514b56129603254519d475f",
     "eval/dev_v2_challenge.jsonl": "aa3080e38bf4780799e530df333583956e97626e63ac935b9855c319f371e81f",
-    "plugin.json": "85d26acf55ef436de69eb0865303c1aea3e5d2ec7d0798432c127239e69b9893",
-    ".codex-plugin/plugin.json": "134b8bde8cb42a8de90e6d8749c301beb270a4b4bd7ebf8f7e6a66358f38103d",
-    ".agents/plugins/marketplace.json": "3e2ba72e1440d754ed73333de8384da6aa59a3963017bd7d7fdcd3bce25a55dd"
+    "plugin.json": "4a165d277f32db20b0b4ece679663647e24d01acb24a3dc0e8cf4b58b69d4e87",
+    ".codex-plugin/plugin.json": "33fcac79484f68a627bfaa85df25d9cb988f7baecc0ad047b920dc4fb760b876",
+    ".agents/plugins/marketplace.json": "c5f0629c15e0d1a3c3cf6838abc397c7b99db17bf34febc16243fb134c399051"
   }
 }

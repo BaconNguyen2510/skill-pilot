@@ -112,6 +112,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
         patch_path.write_text(
             json.dumps(
                 {
+                    "intent_confirmed": True,
                     "confirmed_requirements": [
                         {"id": "req-1", "text": "Track workouts and nutrition"}
                     ],
@@ -188,6 +189,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
         rev_patch.write_text(
             json.dumps(
                 {
+                    "intent_confirmed": True,
                     "confirmed_requirements": [
                         {"id": "req-1", "text": "Chỉ làm web dashboard"}
                     ],
@@ -236,6 +238,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
         patch.write_text(
             json.dumps(
                 {
+                    "intent_confirmed": True,
                     "confirmed_requirements": [
                         {"id": "req-1", "text": "Workout tracker"}
                     ],
@@ -430,6 +433,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
         patch.write_text(
             json.dumps(
                 {
+                    "intent_confirmed": True,
                     "confirmed_requirements": [{"id": "r1", "text": "React web app"}],
                     "plan_steps": [
                         {
@@ -470,6 +474,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
         patch.write_text(
             json.dumps(
                 {
+                    "intent_confirmed": True,
                     "confirmed_requirements": [{"id": "r1", "text": "React web app"}],
                     "plan_steps": [
                         {

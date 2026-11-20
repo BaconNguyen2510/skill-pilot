@@ -35,6 +35,7 @@ def compute_readiness(session: dict[str, Any]) -> dict[str, Any]:
     dep_check = validate_plan_dependencies(plan_steps)
     criteria = {
         "has_confirmed_goal": len(confirmed) > 0,
+        "intent_confirmed": bool(session.get("intent_confirmed", True)),
         "has_success_criteria": len(success) > 0,
         "no_blocking_unresolved_questions": len(unresolved) == 0,
         "assumptions_acknowledged": len(unack_assumptions) == 0,
@@ -45,6 +46,7 @@ def compute_readiness(session: dict[str, Any]) -> dict[str, Any]:
         k
         for k in (
             "has_confirmed_goal",
+            "intent_confirmed",
             "no_blocking_unresolved_questions",
             "assumptions_acknowledged",
         )
@@ -86,6 +88,7 @@ def init_session(
         "revision": 1,
         "initial_request": initial_request.strip(),
         "language": language,
+        "intent_confirmed": False,
         "confirmed_requirements": [],
         "assumptions": [],
         "unresolved_questions": [],
@@ -120,6 +123,9 @@ def _merge_by_id(
     return [by_id[k] for k in order]
 
 
+_GUESS_SOURCES = frozenset({"agent_guess", "guess", "inferred", "assumption"})
+
+
 def update_session(
     session: dict[str, Any],
     patch: dict[str, Any],
@@ -128,6 +134,28 @@ def update_session(
 ) -> dict[str, Any]:
     """Update session fields without silently losing prior history."""
     updated = copy.deepcopy(session)
+    sanitized_patch = copy.deepcopy(patch)
+    # Route agent guesses out of confirmed_requirements into unacknowledged assumptions
+    if isinstance(sanitized_patch.get("confirmed_requirements"), list):
+        kept_reqs: list[dict[str, Any]] = []
+        demoted: list[dict[str, Any]] = list(sanitized_patch.get("assumptions") or [])
+        for req in sanitized_patch["confirmed_requirements"]:
+            src = str(req.get("source", "")).strip().lower()
+            if src in _GUESS_SOURCES:
+                demoted.append(
+                    {
+                        "id": req.get("id") or f"guess-{len(demoted) + 1}",
+                        "text": req.get("text", ""),
+                        "source": src,
+                        "acknowledged": False,
+                    }
+                )
+            else:
+                kept_reqs.append(req)
+        sanitized_patch["confirmed_requirements"] = kept_reqs
+        if demoted:
+            sanitized_patch["assumptions"] = demoted
+
     list_fields = (
         "confirmed_requirements",
         "assumptions",
@@ -138,14 +166,19 @@ def update_session(
         "plan_steps",
     )
     for field in list_fields:
-        if field in patch and isinstance(patch[field], list):
-            if patch.get("replace_plan") and field == "plan_steps":
-                updated[field] = copy.deepcopy(patch[field])
+        if field in sanitized_patch and isinstance(sanitized_patch[field], list):
+            if sanitized_patch.get("replace_plan") and field == "plan_steps":
+                updated[field] = copy.deepcopy(sanitized_patch[field])
             else:
-                updated[field] = _merge_by_id(updated.get(field, []), patch[field])
+                updated[field] = _merge_by_id(
+                    updated.get(field, []), sanitized_patch[field]
+                )
 
-    if patch.get("language"):
-        updated["language"] = patch["language"]
+    if "intent_confirmed" in sanitized_patch:
+        updated["intent_confirmed"] = bool(sanitized_patch["intent_confirmed"])
+
+    if sanitized_patch.get("language"):
+        updated["language"] = sanitized_patch["language"]
 
     # Invalidate stale plan/discovery when requirements, constraints, or plan change
     req_changed = any(

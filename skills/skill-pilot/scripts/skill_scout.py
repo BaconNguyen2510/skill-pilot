@@ -24,7 +24,7 @@ import unicodedata
 import uuid
 from typing import Any
 
-__version__ = "3.1.0"
+__version__ = "3.1.1"
 
 HOME = pathlib.Path.home()
 _HERE = pathlib.Path(__file__).resolve()
@@ -3686,6 +3686,20 @@ def cmd_plan_search(args: argparse.Namespace) -> int:
 
     if args.session:
         source = session_planner.load_json_file(pathlib.Path(args.session))
+        readiness = session_planner.compute_readiness(source)
+        if not readiness["ready_for_planning"]:
+            print(
+                json.dumps(
+                    {
+                        **_error_payload(
+                            "DISCOVERY_BLOCKED_UNCONFIRMED_INTENT",
+                            "Confirm user intent and resolve blocking questions/assumptions before running plan-search.",
+                        ),
+                        "missing_for_planning": readiness["missing_for_planning"],
+                    }
+                )
+            )
+            return 1
     elif args.plan:
         source = session_planner.load_json_file(pathlib.Path(args.plan))
     else:
