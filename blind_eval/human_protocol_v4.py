@@ -210,8 +210,7 @@ def score_agreement(
             or left[key]["inappropriate"] != right[key]["inappropriate"]
             or (
                 include_missing_capability
-                and left[key]["missing_capability"]
-                != right[key]["missing_capability"]
+                and left[key]["missing_capability"] != right[key]["missing_capability"]
             )
             or abs(left[key]["relevance"] - right[key]["relevance"]) >= 2
         )
