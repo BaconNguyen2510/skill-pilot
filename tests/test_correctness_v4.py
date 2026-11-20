@@ -135,6 +135,36 @@ class V4CorrectnessTests(unittest.TestCase):
             self.assertEqual(output["steps"][0]["coverage_level"], "unverified_fit")
             self.assertTrue(output["steps"][0]["capability_gap"])
 
+    def test_spec_shows_execution_order_and_review_gate(self) -> None:
+        session = ready_session()
+        session["plan_steps"] = [
+            {"id": "verify", "title": "Verify", "depends_on": ["ui"]},
+            {"id": "ui", "title": "Build UI", "depends_on": []},
+        ]
+        discovery = {
+            "for_revision": session["revision"],
+            "steps": [
+                {"step_id": "ui", "coverage_level": "unverified_fit"},
+                {"step_id": "verify", "coverage_level": "partial"},
+            ],
+        }
+        rendered = session_planner.render_specification(session, discovery)
+        self.assertIn("## 6. Dependency Order & Next Action", rendered)
+        self.assertIn("1. \`ui\`", rendered)
+        self.assertIn("2. \`verify\`", rendered)
+        self.assertIn("REVIEW REQUIRED", rendered)
+        self.assertNotIn("**Handoff:**", rendered)
+
+    def test_spec_only_offers_handoff_for_direct_coverage(self) -> None:
+        session = ready_session()
+        discovery = {
+            "for_revision": session["revision"],
+            "steps": [{"step_id": "ui", "coverage_level": "direct"}],
+        }
+        rendered = session_planner.render_specification(session, discovery)
+        self.assertIn("**Handoff:**", rendered)
+        self.assertIn("semantic capability fit", rendered)
+
     def test_spec_rejects_unversioned_discovery(self) -> None:
         session = ready_session()
         output = session_planner.render_specification(
