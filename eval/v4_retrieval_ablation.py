@@ -15,7 +15,7 @@ import run_eval
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 DEV_DATASETS = (
-    ROOT / "eval" / "queries.jsonl",
+    ROOT / "eval" / "v4_dev_snapshot.jsonl",
     ROOT / "eval" / "dev_v2_challenge.jsonl",
 )
 LANGUAGES = ("en", "vi", "vi_no_diacritic", "mixed")
@@ -112,7 +112,7 @@ def summarize(result: dict) -> dict:
                 "ndcg@5",
                 "forbidden_hit_rate@5",
             )
-        }
+        } | {"abstention_f1": part.get("abstention", {}).get("f1", 0)}
 
     return {
         "count": result["overall"]["count_total"],
@@ -157,6 +157,8 @@ def gate(candidate: dict, baseline: dict) -> dict:
     overall_gain = (
         candidate["overall"]["mrr@5"] > baseline["overall"]["mrr@5"]
         and candidate["overall"]["recall@5"] >= baseline["overall"]["recall@5"]
+        and candidate["overall"]["abstention_f1"]
+        >= baseline["overall"]["abstention_f1"]
     )
     return {
         "forbidden_nonregression": forbidden_ok,
@@ -169,7 +171,7 @@ def gate(candidate: dict, baseline: dict) -> dict:
 def main() -> int:
     output = {
         "protocol": "v4-dev-only",
-        "holdout_accessed": False,
+        "holdout_evaluated": False,
         "candidate_integration": "none",
         "datasets": {},
     }
