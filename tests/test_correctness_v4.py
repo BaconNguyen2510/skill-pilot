@@ -150,11 +150,13 @@ class V4CorrectnessTests(unittest.TestCase):
                 lock = session.with_name(f".{session.name}.lock")
                 old = __import__("time").time() - 100
                 __import__("os").utime(lock, (old, old))
-                with self.assertRaises(TimeoutError):
-                    with session_planner.session_lock(
+                with (
+                    self.assertRaises(TimeoutError),
+                    session_planner.session_lock(
                         session, timeout_s=0.03, stale_after_s=0.01
-                    ):
-                        pass
+                    ),
+                ):
+                    pass
                 self.assertTrue(lock.exists())
             self.assertFalse(lock.exists())
 
