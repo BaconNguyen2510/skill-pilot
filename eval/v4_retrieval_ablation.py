@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import collections
 import json
-import math
 import pathlib
 from unittest import mock
 
