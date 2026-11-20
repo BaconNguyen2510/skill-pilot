@@ -60,8 +60,21 @@ def main() -> int:
         },
         "review_status": "manual_review_only",
     }
+    nonregression = (
+        after["overall"]["fp"] <= before["overall"]["fp"]
+        and after["overall"]["fn"] <= before["overall"]["fn"]
+    )
+    improvement = (
+        after["overall"]["fp"] < before["overall"]["fp"]
+        or after["overall"]["fn"] < before["overall"]["fn"]
+    )
+    result["gate"] = {
+        "synthetic_nonregression": nonregression,
+        "synthetic_improvement": improvement,
+        "eligible_for_manual_review": nonregression and improvement,
+    }
     print(json.dumps(result, indent=2, ensure_ascii=False))
-    return 0
+    return 0 if result["gate"]["eligible_for_manual_review"] else 1
 
 
 if __name__ == "__main__":

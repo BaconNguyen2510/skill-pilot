@@ -348,6 +348,45 @@ _EVIDENCE_STOPWORDS = frozenset(
 
 
 MAX_CAPABILITY_MD_BYTES = 1024 * 1024
+MAX_MARKDOWN_SOURCE_LINES = 8192
+
+
+def _visible_skill_markdown(text: str) -> str | None:
+    """Retain rendered prose; exclude fenced examples and hidden HTML comments.
+
+    This is a bounded conservative source-evidence filter, not a full Markdown
+    parser. A malformed/unclosed code fence remains inert through EOF.
+    """
+    fence_pattern = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
+    fence_type: str | None = None
+    fence_length = 0
+    visible_lines: list[str] = []
+    for line_number, line in enumerate(text.splitlines(), start=1):
+        if line_number > MAX_MARKDOWN_SOURCE_LINES:
+            return None
+        marker = fence_pattern.match(line)
+        if fence_type is not None:
+            if (
+                marker
+                and marker.group(1)[0] == fence_type
+                and len(marker.group(1)) >= fence_length
+                and not marker.group(2).strip()
+            ):
+                fence_type = None
+            continue
+        if marker:
+            opening = marker.group(1)
+            if opening[0] == "`" and "`" in marker.group(2):
+                # CommonMark rejects backticks in a backtick fence's info string.
+                visible_lines.append(line)
+                continue
+            fence_type = opening[0]
+            fence_length = len(opening)
+            continue
+        visible_lines.append(line)
+
+    visible = "\n".join(visible_lines)
+    return re.sub(r"<!--.*?(?:-->|\Z)", "", visible, flags=re.DOTALL)
 
 
 def extract_skill_capabilities(skill_md_path: str | pathlib.Path) -> dict[str, Any]:
@@ -385,8 +424,10 @@ def extract_skill_capabilities(skill_md_path: str | pathlib.Path) -> dict[str, A
         return unavailable
     if len(payload) > MAX_CAPABILITY_MD_BYTES:
         return unavailable
-    text = payload.decode("utf-8", errors="replace")
-    # Keep sentence boundaries: flattening all source text loses denial scope.
+    text = _visible_skill_markdown(payload.decode("utf-8", errors="replace"))
+    if text is None:
+        return unavailable
+    # Keep sentence boundaries: flattening all visible source text loses denial scope.
     statements: list[str] = []
     for line in text.splitlines():
         for statement in re.split(r"(?<=[.!?;])\s+", line):
@@ -489,7 +530,8 @@ def verify_capability_evidence(
     # Extract quoted spans if present, otherwise evaluate the whole cleaned evidence string
     quoted = [q.strip() for q in re.findall(r'"([^"]{12,})"', cleaned)]
     candidates = quoted or [cleaned]
-    lower_cleaned = cleaned.lower()
+    heading_probe = cleaned.strip().strip('`"').strip()
+    heading_probe = re.sub(r"^#{1,3}\s+", "", heading_probe).casefold()
     step_terms = _evidence_terms(step_text)
     if step_text and not step_terms:
         return {"verified": False, "matched_skill_id": None, "grounding_type": "none"}
@@ -516,7 +558,7 @@ def verify_capability_evidence(
             if (
                 len(hl) >= 4
                 and hl != skill_id
-                and hl in lower_cleaned
+                and heading_probe == h.casefold()
                 and (not step_text or step_terms & _evidence_terms(h))
                 and not _denies_step_capability(h, step_terms)
             ):

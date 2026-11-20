@@ -26,3 +26,26 @@ Selection gate (to be applied after observed baseline metrics): reduce false sou
 ## Verification boundary
 
 New source-provenance tests must check both backtick/tilde fences, nested longer fences, unclosed fences, HTML comments, exact-heading versus substring matches, source-local prose and fenced-only limitations. The entire four-cell CI must pass at the exact changed commit before any approval.
+
+## Actual baseline findings — CI #44694714253
+
+The frozen before-change verifier at `178ac1a9e5836fd88187bd9780f01332a1ecc0e3` was evaluated in the four-cell matrix (all passed) on the separately checked-in **16 synthetic dev cases**. One Ubuntu 3.12 job measured:
+
+| Metric | Baseline |
+| --- | ---: |
+| Positive / negative engineered cases | 8 / 8 |
+| True positives | 5 |
+| True negatives | 0 |
+| False positives | 8 |
+| False negatives | 3 |
+| p50 / p95 per-case median latency | 0.1489 / 0.1555 ms |
+
+**Observed failure modes:** code fenced quotes/headings and hidden HTML comments were accepted; negative claims inside code fences vetoed genuine visible prose; a fabricated quoted sentence containing the name of a real heading passed as an exact heading match.
+
+These percentages are not representative field accuracy. All labels were predeclared synthetic engineering assertions, not independently annotated user requests.
+
+## Candidate behavior and acceptance
+
+The implementation candidate filters fenced code and HTML comments before heading, statement and quote extraction; a cited heading must match the standalone evidence text rather than merely appear as a substring in longer text. It follows the CommonMark 0–3-space fence indentation and marker-type/length rules, caps source line count, and fails closed on unclosed fences. The original 32-case EN/VI contradiction benchmark must remain green.
+
+The dev-only Markdown benchmark rejects a candidate if synthetic false positives or false negatives regress, or if neither improves. Full Windows/Linux CI and measured latency results must be recorded after implementation; this benchmark is not a v4 release gate or human semantic-validation claim.
