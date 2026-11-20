@@ -115,7 +115,9 @@ def run_smoke(checkout: pathlib.Path, home: pathlib.Path) -> dict:
     inventory = invoke(canonical, home, "inventory", "--harness", "all")
     if not isinstance(inventory, dict):
         raise AssertionError("Inventory did not emit JSON")
-    intake = invoke(canonical, home, "intake", "--workspace", str(workspace), "--format", "json")
+    intake = invoke(
+        canonical, home, "intake", "--workspace", str(workspace), "--format", "json"
+    )
     if not isinstance(intake, dict):
         raise AssertionError("Intake did not emit JSON")
     inspected = invoke(
@@ -161,7 +163,11 @@ def run_smoke(checkout: pathlib.Path, home: pathlib.Path) -> dict:
             {
                 "intent_confirmed": True,
                 "confirmed_requirements": [
-                    {"id": "r1", "text": "Build a React app", "source": "user_confirmed"}
+                    {
+                        "id": "r1",
+                        "text": "Build a React app",
+                        "source": "user_confirmed",
+                    }
                 ],
                 "success_criteria": [{"id": "a1", "text": "UI is accessible"}],
                 "plan_steps": [
@@ -235,7 +241,15 @@ def main() -> int:
         home = root / "fake_home"
         home.mkdir()
         summary = run_smoke(checkout, home)
-    print(json.dumps({"status": "passed", "mode": "simulated-host-clean-archive", "checks": summary}))
+    print(
+        json.dumps(
+            {
+                "status": "passed",
+                "mode": "simulated-host-clean-archive",
+                "checks": summary,
+            }
+        )
+    )
     return 0
 
 
