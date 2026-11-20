@@ -27,6 +27,18 @@ Classify by ambiguity, blast radius, and stakes; upgrade the track if evidence c
 - **Explicit confirmation:** Before planning or `plan-search` on an ambiguous request, restate the interpreted goal, success criteria, and key constraints in the user's language and ask the user to confirm or correct (`intent_confirmed: true`).
 - **Detailed initial prompts:** If the user has already supplied clear, unambiguous requirements and constraints, skip redundant questions and confirm concisely before planning.
 
+## Source-access recovery gate (v4.0 release blocker)
+
+When a URL, reel, video, article, attachment, or other source is blocked, unavailable, deleted, timed out, or login-walled, **do not equate source failure with failure of the user's underlying goal**. Apply [source-recovery.md](references/source-recovery.md) before concluding.
+
+1. **Preserve the goal.** Record what the user wanted to achieve, separate from the failed retrieval. If the user asks "what do you think of the idea behind this reel?", the goal is idea evaluation, not URL fetching. An inaccessible source with a clear goal is **not** grounds to repeat the Interview Gate or ask the user to restate that goal.
+2. **Recover before asking.** Use available, authorized public-source metadata or transcript tools when appropriate. For media and other capability-dependent tasks, **run one bounded, read-only relevant skill discovery** (active/dormant/warehouse) with a *capability query*, not merely the failed URL; inspect any relevant `SKILL.md` before claiming fit. Skip repeat discovery only when relevant results are already known, or the needed tooling truly does not exist; state the limitation. This recovery lookup is not permission to create a speculative plan or execute third-party scripts.
+3. **No access bypass or fabrication.** Do not evade authentication, private accounts, paywalls, CAPTCHA or access controls. Never claim to have watched, transcribed, or evaluated unseen content. Separate attempted tools, observed results, and unverified assumptions.
+4. **Continue the task.** If content is still missing, give useful analysis criteria grounded in the user's goal, identify the precise source gap, and ask **one concrete source-input question** (upload video, provide captions/transcript, share screenshots, or summarize scenes). Do not ask for the already-known goal. Preserve constraints for the next turn; do not end with only "I can't access it."
+5. **Document the recovery route.** Keep a concise record of the access failure, permitted alternatives checked, skill discovery performed (or an evidence-based reason not), unresolved blocker, and next action. Never invent checks or available skills.
+
+This gate applies in Fast, Guided, and Deep when source access blocks otherwise clear work. It overrides **Fast's usual optional-search shortcut only for relevant blocked-source recovery**; it does not authorize a full `plan-search` session before user confirmation on genuinely ambiguous tasks. Do not interpret one tool failure as user confirmation, nor let an unavailable skill imply an unavailable goal.
+
 ## Scout, plan, and ground
 
 Resolve `<skill-dir>` from this file's directory. For `Guided` or `Deep`, use the host's Python runner:
@@ -53,3 +65,4 @@ For execution, read the files and symbols before editing, make the smallest comp
 - “It's only a prompt”: a project handoff still requires intake and reading the named target before asserting causes or tests.
 - “The symptom proves the cause”: label it reported or hypothetical until the source or a test establishes it.
 - “It probably passed”: cite observed output or report the check unavailable. Avoid duplicate contract and prompt blocks.
+- “Facebook blocked the reel, so I am done”: preserve the idea-analysis goal, check relevant skills and permissible alternatives, then ask only for the missing content if needed.

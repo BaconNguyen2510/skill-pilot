@@ -55,3 +55,7 @@ As of v4 development commit `be8e9ee965d995c7853803fc3fe913e7e9256827`, source-b
 ## Additional unreleased v4 evidence behavior (milestones 17–20)
 
 Indented Markdown and raw HTML literal-content examples are no longer credited as direct capability evidence. A direct composite step containing explicit conjunctions (`and`, `và`, `&`, `+`) now requires source-backed grounding for each clause **within one skill**. Omitted code/HTML blocks form provenance boundaries, so quotes cannot span removed blocks. Some previous `direct` assessments may legitimately downgrade to `unverified_fit`; they require reinspection, not automatic overrides. No change has been published in v3.1.1.
+
+## v4.0 blocked-source recovery requirement (unreleased)
+
+For an external reel/video/article link that cannot be fetched, the host now has an explicit instruction to preserve the user's original objective, try authorized public alternatives and relevant read-only skill discovery, and request only the smallest missing source input if the content is still unavailable. It must not claim to have seen inaccessible media or silently bypass authentication. This is a **v4.0 P0 release gate** ([issue #2](https://github.com/BaconNguyen2510/skill-pilot/issues/2)); it is not evidence that real hosts already comply. See [release gates](V4_RELEASE_GATES.md) and [recovery research](V4_BLOCKED_SOURCE_RECOVERY.md).

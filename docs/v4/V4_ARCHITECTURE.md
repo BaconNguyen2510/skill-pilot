@@ -2,6 +2,8 @@
 
 **Unreleased:** `feat/v4-development` is a technical development branch, not an approved v4.0 release. Plugin manifests remain `3.1.1`. No main merge, tag, release or deployment has been authorized.
 
+The v4.0 host-level contract also includes **goal-persistent source recovery**: external fetch failure is a subtask failure, not permission to abandon an otherwise clear user objective. Recovery uses existing read-only skill discovery and permitted alternative content; no bypass of authentication or unsupported video-content claims.
+
 ## End-to-end design
 
 ```text
@@ -54,6 +56,7 @@ Guided / Deep -> one-question interview + explicit user confirmation
 - Independently curated EN/VI (accented, unaccented, mixed) human-evaluation cases, bilingual raters and separate adjudicator, with pre-registered thresholds and protected custody.
 - Actual Codex and Antigravity host installation, weak/strong-model task completion studies, prompt-injection attempts and rollback scenarios.
 - Resolve or knowingly accept remaining semantic-fit, lock/TOCTOU and integration risks and document failures honestly.
+- **P0 v4.0 blocked-source recovery:** [Issue #2](https://github.com/BaconNguyen2510/skill-pilot/issues/2) must be resolved **before** v4.0 release. After an inaccessible Facebook/Instagram/TikTok/YouTube link, hosts must preserve the user's original goal, perform relevant authorized skill discovery or record a grounded abstention, disclose non-access without inventing content, and give one useful recovery action instead of a dead end. Require actual native Codex **and** Antigravity traces and independent EN/VI review, not just a SKILL.md prompt check or fake host smoke. See [release gates](V4_RELEASE_GATES.md) and [source recovery research](V4_BLOCKED_SOURCE_RECOVERY.md). **Current status: HOLD.**
 - Explicit authorization to modify versions, merge into main, tag or publish. **None has been granted**.
 
 ## Architectural debt

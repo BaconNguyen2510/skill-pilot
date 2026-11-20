@@ -1,5 +1,17 @@
 # Skill Pilot V4 — Durable Engineering Handoff
 
+## v4.0 P0 release blocker: goal persistence and inaccessible media (open)
+
+**Tracking:** [GitHub issue #2](https://github.com/BaconNguyen2510/skill-pilot/issues/2). The user specifically requires this to be fixed **in v4.0, not v4.1**. A reported Facebook-reel interaction showed a blocked fetch and a caption request but no visible skill discovery or alternative permitted recovery. That screenshot does not prove hidden tools were absent; real host traces are still required.
+
+- Added a blocked-source recovery gate to `skills/skill-pilot/SKILL.md` and a detailed `references/source-recovery.md` workflow. A blocked link with an already-clear goal must not restart the Interview Gate or terminate the original task. Relevant media-analysis skills must be searched by capability when permitted; inspect candidate SKILL.md files and never invent tool activity.
+- Added `docs/v4/V4_BLOCKED_SOURCE_RECOVERY.md` (3+ candidate design comparison), `docs/v4/V4_RELEASE_GATES.md` and 12 EN/VI synthetic **development scenarios** for later host trials. These are not observed native host successes or human labels.
+- **Current status: UNVERIFIED / RELEASE HOLD.** No v4.0 merge, tag, release or deployment may proceed while issue #2 lacks real native Codex and Antigravity acceptance evidence plus independent bilingual review. CI passing only proves the written skill contract and CLI discovery mechanics, not actual model obedience.
+
+**Next action:** run the complete post-change CI matrix, then collect redacted native host tool traces across the frozen blocked-link scenarios, adjudicate skipped skill discovery/fabricated media claims, fix underlying causes and rerun both hosts. User's intent must remain intact across fetch failure. Do not loosen privacy or invent access.
+
+---
+
 ## Verified continuation: milestones 17–20 (2026-11-20)
 
 **Latest verified source commit:** `b827876d9beaeb2e82461c4ac14bf601e374283b`, GitHub Actions **#44699486091**, four of four Windows/Ubuntu × Python 3.12/3.14 jobs passed. On Ubuntu Python 3.12: 232 main regression tests, 40 blind-tooling tests and 8 workflow tests; Ruff format/check, configured type checks, release verifier, dev ablations and simulated clean-archive host smoke passed.
