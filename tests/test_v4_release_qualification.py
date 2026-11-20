@@ -56,6 +56,12 @@ class ReleaseQualificationTests(unittest.TestCase):
             with self.assertRaises(FileExistsError):
                 qualification.write_create_only(output, {"all_passed": False})
 
+    def test_qualification_pins_ruff_without_assuming_a_runner_cache(self) -> None:
+        self.assertEqual(
+            qualification.RUFF_COMMAND,
+            ["uvx", "--from", "ruff==0.17.5", "ruff"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

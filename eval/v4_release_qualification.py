@@ -19,7 +19,7 @@ from typing import Any
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SEMVER = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
-RUFF_COMMAND = ["uvx", "--offline", "--from", "ruff==0.17.5", "ruff"]
+RUFF_COMMAND = ["uvx", "--from", "ruff==0.17.5", "ruff"]
 
 
 def load_module(name: str, path: pathlib.Path) -> Any:
