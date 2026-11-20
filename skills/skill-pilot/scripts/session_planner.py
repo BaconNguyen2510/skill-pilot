@@ -200,12 +200,8 @@ def update_session(
     plan_updated = "plan_steps" in sanitized_patch
     new_steps = sanitized_patch.get("plan_steps", [])
     existing_steps = session.get("plan_steps", [])
-    plan_reaffirmed = (
-        bool(new_steps)
-        and (
-            bool(sanitized_patch.get("replace_plan"))
-            or not existing_steps
-        )
+    plan_reaffirmed = bool(new_steps) and (
+        bool(sanitized_patch.get("replace_plan")) or not existing_steps
     )
     if material_changed and updated.get("plan_steps") and not plan_reaffirmed:
         updated["plan_stale"] = True

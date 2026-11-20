@@ -238,7 +238,10 @@ class V4CorrectnessTests(unittest.TestCase):
         for patch in (
             {"plan_steps": []},
             {"plan_steps": [{"id": "ui", "title": "React UI", "depends_on": []}]},
-            {"success_criteria": [{"id": "a1", "text": "Login works"}], "plan_steps": []},
+            {
+                "success_criteria": [{"id": "a1", "text": "Login works"}],
+                "plan_steps": [],
+            },
         ):
             with self.subTest(patch=patch):
                 updated = session_planner.update_session(stale, patch)
@@ -261,7 +264,9 @@ class V4CorrectnessTests(unittest.TestCase):
             changed,
             {
                 "replace_plan": True,
-                "plan_steps": [{"id": "ui", "title": "Responsive UI", "depends_on": []}],
+                "plan_steps": [
+                    {"id": "ui", "title": "Responsive UI", "depends_on": []}
+                ],
             },
         )
         self.assertFalse(replacement["plan_stale"])
