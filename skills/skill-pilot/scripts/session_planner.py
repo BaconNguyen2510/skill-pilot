@@ -10,6 +10,7 @@ import json
 import os
 import pathlib
 import re
+import stat
 import tempfile
 import time
 import uuid
@@ -497,41 +498,157 @@ def load_json_file(path: pathlib.Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _session_lock_pid_alive(pid: int | None) -> bool | None:
+    """Conservative process liveness probe: unknown never means safe to steal."""
+    if not isinstance(pid, int) or isinstance(pid, bool) or pid <= 0:
+        return None
+    if pid == os.getpid():
+        return True
+    if os.name == "nt":
+        try:
+            import ctypes
+
+            kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+            handle = kernel32.OpenProcess(0x1000, False, pid)
+            if not handle:
+                error = ctypes.get_last_error()
+                if error == 5:  # Access denied: process may still be alive.
+                    return True
+                if error == 87:  # Invalid PID on Windows.
+                    return False
+                return None
+            try:
+                code = ctypes.c_uint32(0)
+                if kernel32.GetExitCodeProcess(handle, ctypes.byref(code)):
+                    return code.value == 259  # STILL_ACTIVE
+                return None
+            finally:
+                kernel32.CloseHandle(handle)
+        except (OSError, AttributeError):
+            return None
+    try:
+        os.kill(pid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    except OSError:
+        return None
+
+
+def _session_lock_metadata(lock_path: pathlib.Path) -> dict[str, Any]:
+    """Read regular-file lock metadata, rejecting links and file replacement."""
+    entry = os.lstat(lock_path)
+    if not stat.S_ISREG(entry.st_mode):
+        raise ValueError(f"Refusing non-regular session lock: {lock_path}")
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+    flags |= getattr(os, "O_BINARY", 0) | getattr(os, "O_NONBLOCK", 0)
+    fd = os.open(lock_path, flags)
+    try:
+        opened = os.fstat(fd)
+        if not stat.S_ISREG(opened.st_mode) or (
+            opened.st_dev,
+            opened.st_ino,
+        ) != (entry.st_dev, entry.st_ino):
+            raise ValueError(f"Session lock changed while inspecting: {lock_path}")
+        raw = os.read(fd, 4096).decode("utf-8", errors="replace").strip()
+    finally:
+        os.close(fd)
+
+    pid: int | None = None
+    token: str | None = None
+    try:
+        value = json.loads(raw)
+        if isinstance(value, dict):
+            candidate = value.get("pid")
+            if isinstance(candidate, int) and not isinstance(candidate, bool):
+                pid = candidate
+            token_value = value.get("token")
+            if isinstance(token_value, str) and token_value:
+                token = token_value
+        elif isinstance(value, int) and not isinstance(value, bool):
+            pid = value  # Older session locks stored the PID only.
+    except json.JSONDecodeError:
+        pass
+
+    return {
+        "dev": entry.st_dev,
+        "ino": entry.st_ino,
+        "mtime_ns": entry.st_mtime_ns,
+        "age_seconds": max(0.0, time.time() - entry.st_mtime),
+        "pid": pid,
+        "token": token,
+    }
+
+
 @contextlib.contextmanager
 def session_lock(
     path: pathlib.Path,
     timeout_s: float = 5.0,
     stale_after_s: float = 60.0,
 ):
-    """Cross-platform exclusive lockfile guard with bounded stale-lock recovery."""
+    """Exclusive cross-platform lock; never reclaim a known-live owner."""
     path.parent.mkdir(parents=True, exist_ok=True)
     lock_path = path.with_name(f".{path.name}.lock")
     deadline = time.monotonic() + timeout_s
+    token = uuid.uuid4().hex
     while True:
         try:
-            fd = os.open(str(lock_path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY
+            flags |= getattr(os, "O_BINARY", 0)
+            fd = os.open(lock_path, flags, 0o600)
             try:
-                os.write(fd, f"{os.getpid()}\n".encode("ascii"))
-            finally:
+                payload = (
+                    json.dumps({"pid": os.getpid(), "token": token}) + "\n"
+                ).encode("utf-8")
+                while payload:
+                    payload = payload[os.write(fd, payload) :]
+                os.fsync(fd)
+            except Exception:
+                os.close(fd)
+                with contextlib.suppress(FileNotFoundError):
+                    lock_path.unlink()
+                raise
+            else:
                 os.close(fd)
             break
         except FileExistsError:
             try:
-                age_s = time.time() - lock_path.stat().st_mtime
+                meta = _session_lock_metadata(lock_path)
             except FileNotFoundError:
                 continue
-            if age_s >= stale_after_s:
-                with contextlib.suppress(FileNotFoundError):
-                    os.unlink(lock_path)
-                continue
+            if meta["age_seconds"] >= stale_after_s:
+                alive = _session_lock_pid_alive(meta["pid"])
+                if alive is False or meta["pid"] is None:
+                    try:
+                        current = os.lstat(lock_path)
+                        if (
+                            current.st_dev,
+                            current.st_ino,
+                            current.st_mtime_ns,
+                        ) == (meta["dev"], meta["ino"], meta["mtime_ns"]):
+                            lock_path.unlink()
+                            continue
+                    except FileNotFoundError:
+                        continue
             if time.monotonic() >= deadline:
                 raise TimeoutError(f"Timed out waiting for session lock: {lock_path}")
             time.sleep(0.01)
     try:
         yield
     finally:
+        # Another process may have replaced our path; never delete its lock.
         with contextlib.suppress(FileNotFoundError):
-            os.unlink(lock_path)
+            meta = _session_lock_metadata(lock_path)
+            if meta["token"] == token and meta["pid"] == os.getpid():
+                current = os.lstat(lock_path)
+                if (
+                    current.st_dev,
+                    current.st_ino,
+                    current.st_mtime_ns,
+                ) == (meta["dev"], meta["ino"], meta["mtime_ns"]):
+                    lock_path.unlink()
 
 
 def save_json_file(path: pathlib.Path, data: dict[str, Any]) -> None:

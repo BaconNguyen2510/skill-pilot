@@ -42,3 +42,9 @@ Avoided a large \`skill_scout.py\` split in the initial patch: direct-script exe
 ## Limits and follow-up
 
 This phase does not establish semantic capability correctness; exact text present in a skill file can still be irrelevant to a task. The 60-second session-lock stale recovery may still replace a live owner's lock and needs ownership-aware hardening. Benchmark and CI results must be appended only after runs actually complete. No human evaluation was performed.
+
+## Additional session-lock hardening (second Phase 1 milestone)
+
+The old stale lock check unlinked any lock older than 60s, even when its owning process remained active. The new lock stores a random token and process ID, uses a conservative POSIX/Windows liveness check before stale recovery, validates regular-file identity, and only removes a lock whose token still belongs to the current process. Old numeric-PID lockfiles are recognized for safe recovery. Malformed old lockfiles can be recovered after the grace interval, but corrupt *session JSON* is never silently overwritten.
+
+**Residual risks:** PID reuse can conservatively delay recovery; owner identity isn't cryptographically authenticated. Cross-host network filesystem locking and arbitrary hostile concurrent mutation of lock paths are out of scope. OS-level atomic \`os.replace\` is not equivalent to guaranteed crash-durable directory metadata. These limits must not be described as a security sandbox.

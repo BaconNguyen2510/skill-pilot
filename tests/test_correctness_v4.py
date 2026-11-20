@@ -143,6 +143,57 @@ class V4CorrectnessTests(unittest.TestCase):
         self.assertIn("WARNING:", output)
         self.assertNotIn("Old candidate", output)
 
+    def test_lock_never_reclaims_old_live_owner(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            session = pathlib.Path(temp) / "session.json"
+            with session_planner.session_lock(session, stale_after_s=0.01):
+                lock = session.with_name(f".{session.name}.lock")
+                old = __import__("time").time() - 100
+                __import__("os").utime(lock, (old, old))
+                with self.assertRaises(TimeoutError):
+                    with session_planner.session_lock(
+                        session, timeout_s=0.03, stale_after_s=0.01
+                    ):
+                        pass
+                self.assertTrue(lock.exists())
+            self.assertFalse(lock.exists())
+
+    def test_lock_cleanup_never_deletes_replacement(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            session = pathlib.Path(temp) / "session.json"
+            lock = session.with_name(f".{session.name}.lock")
+            with session_planner.session_lock(session):
+                lock.unlink()
+                lock.write_text(
+                    json.dumps({"pid": 999999, "token": "other-owner"}),
+                    encoding="utf-8",
+                )
+            self.assertTrue(lock.exists())
+
+    def test_expired_unparseable_lock_can_be_recovered(self) -> None:
+        import os
+        import time
+
+        with tempfile.TemporaryDirectory() as temp:
+            session = pathlib.Path(temp) / "session.json"
+            lock = session.with_name(f".{session.name}.lock")
+            lock.write_text("{corrupt", encoding="utf-8")
+            past = time.time() - 120
+            os.utime(lock, (past, past))
+            with session_planner.session_lock(session):
+                self.assertTrue(lock.exists())
+            self.assertFalse(lock.exists())
+
+    def test_corrupt_session_is_not_silently_overwritten(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            session = pathlib.Path(temp) / "session.json"
+            invalid = "{corrupt session json"
+            session.write_text(invalid, encoding="utf-8")
+            with self.assertRaises(json.JSONDecodeError):
+                session_planner.update_session_file_locked(session, {})
+            self.assertEqual(session.read_text(encoding="utf-8"), invalid)
+            self.assertFalse(session.with_name(f".{session.name}.lock").exists())
+
     def test_cli_blocks_stale_and_incomplete_discovery(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             path = pathlib.Path(temp) / "session.json"
