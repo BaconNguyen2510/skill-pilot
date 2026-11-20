@@ -137,6 +137,7 @@ class V4CorrectnessTests(unittest.TestCase):
 
     def test_spec_shows_execution_order_and_review_gate(self) -> None:
         session = ready_session()
+        session["discovery_stale"] = False
         session["plan_steps"] = [
             {"id": "verify", "title": "Verify", "depends_on": ["ui"]},
             {"id": "ui", "title": "Build UI", "depends_on": []},
@@ -157,6 +158,7 @@ class V4CorrectnessTests(unittest.TestCase):
 
     def test_spec_only_offers_handoff_for_direct_coverage(self) -> None:
         session = ready_session()
+        session["discovery_stale"] = False
         discovery = {
             "for_revision": session["revision"],
             "steps": [{"step_id": "ui", "coverage_level": "direct"}],
