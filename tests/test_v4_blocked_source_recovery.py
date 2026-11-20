@@ -76,11 +76,7 @@ class BlockedSourceV4Tests(unittest.TestCase):
             {"skill_lookup_then_one_source_input"},
         )
         self.assertEqual(
-            {
-                r["expected_recovery_path"]
-                for r in rows
-                if not r["goal_known"]
-            },
+            {r["expected_recovery_path"] for r in rows if not r["goal_known"]},
             {"one_goal_question"},
         )
         self.assertTrue(all(r["goal_summary"] and r["skill_query"] for r in rows))
@@ -108,9 +104,7 @@ class BlockedSourceV4Tests(unittest.TestCase):
                 mock.patch.object(
                     skill_scout, "collect_active_skills", return_value=[]
                 ),
-                mock.patch.object(
-                    skill_scout, "collect_codex_skills", return_value=[]
-                ),
+                mock.patch.object(skill_scout, "collect_codex_skills", return_value=[]),
                 mock.patch.object(
                     sys,
                     "argv",
