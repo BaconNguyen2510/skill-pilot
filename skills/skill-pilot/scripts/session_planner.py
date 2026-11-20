@@ -493,6 +493,35 @@ def _evidence_terms(text: str) -> set[str]:
     }
 
 
+_COMPOSITE_STEP_SPLIT = re.compile(r"\s+(?:and|và|&|\+)\s+", re.IGNORECASE)
+
+
+def _required_composite_terms(step_title: str) -> list[set[str]]:
+    """Recognize explicit conjunctions without guessing implicit dependencies."""
+    clauses = [
+        _evidence_terms(clause) for clause in _COMPOSITE_STEP_SPLIT.split(step_title)
+    ]
+    if len(clauses) < 2 or any(not clause for clause in clauses):
+        return []
+    return clauses
+
+
+def _all_composite_capabilities_grounded(
+    evidence_terms: set[str], clauses: list[set[str]]
+) -> bool:
+    for index, required in enumerate(clauses):
+        if len(evidence_terms & required) < min(2, len(required)):
+            return False
+        others: set[str] = set()
+        for other_index, clause in enumerate(clauses):
+            if other_index != index:
+                others.update(clause)
+        distinct_terms = required - others
+        if distinct_terms and not (evidence_terms & distinct_terms):
+            return False
+    return True
+
+
 # Prefix cues scope to the capability *after* the cue. Suffix cues scope
 # to the subject *before* the cue. Neither is semantic entailment.
 _EVIDENCE_DENIAL_PREFIX = re.compile(
@@ -555,8 +584,9 @@ def verify_capability_evidence(
     matches: list[dict[str, Any]],
     *,
     step_text: str = "",
+    step_title: str = "",
 ) -> dict[str, Any]:
-    """Ground a quote/heading and require overlap with the specific plan step.
+    """Ground quotes per skill; require each explicitly conjunctive capability.
 
     This is a lexical sanity check, NOT proof of semantic capability fit.
     """
@@ -570,6 +600,7 @@ def verify_capability_evidence(
     heading_probe = cleaned.strip().strip('`"').strip()
     heading_probe = re.sub(r"^#{1,3}\s+", "", heading_probe).casefold()
     step_terms = _evidence_terms(step_text)
+    composite_clauses = _required_composite_terms(step_title or step_text)
     if step_text and not step_terms:
         return {"verified": False, "matched_skill_id": None, "grounding_type": "none"}
     if _denies_step_capability(cleaned, step_terms):
@@ -590,6 +621,8 @@ def verify_capability_evidence(
         ):
             continue
         skill_id = str(m.get("id", "")).lower()
+        grounded_terms: set[str] = set()
+        grounded_type: str | None = None
         for h in caps["headings"]:
             hl = h.lower()
             if (
@@ -599,11 +632,14 @@ def verify_capability_evidence(
                 and (not step_text or step_terms & _evidence_terms(h))
                 and not _denies_step_capability(h, step_terms)
             ):
-                return {
-                    "verified": True,
-                    "matched_skill_id": m.get("id"),
-                    "grounding_type": "exact_heading",
-                }
+                if not composite_clauses:
+                    return {
+                        "verified": True,
+                        "matched_skill_id": m.get("id"),
+                        "grounding_type": "exact_heading",
+                    }
+                grounded_terms.update(_evidence_terms(h))
+                grounded_type = "exact_heading"
         for cand in candidates:
             cl = cand.lower()
             if (
@@ -613,11 +649,22 @@ def verify_capability_evidence(
                 and (not step_text or step_terms & _evidence_terms(cand))
                 and not _denies_step_capability(cand, step_terms)
             ):
-                return {
-                    "verified": True,
-                    "matched_skill_id": m.get("id"),
-                    "grounding_type": "exact_quote",
-                }
+                if not composite_clauses:
+                    return {
+                        "verified": True,
+                        "matched_skill_id": m.get("id"),
+                        "grounding_type": "exact_quote",
+                    }
+                grounded_terms.update(_evidence_terms(cand))
+                grounded_type = "exact_quote"
+        if grounded_type and _all_composite_capabilities_grounded(
+            grounded_terms, composite_clauses
+        ):
+            return {
+                "verified": True,
+                "matched_skill_id": m.get("id"),
+                "grounding_type": grounded_type,
+            }
     return {"verified": False, "matched_skill_id": None, "grounding_type": "none"}
 
 
@@ -706,6 +753,7 @@ def run_plan_search(
             assessed["capability_evidence"],
             verified_matches,
             step_text=f"{title} {query}",
+            step_title=title,
         )
         if not verified_matches:
             coverage_level = "none"
