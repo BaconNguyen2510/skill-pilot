@@ -13,7 +13,7 @@
 
 </div>
 
-Skill Pilot turns casual prompts in **English** or **Vietnamese** into grounded code execution or single-block handoff prompts. It keeps always-loaded context compact (`47` lines) while enforcing source inspection before an agent states causes, file paths, or test commands.
+Skill Pilot turns casual prompts in **English** or **Vietnamese** into grounded code execution or single-block handoff prompts. Its short, progressively loaded instructions require source inspection before an agent states causes, file paths, or test commands.
 
 ## How It Works
 
@@ -39,7 +39,7 @@ flowchart LR
 
 | Component | Footprint | Load Policy |
 |---|---|---|
-| [`skills/skill-pilot/SKILL.md`](skills/skill-pilot/SKILL.md) | `47` lines (`4.2 KB`) | Loaded when `skill-pilot` activates |
+| [`skills/skill-pilot/SKILL.md`](skills/skill-pilot/SKILL.md) | Compact always-loaded guidance | Loaded when `skill-pilot` activates |
 | [`skills/skill-pilot/references/compiler.md`](skills/skill-pilot/references/compiler.md) | `15` lines (`1.6 KB`) | Loaded on handoffs and weak-model contracts |
 | [`skills/skill-pilot/references/pipeline-blueprints.md`](skills/skill-pilot/references/pipeline-blueprints.md) | `14` lines (`0.9 KB`) | Loaded only for domain routing hints |
 | [`scripts/skill_scout.py`](scripts/skill_scout.py) | Python `3.12+` stdlib | Executed via CLI outside prompt context |
@@ -92,6 +92,58 @@ python scripts/skill_scout.py search "toi uu truy van postgres" --workspace /pat
 python scripts/skill_scout.py inspect "<skill-id-or-path>" --format compact
 python scripts/skill_scout.py promote "<skill-id>" --target codex
 ```
+
+## Guided session walkthrough
+
+Use the packaged script directly from a checkout. The first request may be ambiguous, so `session init` does **not** authorize planning or discovery. In an actual agent conversation, Skill Pilot asks one focused question at a time; only the user can confirm the intended goal and constraints.
+
+```bash
+python scripts/skill_scout.py session init --session .skill-pilot/session.json --request "Build a workout tracker" --language en
+```
+
+After the user confirms the goal, prepare a JSON patch file (illustrative `confirmed.json`; this example is **not** an automatic user confirmation):
+
+```json
+{
+  "intent_confirmed": true,
+  "confirmed_requirements": [{"id": "r1", "text": "Build a web workout tracker", "source": "user_confirmed"}],
+  "success_criteria": [{"id": "a1", "text": "A user can log and retrieve workouts"}],
+  "plan_steps": [
+    {"id": "data", "title": "Model workout data", "query": "database schema", "depends_on": []},
+    {"id": "ui", "title": "Build workout logging UI", "query": "react frontend", "depends_on": ["data"]}
+  ]
+}
+```
+
+```bash
+python scripts/skill_scout.py session update --session .skill-pilot/session.json --patch confirmed.json
+python scripts/skill_scout.py session status --session .skill-pilot/session.json
+python scripts/skill_scout.py plan-search --session .skill-pilot/session.json --harness all
+python scripts/skill_scout.py session spec --session .skill-pilot/session.json
+```
+
+If a goal changes, use `session revise` with an explicit new plan and recheck readiness. Stale/unverified skill recommendations are not authority to run scripts. A `direct` label means text evidence is grounded, not that a human verified semantic capability.
+
+The `4.0.0` candidate is qualified by executable repository contracts. See the
+[stable release qualification](docs/v4/V4_RELEASE_GATES.md) and
+[release notes](docs/v4/STABLE_RELEASE_NOTES.md) for its exact scope and limits.
+
+## Blocked-source recovery (v4)
+
+A failed reel/video/article fetch is not the user's failed goal. The beta adds a structured, read-only recovery command; it **does not fetch private media or claim to have viewed inaccessible content**:
+
+```bash
+python scripts/skill_scout.py recover-source --goal "Evaluate the idea behind this reel" --source-status 403 --kind video --harness all --format json
+```
+
+To run all offline regression and development benchmarks from a **full Git clone** (not a shallow checkout):
+
+```bash
+python eval/v4_release_qualification.py --output local-receipts/v4-qualification.json
+```
+
+This checks the repository's executable contract. It intentionally makes no
+claim about behavior inside any AI host or access to unavailable media.
 
 ## Optional Local Skill Warehouses
 

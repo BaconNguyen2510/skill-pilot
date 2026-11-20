@@ -169,6 +169,9 @@ class InterviewGateTests(unittest.TestCase):
             json.dumps(
                 {
                     "intent_confirmed": True,
+                    "success_criteria": [
+                        {"id": "sc-1", "text": "Users can open the working React UI"}
+                    ],
                     "confirmed_requirements": [
                         {
                             "id": "r1",

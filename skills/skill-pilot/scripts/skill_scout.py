@@ -24,7 +24,7 @@ import unicodedata
 import uuid
 from typing import Any
 
-__version__ = "3.1.1"
+__version__ = "4.0.0"
 
 HOME = pathlib.Path.home()
 _HERE = pathlib.Path(__file__).resolve()
@@ -1114,8 +1114,9 @@ _VI_NON_EXCLUSION_KHONG_BEFORE_RE = re.compile(
     r"\b(?:tai sao|lam sao|vi sao|khi nao|co the|sao|de|ma)\s*$"
 )
 _VI_NON_EXCLUSION_KHONG_AFTER_RE = re.compile(
-    r"^\s*(?:chay duoc|duoc|bi loi|can thiet|hoat dong|chay|hieu|ro)\b"
+    r"^\s*(?:chay duoc|duoc|bi loi|can thiet|hoat dong|chay|hieu|ro|biet)\b"
 )
+_EN_NON_EXCLUSION_AFTER_RE = re.compile(r"^\s*(?:know|understand|sure)\b")
 _BOOL_NOT_CONTEXT_BEFORE_RE = re.compile(r"\b(?:sql|logical|boolean|bitwise|unary)\s*$")
 _BOOL_NOT_CONTEXT_AFTER_RE = re.compile(
     r"^\s*(?:operators?|gates?|null|in|exists|like|between|equals?)\b"
@@ -1416,6 +1417,10 @@ def _split_query_negations(query: str) -> tuple[str, str]:
                 if matched == "khong" and (
                     _VI_NON_EXCLUSION_KHONG_BEFORE_RE.search(norm_clause[: m.start()])
                     or _VI_NON_EXCLUSION_KHONG_AFTER_RE.search(norm_clause[m.end() :])
+                ):
+                    continue
+                if matched in ("don't", "dont", "do not", "not") and (
+                    _EN_NON_EXCLUSION_AFTER_RE.search(norm_clause[m.end() :])
                 ):
                     continue
                 matches.append(m)
@@ -2246,16 +2251,25 @@ def cmd_search(args: argparse.Namespace) -> int:
         min_keep = ranked[0][1]["score"] * SEARCH_RATIO_CUTOFF
         ranked = [pair for pair in ranked if pair[1]["score"] >= min_keep]
 
+    # Redact *every* emitted candidate representation (including tier arrays);
+    # modifying only the deduplicated ranked copy leaves raw index text exposed.
     output: dict[str, Any] = {
         "query": query,
         "ranking_policy": "relevance_with_bounded_tier_bonus",
         "warehouses_scanned": [str(w) for w in warehouses],
         "ranked_matches": [
-            {**item, "tier_label": label} for label, item in ranked[: args.limit]
+            _redact_skill_search_record({**item, "tier_label": label})
+            for label, item in ranked[: args.limit]
         ],
-        "tier1_active_matches": tier1_hits[: args.limit],
-        "inactive_codex_skill_matches": inactive_hits[: args.limit],
-        "tier2_warehouse_matches": tier2_hits[: args.limit],
+        "tier1_active_matches": [
+            _redact_skill_search_record(item) for item in tier1_hits[: args.limit]
+        ],
+        "inactive_codex_skill_matches": [
+            _redact_skill_search_record(item) for item in inactive_hits[: args.limit]
+        ],
+        "tier2_warehouse_matches": [
+            _redact_skill_search_record(item) for item in tier2_hits[: args.limit]
+        ],
     }
     if config_warning:
         output["config_warning"] = config_warning
@@ -2267,7 +2281,8 @@ def cmd_search(args: argparse.Namespace) -> int:
             print(
                 f"Warning: config:unparsed ({_sanitize_compact(config_warning, 100)})"
             )
-        for label, item in ranked[: args.limit]:
+        for label, raw_item in ranked[: args.limit]:
+            item = _redact_skill_search_record(raw_item)
             name_safe = _sanitize_compact(item.get("name") or "", 64)
             path_safe = _sanitize_compact(item.get("skill_md_path") or "", 140)
             risk_part = (
@@ -2597,6 +2612,29 @@ def _detect_prompt_injection_signals(text: str) -> list[str]:
     return found
 
 
+def _redact_skill_search_record(record: dict[str, Any]) -> dict[str, Any]:
+    """Copy and redact known instruction-override cues across nested output fields."""
+    detected: set[str] = set()
+
+    def _scrub(value: Any, field: str) -> Any:
+        if isinstance(value, str):
+            signals = _detect_prompt_injection_signals(value)
+            if signals:
+                detected.update(signals)
+                return f"[untrusted {field} withheld]"
+            return value
+        if isinstance(value, list):
+            return [_scrub(part, field) for part in value]
+        if isinstance(value, dict):
+            return {key: _scrub(part, str(key)) for key, part in value.items()}
+        return value
+
+    sanitized = _scrub(record, "text")
+    if detected:
+        sanitized["prompt_injection_signals"] = sorted(detected)
+    return sanitized
+
+
 LOCK_STALE_SECONDS = 300
 LOCK_MALFORMED_GRACE_SECONDS = 5.0
 
@@ -2608,45 +2646,10 @@ class _LockError(ValueError):
 
 
 def _is_pid_alive(pid: Any) -> bool | None:
-    """Return True if pid is a live local process, False if dead, None if indeterminate."""
-    if not isinstance(pid, int) or isinstance(pid, bool) or pid <= 0:
-        return None
-    if pid == os.getpid():
-        return True
-    if os.name == "nt":
-        if pid > 0xFFFFFFFF:
-            return None
-        try:
-            import ctypes
+    """Use the same conservative cross-platform probe as session locks."""
+    import session_planner
 
-            kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
-            process_query_limited = 0x1000
-            handle = kernel32.OpenProcess(process_query_limited, False, int(pid))
-            if not handle:
-                err = ctypes.get_last_error()
-                if err == 5:  # ERROR_ACCESS_DENIED -> process exists
-                    return True
-                if err == 87:  # ERROR_INVALID_PARAMETER -> no such PID
-                    return False
-                return None
-            try:
-                exit_code = ctypes.c_uint32(0)
-                if kernel32.GetExitCodeProcess(handle, ctypes.byref(exit_code)):
-                    return exit_code.value == 259  # STILL_ACTIVE
-                return None
-            finally:
-                kernel32.CloseHandle(handle)
-        except OSError:
-            return None
-    try:
-        os.kill(pid, 0)
-        return True
-    except ProcessLookupError:
-        return False
-    except PermissionError:
-        return True
-    except OSError:
-        return None
+    return session_planner._session_lock_pid_alive(pid)
 
 
 def _read_lock_metadata(lock_path: pathlib.Path) -> dict[str, Any]:
@@ -3610,7 +3613,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sess.add_argument(
         "action",
-        choices=["init", "update", "revise", "status", "spec"],
+        choices=["init", "update", "revise", "approve-selection", "status", "spec"],
         help="Session action",
     )
     sess.add_argument("--session", required=True, help="Path to session JSON file")
@@ -3645,7 +3648,115 @@ def build_parser() -> argparse.ArgumentParser:
     psearch.add_argument("--allow-risky", action="store_true")
     psearch.set_defaults(func=cmd_plan_search)
 
+    recover = sub.add_parser(
+        "recover-source",
+        help="Preserve a known goal after external-source failure and inspect local skills",
+    )
+    recover.add_argument("--goal", required=True, help="Original user goal")
+    recover.add_argument(
+        "--source-status",
+        required=True,
+        choices=[
+            "403",
+            "404",
+            "login_wall",
+            "deleted",
+            "timeout",
+            "rate_limit",
+            "blocked",
+            "unsupported",
+            "unknown",
+        ],
+        help="Observed status reported by the caller (not independently fetched)",
+    )
+    recover.add_argument(
+        "--kind",
+        choices=["video", "article", "image", "document", "other"],
+        default="video",
+    )
+    recover.add_argument("--goal-ambiguous", action="store_true")
+    recover.add_argument("--material-provided", action="store_true")
+    recover.add_argument("--skill-query", help="Capability terms only; no source URL")
+    recover.add_argument("--limit", type=positive_int, default=5)
+    recover.add_argument("--workspace", help="Optional local skill workspace")
+    recover.add_argument(
+        "--harness", choices=["auto", "antigravity", "codex", "all"], default="all"
+    )
+    recover.add_argument("--warehouse", help="Optional local skill warehouse")
+    recover.add_argument("--format", choices=["json", "compact"], default="json")
+    recover.set_defaults(func=cmd_recover_source)
+
     return parser
+
+
+def cmd_recover_source(args: argparse.Namespace) -> int:
+    """Run bounded, read-only skill lookup; never fetch the blocked source."""
+    import contextlib
+    import importlib.util
+    import io
+
+    # Load the sibling module even through the repository compatibility
+    # wrapper, whose sys.path points at scripts/ rather than this directory.
+    spec = importlib.util.spec_from_file_location(
+        "_skill_pilot_source_recovery", _HERE.parent / "source_recovery.py"
+    )
+    if spec is None or spec.loader is None:
+        raise ValueError("Cannot load packaged source recovery module")
+    source_recovery = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(source_recovery)
+
+    def discover(query: str, limit: int) -> tuple[str, list[dict[str, Any]], str]:
+        buf = io.StringIO()
+        search_args = argparse.Namespace(
+            query=[query],
+            limit=limit,
+            workspace=args.workspace,
+            harness=args.harness,
+            warehouse=args.warehouse,
+            include_active=True,
+            allow_risky=False,
+            explain=False,
+            format="json",
+        )
+        with contextlib.redirect_stdout(buf):
+            exit_code = cmd_search(search_args)
+        raw = buf.getvalue()
+        if len(raw) > 1024 * 1024:
+            raise ValueError("Local skill search output exceeds size limit")
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise ValueError("Local skill search did not produce JSON") from exc
+        if exit_code:
+            return "unavailable", [], str(parsed.get("error_code", "SEARCH_FAILED"))
+        matches = parsed.get("ranked_matches", [])
+        return (
+            "completed",
+            matches,
+            str(parsed.get("config_warning") or "Read-only local lookup completed"),
+        )
+
+    result = source_recovery.make_recovery_plan(
+        goal=args.goal,
+        source_status=args.source_status,
+        kind=args.kind,
+        goal_ambiguous=args.goal_ambiguous,
+        material_provided=args.material_provided,
+        skill_query=args.skill_query,
+        discover=discover,
+        limit=args.limit,
+    )
+    if args.format == "compact":
+        print("Goal: " + result["original_goal"])
+        print("Source status (caller reported): " + result["source_status"])
+        discovery = result["skill_discovery"]
+        print("Skill discovery: " + discovery["status"])
+        for candidate in discovery["candidates"]:
+            print(" - " + candidate["name"] + " (inspect SKILL.md before use)")
+        print("Next: " + result["next_action"])
+    else:
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+    return 0
 
 
 def cmd_session(args: argparse.Namespace) -> int:
@@ -3654,7 +3765,7 @@ def cmd_session(args: argparse.Namespace) -> int:
     session_path = pathlib.Path(args.session)
     if args.action == "init":
         data = session_planner.init_session(args.request, language=args.language)
-        session_planner.save_json_file(session_path, data)
+        session_planner.create_session_file_locked(session_path, data)
     elif args.action in ("update", "revise"):
         patch = (
             session_planner.load_json_file(pathlib.Path(args.patch))
@@ -3665,6 +3776,10 @@ def cmd_session(args: argparse.Namespace) -> int:
             patch["replace_plan"] = True
         data = session_planner.update_session_file_locked(
             session_path, patch, revision_note=args.note
+        )
+    elif args.action == "approve-selection":
+        data = session_planner.confirm_skill_selection_file_locked(
+            session_path, note=args.note
         )
     elif args.action == "spec":
         data = session_planner.load_json_file(session_path)
@@ -3693,9 +3808,22 @@ def cmd_plan_search(args: argparse.Namespace) -> int:
                     {
                         **_error_payload(
                             "DISCOVERY_BLOCKED_UNCONFIRMED_INTENT",
-                            "Confirm user intent and resolve blocking questions/assumptions before running plan-search.",
+                            "Confirm intent and resolve blocking interview questions first.",
                         ),
                         "missing_for_planning": readiness["missing_for_planning"],
+                    }
+                )
+            )
+            return 1
+        if not readiness["ready_for_discovery"]:
+            print(
+                json.dumps(
+                    {
+                        **_error_payload(
+                            "DISCOVERY_BLOCKED_NOT_READY",
+                            "Complete success criteria and a current, valid plan before discovery.",
+                        ),
+                        "missing_criteria": readiness["missing_criteria"],
                     }
                 )
             )
@@ -3709,6 +3837,9 @@ def cmd_plan_search(args: argparse.Namespace) -> int:
         return 1
 
     steps = source.get("plan_steps", []) if isinstance(source, dict) else source
+    if not isinstance(steps, list) or not steps:
+        print(json.dumps(_error_payload("EMPTY_PLAN", "Plan has no steps.")))
+        return 1
 
     def _search_step(query: str, limit: int) -> int:
         step_args = argparse.Namespace(
@@ -3725,6 +3856,9 @@ def cmd_plan_search(args: argparse.Namespace) -> int:
         return cmd_search(step_args)
 
     result = session_planner.run_plan_search(steps, _search_step, limit=args.limit)
+    if result.get("discovery_blocked"):
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+        return 1
     if args.session and isinstance(source, dict):
         session_planner.persist_discovery_to_session(
             pathlib.Path(args.session),

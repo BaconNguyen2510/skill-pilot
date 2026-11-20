@@ -290,11 +290,12 @@ class SessionAndPlanSearchTests(unittest.TestCase):
             encoding="utf-8",
         )
         rc, out = self._run_cli(["plan-search", "--plan", str(plan_path)])
-        self.assertEqual(rc, 0)
+        self.assertEqual(rc, 1)
         self.assertFalse(out["dependency_validation"]["valid"])
         self.assertTrue(out["dependency_validation"]["has_cycle"])
-        self.assertEqual(out["steps"][0]["coverage_level"], "none")
-        self.assertEqual(out["steps"][1]["coverage_level"], "unverified_fit")
+        self.assertTrue(out["discovery_blocked"])
+        self.assertEqual(out["steps"], [])
+        self.assertEqual(out["covered_steps"], 0)
 
     def test_06_offensive_skill_filtered_by_default(self) -> None:
         plan_path = self.root / "risk_plan.json"
@@ -435,6 +436,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
                 {
                     "intent_confirmed": True,
                     "confirmed_requirements": [{"id": "r1", "text": "React web app"}],
+                    "success_criteria": [{"id": "a1", "text": "Working React app"}],
                     "plan_steps": [
                         {
                             "id": "s1",
@@ -476,6 +478,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
                 {
                     "intent_confirmed": True,
                     "confirmed_requirements": [{"id": "r1", "text": "React web app"}],
+                    "success_criteria": [{"id": "a1", "text": "Working React app"}],
                     "plan_steps": [
                         {
                             "id": "s1",

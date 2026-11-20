@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, feat/v3-research-program, ci/v3-public-safe, feat/v3-project-discovery, feat/v3.1-dev, fix/interview-gate]
+    branches: [main, feat/v3-research-program, ci/v3-public-safe, feat/v3-project-discovery, feat/v3.1-dev, fix/interview-gate, feat/v4-development]
     tags: ["v*"]
   pull_request:
     branches: [main]
@@ -65,8 +65,21 @@ jobs:
                   raise SystemExit(result.returncode)
 
           rc_manifest_path = Path("docs/v3/CANDIDATE_MANIFEST_V3_RC.json")
-          branch_ref = os.environ.get("GITHUB_REF_NAME", "")
-          if rc_manifest_path.exists() and branch_ref in ("feat/v3-project-discovery", "feat/v3.1-dev", "fix/interview-gate", "main", "v3.0.0", "v3.1.0", "v3.1.1"):
+          branch_ref = os.environ.get("GITHUB_HEAD_REF") or os.environ.get("GITHUB_REF_NAME", "")
+          manifest_versions = [
+              json.loads(Path(path).read_text(encoding="utf-8"))["version"]
+              if path != ".agents/plugins/marketplace.json"
+              else json.loads(Path(path).read_text(encoding="utf-8"))["plugins"][0]["version"]
+              for path in ("plugin.json", ".codex-plugin/plugin.json", ".agents/plugins/marketplace.json")
+          ]
+          is_v4_candidate = len(set(manifest_versions)) == 1 and manifest_versions[0].startswith("4.")
+          # v4 changes are intentionally incompatible with frozen v3 hashes.
+          # Detect them by their declared, cross-checked manifest version so PR merge
+          # refs, protected main, and the v4 tag follow the same qualification path.
+          if is_v4_candidate:
+              candidate = "v4-unfrozen-development"
+              expected_files = {}
+          elif rc_manifest_path.exists() and branch_ref in ("feat/v3-project-discovery", "feat/v3.1-dev", "fix/interview-gate", "main", "v3.0.0", "v3.1.0", "v3.1.1"):
               manifest = json.loads(rc_manifest_path.read_text(encoding="utf-8"))
               candidate = manifest["runtime_commit"]
               expected_files = manifest["file_sha256_lf_git_archive"]
@@ -99,6 +112,21 @@ jobs:
                              "python", "-m", "unittest", "discover", "-s", "blind_eval/tests", "-v"])
           run("release-verifier", ["uv", "run", "--no-project", "--python", sys.executable,
                                   "python", "eval/verify_rc.py"])
+          if is_v4_candidate:
+              run("v4-dev-retrieval-ablation", ["uv", "run", "--no-project", "--python", sys.executable,
+                                               "python", "eval/v4_retrieval_ablation.py"])
+              run("v4-dev-evidence-ablation", ["uv", "run", "--no-project", "--python", sys.executable,
+                                              "python", "eval/v4_evidence_ablation.py"])
+              run("v4-dev-markdown-evidence-ablation", ["uv", "run", "--no-project", "--python", sys.executable,
+                                                       "python", "eval/v4_markdown_evidence_ablation.py"])
+              run("v4-dev-indented-evidence-ablation", ["uv", "run", "--no-project", "--python", sys.executable,
+                                                       "python", "eval/v4_indented_evidence_ablation.py"])
+              run("v4-dev-raw-html-evidence-ablation", ["uv", "run", "--no-project", "--python", sys.executable,
+                                                       "python", "eval/v4_raw_html_evidence_ablation.py"])
+              run("v4-dev-composite-evidence-ablation", ["uv", "run", "--no-project", "--python", sys.executable,
+                                                        "python", "eval/v4_composite_evidence_ablation.py"])
+              run("v4-dev-source-boundary-ablation", ["uv", "run", "--no-project", "--python", sys.executable,
+                                                     "python", "eval/v4_source_boundary_ablation.py"])
           doctor = subprocess.run(
               ["uv", "run", "--no-project", "--python", sys.executable,
                "python", "skills/skill-pilot/scripts/skill_scout.py", "doctor"],
@@ -124,3 +152,79 @@ jobs:
           name: skill-pilot-${{ matrix.os }}-py${{ matrix.python-version }}
           path: ${{ runner.temp }}/skill-pilot-ci-evidence/
           if-no-files-found: error
+
+  # Only a separately marked, fully green development-branch push can
+  # publish the beta. No stable main merge or automatic production release.
+  beta_release:
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/feat/v4-development' &&
+      contains(github.event.head_commit.message, '[beta-release]')
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.12"
+
+      - name: Verify beta-only release invariant
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          expected = "4.0.0-beta.1"
+          files = [
+              "plugin.json",
+              ".codex-plugin/plugin.json",
+              ".agents/plugins/marketplace.json",
+          ]
+          data = [json.loads(Path(p).read_text(encoding="utf-8")) for p in files]
+          versions = [data[0]["version"], data[1]["version"], data[2]["plugins"][0]["version"]]
+          assert versions == [expected] * 3, versions
+          assert Path("skills/skill-pilot/scripts/source_recovery.py").is_file()
+          assert Path("eval/v4_host_trial_packet.py").is_file()
+          assert Path("docs/v4/BETA_RELEASE_NOTES.md").is_file()
+          assert Path("docs/v4/V4_RELEASE_GATES.md").is_file()
+          PY
+          python scripts/skill_scout.py --version
+
+      - name: Package deterministic beta plugin
+        shell: bash
+        run: python eval/v4_package_beta.py --output dist
+
+      - name: Publish prerelease only
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="v4.0.0-beta.1"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            git fetch --no-tags origin "refs/tags/$tag:refs/tags/$tag"
+            actual="$(git rev-list -n 1 "$tag")"
+            test "$actual" = "$GITHUB_SHA"
+            echo "Existing prerelease matches this exact candidate; no overwrite."
+            exit 0
+          fi
+          if git rev-parse --verify -q "refs/tags/$tag" >/dev/null; then
+            actual="$(git rev-list -n 1 "$tag")"
+            test "$actual" = "$GITHUB_SHA"
+          fi
+          gh release create "$tag" \
+            "dist/skill-pilot-v4.0.0-beta.1-plugin.zip" \
+            "dist/SHA256SUMS" \
+            --target "$GITHUB_SHA" \
+            --title "Skill Pilot v4.0.0-beta.1 — testing prerelease" \
+            --notes-file "docs/v4/BETA_RELEASE_NOTES.md" \
+            --prerelease
+          gh release view "$tag" --json tagName,isPrerelease,targetCommitish,url \
+            --jq '{tag: .tagName, prerelease: .isPrerelease, target: .targetCommitish, url: .url}'

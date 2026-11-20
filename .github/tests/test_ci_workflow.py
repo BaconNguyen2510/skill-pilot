@@ -185,6 +185,14 @@ class WorkflowControlTests(unittest.TestCase):
         self.assertIn("CANDIDATE_MANIFEST_V3_RC.json", workflow)
         self.assertIn("2c8daab7ae7a8b06dcfc64863c4043183fd35261", workflow)
 
+    def test_v4_candidate_detection_uses_manifest_version_for_pr_and_main(self):
+        workflow = (Path(__file__).parents[1] / "workflows/ci.yml").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("GITHUB_HEAD_REF", workflow)
+        self.assertIn("is_v4_candidate", workflow)
+        self.assertIn('manifest_versions[0].startswith("4.")', workflow)
+
 
 if __name__ == "__main__":
     unittest.main()
