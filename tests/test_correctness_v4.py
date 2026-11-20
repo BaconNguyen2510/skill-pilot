@@ -99,6 +99,26 @@ class V4CorrectnessTests(unittest.TestCase):
         self.assertFalse(blank["valid"])
         self.assertEqual(blank["missing_step_id_indices"], [0])
 
+    def test_invalid_plan_blocks_search_without_invoking_callback(self) -> None:
+        for steps in (
+            [
+                {"id": "a", "title": "A", "depends_on": ["b"]},
+                {"id": "b", "title": "B", "depends_on": ["a"]},
+            ],
+            [{"id": "a", "title": "A", "depends_on": ["missing"]}],
+            [{"id": "same"}, {"id": "same"}],
+            [{"id": "a", "depends_on": "invalid"}],
+            [{"id": "a"}, None],
+        ):
+            with self.subTest(steps=steps):
+                search = mock.Mock(side_effect=AssertionError("search invoked"))
+                result = session_planner.run_plan_search(steps, search)
+                self.assertTrue(result["discovery_blocked"])
+                self.assertFalse(result["dependency_validation"]["valid"])
+                self.assertEqual(result["steps"], [])
+                self.assertEqual(result["covered_steps"], 0)
+                search.assert_not_called()
+
     def test_partial_without_uncovered_is_not_verified(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             skill = pathlib.Path(temp) / "SKILL.md"

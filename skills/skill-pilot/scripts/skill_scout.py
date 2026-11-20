@@ -3744,6 +3744,9 @@ def cmd_plan_search(args: argparse.Namespace) -> int:
         return cmd_search(step_args)
 
     result = session_planner.run_plan_search(steps, _search_step, limit=args.limit)
+    if result.get("discovery_blocked"):
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+        return 1
     if args.session and isinstance(source, dict):
         session_planner.persist_discovery_to_session(
             pathlib.Path(args.session),

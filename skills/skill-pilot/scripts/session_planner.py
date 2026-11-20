@@ -229,7 +229,13 @@ def update_session(
 
 def validate_plan_dependencies(steps: list[dict[str, Any]]) -> dict[str, Any]:
     """Validate unique IDs and dependencies; return stable topological order."""
-    ids = [str(step.get("id") or "").strip() for step in steps]
+    invalid_step_indices = [
+        index for index, step in enumerate(steps) if not isinstance(step, dict)
+    ]
+    ids = [
+        str(step.get("id") or "").strip() if isinstance(step, dict) else ""
+        for step in steps
+    ]
     unique_ids = list(dict.fromkeys(sid for sid in ids if sid))
     id_set = set(unique_ids)
     duplicate_ids = sorted({sid for sid in ids if sid and ids.count(sid) > 1})
@@ -240,6 +246,8 @@ def validate_plan_dependencies(steps: list[dict[str, Any]]) -> dict[str, Any]:
     indegree = dict.fromkeys(unique_ids, 0)
 
     for step, sid in zip(steps, ids):
+        if not isinstance(step, dict):
+            continue
         dependencies = step.get("depends_on", [])
         if not isinstance(dependencies, list):
             invalid_dependencies.append(sid or "(missing id)")
@@ -268,6 +276,7 @@ def validate_plan_dependencies(steps: list[dict[str, Any]]) -> dict[str, Any]:
         missing_deps
         or duplicate_ids
         or missing_ids
+        or invalid_step_indices
         or invalid_dependencies
         or has_cycle
     )
@@ -277,6 +286,7 @@ def validate_plan_dependencies(steps: list[dict[str, Any]]) -> dict[str, Any]:
         "missing_dependencies": missing_deps,
         "duplicate_step_ids": duplicate_ids,
         "missing_step_id_indices": missing_ids,
+        "invalid_step_indices": invalid_step_indices,
         "invalid_dependencies": invalid_dependencies,
         "has_cycle": has_cycle,
         "execution_order": order if valid else [],
@@ -426,10 +436,19 @@ def run_plan_search(
     step_results: list[dict[str, Any]] = []
     capability_gaps: list[dict[str, Any]] = []
 
-    ordered_steps = steps
-    if dep_check["valid"]:
-        by_id = {str(step["id"]): step for step in steps}
-        ordered_steps = [by_id[sid] for sid in dep_check["execution_order"]]
+    if not dep_check["valid"]:
+        # No search or capability claim is permissible for a malformed DAG.
+        return {
+            "dependency_validation": dep_check,
+            "discovery_blocked": True,
+            "steps": [],
+            "capability_gaps": [],
+            "total_steps": len(steps),
+            "covered_steps": 0,
+        }
+
+    by_id = {str(step["id"]): step for step in steps}
+    ordered_steps = [by_id[sid] for sid in dep_check["execution_order"]]
 
     for step in ordered_steps:
         sid = str(step.get("id", ""))
@@ -534,6 +553,7 @@ def run_plan_search(
 
     return {
         "dependency_validation": dep_check,
+        "discovery_blocked": False,
         "steps": step_results,
         "capability_gaps": capability_gaps,
         "total_steps": len(steps),
