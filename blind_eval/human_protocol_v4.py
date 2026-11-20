@@ -122,6 +122,7 @@ def _validate_annotations(
         "capability_fit",
         "evidence_quality",
         "inappropriate",
+        "missing_capability",
     }
     result: dict[tuple[str, str], dict[str, Any]] = {}
     for rec in records:
@@ -137,6 +138,10 @@ def _validate_annotations(
             or rec.get("capability_fit") not in FITS
             or rec.get("evidence_quality") not in EVIDENCE
             or type(rec.get("inappropriate")) is not bool
+            or (
+                "missing_capability" in rec
+                and type(rec["missing_capability"]) is not bool
+            )
         ):
             raise ValueError("Incomplete or invalid human annotation")
         result[key] = rec
@@ -157,33 +162,66 @@ def score_agreement(
         if left[key]["language"] != right[key]["language"]:
             raise ValueError("Language mismatch between reviewers")
 
-    by_language: dict[str, Any] = {}
-    for language in LANGUAGES:
-        selected = [key for key in keys if left[key]["language"] == language]
-        if not selected:
-            continue
-        relevance_a = [str(left[key]["relevance"] >= 2) for key in selected]
-        relevance_b = [str(right[key]["relevance"] >= 2) for key in selected]
-        fit_a = [left[key]["capability_fit"] for key in selected]
-        fit_b = [right[key]["capability_fit"] for key in selected]
-        by_language[language] = {
-            "relevance_ge_2": cohens_kappa(relevance_a, relevance_b),
-            "capability_fit": cohens_kappa(fit_a, fit_b),
+    missing_capability_flags = [
+        "missing_capability" in record
+        for reviewer in (left, right)
+        for record in reviewer.values()
+    ]
+    if any(missing_capability_flags) and not all(missing_capability_flags):
+        raise ValueError(
+            "missing_capability labels must be complete for both reviewers"
+        )
+    include_missing_capability = all(missing_capability_flags)
+
+    def _score_dimensions(selected: list[tuple[str, str]]) -> dict[str, Any]:
+        def _labels(
+            field: str, records: dict[tuple[str, str], dict[str, Any]]
+        ) -> list[str]:
+            if field == "relevance_ge_2":
+                return [str(records[key]["relevance"] >= 2) for key in selected]
+            return [str(records[key][field]) for key in selected]
+
+        dimensions = [
+            "relevance_ge_2",
+            "relevance",
+            "capability_fit",
+            "evidence_quality",
+            "inappropriate",
+        ]
+        if include_missing_capability:
+            dimensions.append("missing_capability")
+        return {
+            name: cohens_kappa(_labels(name, left), _labels(name, right))
+            for name in dimensions
         }
+
+    by_language: dict[str, Any] = {}
+    for language in sorted(LANGUAGES):
+        selected = [key for key in keys if left[key]["language"] == language]
+        if selected:
+            by_language[language] = _score_dimensions(selected)
 
     adjudication = [
         {"query_id": key[0], "candidate_id": key[1]}
         for key in keys
         if (
             left[key]["capability_fit"] != right[key]["capability_fit"]
+            or left[key]["evidence_quality"] != right[key]["evidence_quality"]
             or left[key]["inappropriate"] != right[key]["inappropriate"]
+            or (
+                include_missing_capability
+                and left[key]["missing_capability"]
+                != right[key]["missing_capability"]
+            )
             or abs(left[key]["relevance"] - right[key]["relevance"]) >= 2
         )
     ]
     return {
         "status": "synthetic_or_unverified_human_inputs",
         "paired_items": len(keys),
+        "overall": _score_dimensions(keys),
         "by_language": by_language,
+        "missing_capability_annotated": include_missing_capability,
         "adjudication_required": adjudication,
         "automatically_adjudicated": False,
     }

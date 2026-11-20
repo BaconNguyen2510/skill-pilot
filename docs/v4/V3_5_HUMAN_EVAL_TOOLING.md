@@ -30,10 +30,18 @@ python blind_eval/human_protocol_v4.py agreement --reviewer-a reviewer_a.jsonl -
 
 **Rater schema:** `query_id`, `candidate_id`, `language`, `relevance` (0–3), `capability_fit` (`direct|partial|none`), `evidence_quality` (`verified|weak|unsupported`), and `inappropriate` (boolean).
 
-The scorer requires the exact same query/candidate pairs in both independent annotation files. It computes per-language percentage agreement and Cohen kappa for relevance >= 2 and capability fit. Undefined kappa (both marginals constant) is reported as `null`, not 1. Capability-fit disagreement, unsafe disagreement, or relevance difference >=2 is queued for separate adjudication. No adjudication occurs automatically.
+The scorer requires the same nonempty query/candidate pairs from both reviewers. It now computes overall and per-language percentage agreement and unweighted Cohen kappa for binary relevance >=2, full 0–3 relevance, capability fit, evidence quality, and inappropriate recommendations. Optional `missing_capability` boolean labels are scored **only when every item has labels from both reviewers**; otherwise the input is rejected rather than imputed. Undefined kappa (constant marginal distributions) remains `null`, not 1. Relevance differences >=2, capability-fit, evidence-quality, unsafe, and missing-capability disagreements enter the manual adjudication queue. The tool never automatically adjudicates.
 
 **Custody:** Keep real labels and sealed datasets in access-controlled external storage. Do not commit independent reviewer outputs to this public repository. The CLI tests use synthetic fixtures only. Agree on sampling, adjudicator independence, pre-registration and final thresholds before collecting data. The tool is not proof of evaluator independence.
 
 ## Remaining work
 
-Add support for *missing capabilities* in a future optional reviewer schema and independently assess evidence-quality disagreement, while preserving backward-compatible packets. Arrange actual external bilingual annotators; score their outputs only after they complete blind review. Native host model test comparisons are also still needed.
+Optional missing-capability agreement, evidence-quality agreement and unsafe-item agreement have been implemented with synthetic fixtures. Actual independent bilingual annotators, protected reviewer outputs, and native host model test comparisons remain outstanding.
+
+## V4 continuation: agreement dimensions and option trade-offs
+
+Reviewed official APIs before extending the scorer: [scikit-learn `cohen_kappa_score`](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.cohen_kappa_score.html) (BSD-3-Clause, NumPy/SciPy/scikit-learn), [statsmodels `cohens_kappa`](https://www.statsmodels.org/stable/generated/statsmodels.stats.inter_rater.cohens_kappa.html) (BSD-3-Clause, NumPy/SciPy/statsmodels) and [Krippendorff alpha](https://github.com/grrrr/krippendorff-alpha) (one GPL-3 implementation, different missing-data semantics). Each adds packages or a different metric; the current two-reviewer protocol is already satisfied with Python standard-library counters. These are rejected alternatives, not benchmark victories.
+
+The selected solution applies the same O(n) paired counting approach to each pre-registered categorical dimension without introducing third-party runtime packages. The new `missing_capability` label is optional to retain backward compatibility, but if supplied it must be complete and independently assigned. It is **not** derived from `capability_fit=none`, because that would fabricate an annotation. Performance has not been benchmarked separately; sample sizes are expected to be governed by the human protocol.
+
+All implementation tests use **synthetic reviewers**. Expanded agreement output does not constitute a real human-evaluation study.
