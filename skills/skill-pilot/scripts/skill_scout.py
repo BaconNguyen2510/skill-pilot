@@ -3693,9 +3693,22 @@ def cmd_plan_search(args: argparse.Namespace) -> int:
                     {
                         **_error_payload(
                             "DISCOVERY_BLOCKED_UNCONFIRMED_INTENT",
-                            "Confirm user intent and resolve blocking questions/assumptions before running plan-search.",
+                            "Confirm intent and resolve blocking interview questions first.",
                         ),
                         "missing_for_planning": readiness["missing_for_planning"],
+                    }
+                )
+            )
+            return 1
+        if not readiness["ready_for_discovery"]:
+            print(
+                json.dumps(
+                    {
+                        **_error_payload(
+                            "DISCOVERY_BLOCKED_NOT_READY",
+                            "Complete success criteria and a current, valid plan before discovery.",
+                        ),
+                        "missing_criteria": readiness["missing_criteria"],
                     }
                 )
             )
@@ -3709,6 +3722,9 @@ def cmd_plan_search(args: argparse.Namespace) -> int:
         return 1
 
     steps = source.get("plan_steps", []) if isinstance(source, dict) else source
+    if not isinstance(steps, list) or not steps:
+        print(json.dumps(_error_payload("EMPTY_PLAN", "Plan has no steps.")))
+        return 1
 
     def _search_step(query: str, limit: int) -> int:
         step_args = argparse.Namespace(

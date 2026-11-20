@@ -435,6 +435,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
                 {
                     "intent_confirmed": True,
                     "confirmed_requirements": [{"id": "r1", "text": "React web app"}],
+                    "success_criteria": [{"id": "a1", "text": "Working React app"}],
                     "plan_steps": [
                         {
                             "id": "s1",
@@ -476,6 +477,7 @@ class SessionAndPlanSearchTests(unittest.TestCase):
                 {
                     "intent_confirmed": True,
                     "confirmed_requirements": [{"id": "r1", "text": "React web app"}],
+                    "success_criteria": [{"id": "a1", "text": "Working React app"}],
                     "plan_steps": [
                         {
                             "id": "s1",

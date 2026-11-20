@@ -41,6 +41,7 @@ def compute_readiness(session: dict[str, Any]) -> dict[str, Any]:
         "assumptions_acknowledged": len(unack_assumptions) == 0,
         "has_plan_steps": len(plan_steps) > 0,
         "plan_dependencies_valid": dep_check["valid"] if plan_steps else False,
+        "plan_current": not bool(session.get("plan_stale", False)),
     }
     missing_for_planning = [
         k
@@ -54,11 +55,7 @@ def compute_readiness(session: dict[str, Any]) -> dict[str, Any]:
     ]
     missing_for_discovery = [k for k, v in criteria.items() if not v]
     ready_for_planning = len(missing_for_planning) == 0
-    ready_for_discovery = (
-        ready_for_planning
-        and criteria["has_plan_steps"]
-        and criteria["plan_dependencies_valid"]
-    )
+    ready_for_discovery = all(criteria.values())
     return {
         "criteria": criteria,
         "missing_for_planning": missing_for_planning,
@@ -180,17 +177,28 @@ def update_session(
     if sanitized_patch.get("language"):
         updated["language"] = sanitized_patch["language"]
 
-    # Invalidate stale plan/discovery when requirements, constraints, or plan change
-    req_changed = any(
-        k in patch
-        for k in ("confirmed_requirements", "constraints", "success_criteria")
+    # Every material interview change invalidates recommendations from an older intent.
+    # A new plan in the same patch is treated as a deliberate replacement.
+    material_changed = any(
+        field in sanitized_patch
+        for field in (
+            "intent_confirmed",
+            "confirmed_requirements",
+            "assumptions",
+            "unresolved_questions",
+            "decisions",
+            "constraints",
+            "success_criteria",
+            "language",
+        )
     )
-    if req_changed and "plan_steps" not in patch and updated.get("plan_steps"):
+    plan_updated = "plan_steps" in sanitized_patch
+    if material_changed and not plan_updated and updated.get("plan_steps"):
         updated["plan_stale"] = True
-    elif "plan_steps" in patch:
+    elif plan_updated:
         updated["plan_stale"] = False
 
-    if req_changed or "plan_steps" in patch:
+    if material_changed or plan_updated:
         updated["discovery_stale"] = True
         updated["last_discovery"] = None
 
@@ -210,44 +218,58 @@ def update_session(
 
 
 def validate_plan_dependencies(steps: list[dict[str, Any]]) -> dict[str, Any]:
-    """Validate step IDs, missing dependencies, and cycles."""
-    step_ids = {str(s.get("id", "")).strip() for s in steps if s.get("id")}
+    """Validate unique IDs and dependencies; return stable topological order."""
+    ids = [str(step.get("id") or "").strip() for step in steps]
+    unique_ids = list(dict.fromkeys(sid for sid in ids if sid))
+    id_set = set(unique_ids)
+    duplicate_ids = sorted({sid for sid in ids if sid and ids.count(sid) > 1})
+    missing_ids = [index for index, sid in enumerate(ids) if not sid]
     missing_deps: list[dict[str, str]] = []
-    adj: dict[str, list[str]] = {sid: [] for sid in step_ids}
+    invalid_dependencies: list[str] = []
+    dependents: dict[str, list[str]] = {sid: [] for sid in unique_ids}
+    indegree = dict.fromkeys(unique_ids, 0)
 
-    for step in steps:
-        sid = str(step.get("id", "")).strip()
-        for dep in step.get("depends_on", []):
-            dep_id = str(dep).strip()
-            if dep_id not in step_ids:
-                missing_deps.append({"step_id": sid, "missing_dependency": dep_id})
+    for step, sid in zip(steps, ids):
+        dependencies = step.get("depends_on", [])
+        if not isinstance(dependencies, list):
+            invalid_dependencies.append(sid or "(missing id)")
+            continue
+        for dep in dict.fromkeys(str(item).strip() for item in dependencies):
+            if dep not in id_set:
+                missing_deps.append({"step_id": sid, "missing_dependency": dep})
             elif sid:
-                adj[sid].append(dep_id)
+                dependents[dep].append(sid)
+                indegree[sid] += 1
 
-    # Cycle detection via DFS
-    state: dict[str, int] = {}  # 0=unvisited, 1=visiting, 2=done
-    has_cycle = False
+    queue = [sid for sid in unique_ids if indegree[sid] == 0]
+    order: list[str] = []
+    index = 0
+    while index < len(queue):
+        current = queue[index]
+        index += 1
+        order.append(current)
+        for child in dependents[current]:
+            indegree[child] -= 1
+            if indegree[child] == 0:
+                queue.append(child)
 
-    def _dfs(node: str) -> None:
-        nonlocal has_cycle
-        state[node] = 1
-        for nxt in adj.get(node, []):
-            if state.get(nxt, 0) == 1:
-                has_cycle = True
-                return
-            if state.get(nxt, 0) == 0:
-                _dfs(nxt)
-        state[node] = 2
-
-    for sid in step_ids:
-        if state.get(sid, 0) == 0:
-            _dfs(sid)
-
+    has_cycle = len(order) != len(unique_ids)
+    valid = not (
+        missing_deps
+        or duplicate_ids
+        or missing_ids
+        or invalid_dependencies
+        or has_cycle
+    )
     return {
-        "valid": len(missing_deps) == 0 and not has_cycle,
+        "valid": valid,
         "step_count": len(steps),
         "missing_dependencies": missing_deps,
+        "duplicate_step_ids": duplicate_ids,
+        "missing_step_id_indices": missing_ids,
+        "invalid_dependencies": invalid_dependencies,
         "has_cycle": has_cycle,
+        "execution_order": order if valid else [],
     }
 
 
@@ -362,7 +384,12 @@ def run_plan_search(
     step_results: list[dict[str, Any]] = []
     capability_gaps: list[dict[str, Any]] = []
 
-    for step in steps:
+    ordered_steps = steps
+    if dep_check["valid"]:
+        by_id = {str(step["id"]): step for step in steps}
+        ordered_steps = [by_id[sid] for sid in dep_check["execution_order"]]
+
+    for step in ordered_steps:
         sid = str(step.get("id", ""))
         title = str(step.get("title", ""))
         query = str(step.get("query") or title).strip()
@@ -400,12 +427,14 @@ def run_plan_search(
         elif assessed["coverage_level"] == "direct":
             coverage_level = "direct" if ev_check["verified"] else "unverified_fit"
         elif assessed["coverage_level"] == "partial":
-            coverage_level = "partial"
+            coverage_level = (
+                "partial" if assessed["uncovered_capabilities"] else "unverified_fit"
+            )
         else:
             # Score is a ranking signal only; without inspected SKILL.md evidence, fit is unverified.
             coverage_level = "unverified_fit"
 
-        is_gap = coverage_level == "none"
+        is_gap = coverage_level != "direct"
         if coverage_level == "none":
             capability_gaps.append(
                 {
@@ -460,7 +489,7 @@ def run_plan_search(
         "steps": step_results,
         "capability_gaps": capability_gaps,
         "total_steps": len(steps),
-        "covered_steps": len(steps) - len(capability_gaps),
+        "covered_steps": sum(not item["capability_gap"] for item in step_results),
     }
 
 
@@ -566,11 +595,13 @@ def render_specification(
     session: dict[str, Any], discovery: dict[str, Any] | None = None
 ) -> str:
     """Render a structured Markdown specification and execution-ready workflow."""
-    is_stale = bool(session.get("discovery_stale")) or bool(session.get("plan_stale"))
-    if (
-        discovery is not None
-        and discovery.get("for_revision") is not None
-        and int(discovery["for_revision"]) != int(session.get("revision", 1))
+    readiness = compute_readiness(session)
+    is_stale = bool(session.get("discovery_stale")) or not readiness[
+        "ready_for_discovery"
+    ]
+    # Unversioned discovery is untrusted even if its content appears plausible.
+    if discovery is not None and discovery.get("for_revision") != session.get(
+        "revision", 1
     ):
         is_stale = True
     effective_discovery = None if is_stale else discovery
@@ -624,13 +655,15 @@ def render_specification(
                 lines.append(
                     f"- **Uncovered Capabilities:** {st.get('uncovered_capabilities')}"
                 )
-            if st.get("capability_gap"):
-                lines.append("- **Gap:** No verified local skill matched this step.")
-            else:
-                for m in st.get("matches", []):
-                    lines.append(
-                        f"- **Skill:** `{m.get('id')}` (ranking_score={m.get('score')}, risk={m.get('risk')}, path=`{m.get('skill_md_path')}`)"
-                    )
+            if cov != "DIRECT":
+                lines.append(
+                    f"- **Coverage gap:** {cov}; do not treat ranked candidates as verified capability."
+                )
+            for m in st.get("matches", []):
+                label = "Verified skill" if cov == "DIRECT" else "Ranked candidate"
+                lines.append(
+                    f"- **{label}:** `{m.get('id')}` (ranking_score={m.get('score')}, risk={m.get('risk')}, path=`{m.get('skill_md_path')}`)"
+                )
     else:
         for st in session.get("plan_steps", []):
             deps = ", ".join(st.get("depends_on", [])) or "none"

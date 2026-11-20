@@ -1,0 +1,169 @@
+"""V4 phase-1 regression cases: readiness, graph ordering, and evidence gaps."""
+
+from __future__ import annotations
+
+import contextlib
+import io
+import json
+import pathlib
+import sys
+import tempfile
+import unittest
+from unittest import mock
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "skills" / "skill-pilot" / "scripts"))
+import session_planner
+import skill_scout
+
+
+def ready_session() -> dict:
+    session = session_planner.init_session("Build a React web application")
+    return session_planner.update_session(
+        session,
+        {
+            "intent_confirmed": True,
+            "confirmed_requirements": [{"id": "r1", "text": "React web app"}],
+            "success_criteria": [{"id": "a1", "text": "Login works"}],
+            "plan_steps": [
+                {"id": "ui", "title": "React UI", "depends_on": []},
+            ],
+        },
+    )
+
+
+class V4CorrectnessTests(unittest.TestCase):
+    def test_success_criteria_are_required_for_discovery(self) -> None:
+        session = ready_session()
+        self.assertTrue(session_planner.compute_readiness(session)["ready_for_discovery"])
+        session["success_criteria"] = []
+        readiness = session_planner.compute_readiness(session)
+        self.assertFalse(readiness["ready_for_discovery"])
+        self.assertIn("has_success_criteria", readiness["missing_criteria"])
+
+    def test_interview_change_invalidates_existing_plan(self) -> None:
+        session = ready_session()
+        for patch in (
+            {"assumptions": [{"id": "a1", "text": "Offline use", "acknowledged": True}]},
+            {"unresolved_questions": [{"id": "q1", "text": "Need privacy?", "resolved": True}]},
+            {"decisions": [{"id": "d1", "text": "New mobile constraint"}]},
+            {"intent_confirmed": False},
+        ):
+            with self.subTest(patch=patch):
+                changed = session_planner.update_session(session, patch)
+                self.assertTrue(changed["plan_stale"])
+                self.assertTrue(changed["discovery_stale"])
+                self.assertFalse(
+                    session_planner.compute_readiness(changed)["ready_for_discovery"]
+                )
+
+    def test_valid_plan_is_stably_toposorted(self) -> None:
+        steps = [
+            {"id": "deploy", "title": "Deploy", "depends_on": ["test"]},
+            {"id": "test", "title": "Test", "depends_on": ["code"]},
+            {"id": "code", "title": "Code", "depends_on": []},
+        ]
+        deps = session_planner.validate_plan_dependencies(steps)
+        self.assertTrue(deps["valid"])
+        self.assertEqual(deps["execution_order"], ["code", "test", "deploy"])
+
+        def search(_query: str, _limit: int) -> int:
+            print(json.dumps({"ranked_matches": []}))
+            return 0
+
+        output = session_planner.run_plan_search(steps, search)
+        self.assertEqual(
+            [item["step_id"] for item in output["steps"]],
+            ["code", "test", "deploy"],
+        )
+
+    def test_invalid_graphs_reject_duplicate_and_missing_ids(self) -> None:
+        duplicate = session_planner.validate_plan_dependencies(
+            [{"id": "x", "depends_on": []}, {"id": "x", "depends_on": []}]
+        )
+        self.assertFalse(duplicate["valid"])
+        self.assertEqual(duplicate["duplicate_step_ids"], ["x"])
+        blank = session_planner.validate_plan_dependencies(
+            [{"id": "", "depends_on": []}]
+        )
+        self.assertFalse(blank["valid"])
+        self.assertEqual(blank["missing_step_id_indices"], [0])
+
+    def test_partial_without_uncovered_is_not_verified(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            skill = pathlib.Path(temp) / "SKILL.md"
+            skill.write_text("# React\nBuild the UI.\n", encoding="utf-8")
+
+            def search(_query: str, _limit: int) -> int:
+                print(
+                    json.dumps(
+                        {
+                            "ranked_matches": [
+                                {
+                                    "id": "react-ui",
+                                    "exists": True,
+                                    "skill_md_path": str(skill),
+                                }
+                            ]
+                        }
+                    )
+                )
+                return 0
+
+            output = session_planner.run_plan_search(
+                [
+                    {
+                        "id": "ui",
+                        "title": "Build React UI",
+                        "coverage_level": "partial",
+                        "depends_on": [],
+                    }
+                ],
+                search,
+            )
+            self.assertEqual(output["covered_steps"], 0)
+            self.assertEqual(output["steps"][0]["coverage_level"], "unverified_fit")
+            self.assertTrue(output["steps"][0]["capability_gap"])
+
+    def test_spec_rejects_unversioned_discovery(self) -> None:
+        session = ready_session()
+        output = session_planner.render_specification(
+            session, {"steps": [{"step_id": "ui", "title": "Old candidate"}]}
+        )
+        self.assertIn("WARNING:", output)
+        self.assertNotIn("Old candidate", output)
+
+    def test_cli_blocks_stale_and_incomplete_discovery(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            path = pathlib.Path(temp) / "session.json"
+            for update, expected in (
+                ({"success_criteria": []}, "has_success_criteria"),
+                ({"plan_stale": True}, "plan_current"),
+            ):
+                with self.subTest(expected=expected):
+                    session = ready_session()
+                    session.update(update)
+                    session_planner.save_json_file(path, session)
+                    stdout = io.StringIO()
+                    with (
+                        mock.patch.object(
+                            sys,
+                            "argv",
+                            [
+                                "skill_scout.py",
+                                "plan-search",
+                                "--session",
+                                str(path),
+                            ],
+                        ),
+                        contextlib.redirect_stdout(stdout),
+                    ):
+                        rc = skill_scout.main()
+                    self.assertEqual(rc, 1)
+                    payload = json.loads(stdout.getvalue())
+                    self.assertEqual(payload["error_code"], "DISCOVERY_BLOCKED_NOT_READY")
+                    self.assertIn(expected, payload["missing_criteria"])
+
+
+if __name__ == "__main__":
+    unittest.main()
