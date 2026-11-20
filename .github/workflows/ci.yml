@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, feat/v3-research-program, ci/v3-public-safe, feat/v3-project-discovery, feat/v3.1-dev, fix/interview-gate]
+    branches: [main, feat/v3-research-program, ci/v3-public-safe, feat/v3-project-discovery, feat/v3.1-dev, fix/interview-gate, feat/v4-development]
     tags: ["v*"]
   pull_request:
     branches: [main]
