@@ -146,3 +146,79 @@ jobs:
           name: skill-pilot-${{ matrix.os }}-py${{ matrix.python-version }}
           path: ${{ runner.temp }}/skill-pilot-ci-evidence/
           if-no-files-found: error
+
+  # Only a separately marked, fully green development-branch push can
+  # publish the beta. No stable main merge or automatic production release.
+  beta_release:
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/feat/v4-development' &&
+      contains(github.event.head_commit.message, '[beta-release]')
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.12"
+
+      - name: Verify beta-only release invariant
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          expected = "4.0.0-beta.1"
+          files = [
+              "plugin.json",
+              ".codex-plugin/plugin.json",
+              ".agents/plugins/marketplace.json",
+          ]
+          data = [json.loads(Path(p).read_text(encoding="utf-8")) for p in files]
+          versions = [data[0]["version"], data[1]["version"], data[2]["plugins"][0]["version"]]
+          assert versions == [expected] * 3, versions
+          assert Path("skills/skill-pilot/scripts/source_recovery.py").is_file()
+          assert Path("eval/v4_host_trial_packet.py").is_file()
+          assert Path("docs/v4/BETA_RELEASE_NOTES.md").is_file()
+          assert Path("docs/v4/V4_RELEASE_GATES.md").is_file()
+          PY
+          python scripts/skill_scout.py --version
+
+      - name: Package deterministic beta plugin
+        shell: bash
+        run: python eval/v4_package_beta.py --output dist
+
+      - name: Publish prerelease only
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="v4.0.0-beta.1"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            git fetch --no-tags origin "refs/tags/$tag:refs/tags/$tag"
+            actual="$(git rev-list -n 1 "$tag")"
+            test "$actual" = "$GITHUB_SHA"
+            echo "Existing prerelease matches this exact candidate; no overwrite."
+            exit 0
+          fi
+          if git rev-parse --verify -q "refs/tags/$tag" >/dev/null; then
+            actual="$(git rev-list -n 1 "$tag")"
+            test "$actual" = "$GITHUB_SHA"
+          fi
+          gh release create "$tag" \
+            "dist/skill-pilot-v4.0.0-beta.1-plugin.zip" \
+            "dist/SHA256SUMS" \
+            --target "$GITHUB_SHA" \
+            --title "Skill Pilot v4.0.0-beta.1 — testing prerelease" \
+            --notes-file "docs/v4/BETA_RELEASE_NOTES.md" \
+            --prerelease
+          gh release view "$tag" --json tagName,isPrerelease,targetCommitish,url \
+            --jq '{tag: .tagName, prerelease: .isPrerelease, target: .targetCommitish, url: .url}'
