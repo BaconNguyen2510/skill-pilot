@@ -150,6 +150,49 @@ class V4CorrectnessTests(unittest.TestCase):
             )
             self.assertTrue(check["verified"])
 
+    def test_negated_and_generic_evidence_cannot_prove_capability(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            skill = pathlib.Path(temp) / "SKILL.md"
+            passages = (
+                "Does not support React UI components.",
+                "Cannot build React UI components.",
+                "React UI components are not supported.",
+                "Không hỗ trợ React UI components.",
+                "Build Kubernetes deployment manifests.",
+            )
+            skill.write_text(
+                "# React UI components are not supported\n"
+                + "\n".join(passages)
+                + "\n",
+                encoding="utf-8",
+            )
+            matches = [{"id": "multi", "skill_md_path": str(skill)}]
+            for passage in passages:
+                with self.subTest(passage=passage):
+                    checked = session_planner.verify_capability_evidence(
+                        f'"{passage}"',
+                        matches,
+                        step_text="Build React UI",
+                    )
+                    self.assertFalse(checked["verified"])
+
+    def test_positive_evidence_remains_valid_alongside_denials(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            skill = pathlib.Path(temp) / "SKILL.md"
+            skill.write_text(
+                "# React UI\n"
+                "Build React UI components.\n"
+                "Cannot deploy Kubernetes clusters.\n",
+                encoding="utf-8",
+            )
+            matches = [{"id": "react", "skill_md_path": str(skill)}]
+            result = session_planner.verify_capability_evidence(
+                '"Build React UI components."',
+                matches,
+                step_text="Build React UI",
+            )
+            self.assertTrue(result["verified"])
+
     def test_partial_without_uncovered_is_not_verified(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             skill = pathlib.Path(temp) / "SKILL.md"

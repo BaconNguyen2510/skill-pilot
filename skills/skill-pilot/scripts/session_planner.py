@@ -312,6 +312,26 @@ _EVIDENCE_STOPWORDS = frozenset(
         "the",
         "and",
         "for",
+        "build",
+        "create",
+        "make",
+        "use",
+        "implement",
+        "provide",
+        "provides",
+        "perform",
+        "handle",
+        "handles",
+        "manage",
+        "manages",
+        "work",
+        "works",
+        "tool",
+        "tools",
+        "feature",
+        "features",
+        "capability",
+        "capabilities",
     }
 )
 
@@ -374,6 +394,18 @@ def _evidence_terms(text: str) -> set[str]:
     }
 
 
+# Explicit capability denial must not be promoted by mere lexical overlap.
+# Conservative, bounded phrases only; this is not a general negation parser.
+_EVIDENCE_DENIAL = re.compile(
+    r"\b(?:"
+    r"(?:does|do|did|is|are|was|were)\s+not\s+(?:support|provide|implement|available|capable)"
+    r"|(?:cannot|can't|unable\s+to|not\s+supported|unsupported|not\s+available)"
+    r"|(?:không|chưa)\s+(?:hỗ\s+trợ|thể|có|được)"
+    r")\b",
+    re.IGNORECASE,
+)
+
+
 def verify_capability_evidence(
     evidence_text: str,
     matches: list[dict[str, Any]],
@@ -411,6 +443,7 @@ def verify_capability_evidence(
                 and hl != skill_id
                 and hl in lower_cleaned
                 and (not step_text or step_terms & _evidence_terms(h))
+                and not _EVIDENCE_DENIAL.search(h)
             ):
                 return {
                     "verified": True,
@@ -424,6 +457,7 @@ def verify_capability_evidence(
                 and cl != skill_id
                 and cl in caps["lower_text"]
                 and (not step_text or step_terms & _evidence_terms(cand))
+                and not _EVIDENCE_DENIAL.search(cand)
             ):
                 return {
                     "verified": True,
