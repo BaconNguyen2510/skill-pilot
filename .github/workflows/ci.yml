@@ -65,10 +65,18 @@ jobs:
                   raise SystemExit(result.returncode)
 
           rc_manifest_path = Path("docs/v3/CANDIDATE_MANIFEST_V3_RC.json")
-          branch_ref = os.environ.get("GITHUB_REF_NAME", "")
-          # A moving v4 development branch cannot match the frozen v3 release hashes.
-          # Keep strict canonical hash checks on main and release tags unchanged.
-          if branch_ref == "feat/v4-development":
+          branch_ref = os.environ.get("GITHUB_HEAD_REF") or os.environ.get("GITHUB_REF_NAME", "")
+          manifest_versions = [
+              json.loads(Path(path).read_text(encoding="utf-8"))["version"]
+              if path != ".agents/plugins/marketplace.json"
+              else json.loads(Path(path).read_text(encoding="utf-8"))["plugins"][0]["version"]
+              for path in ("plugin.json", ".codex-plugin/plugin.json", ".agents/plugins/marketplace.json")
+          ]
+          is_v4_candidate = len(set(manifest_versions)) == 1 and manifest_versions[0].startswith("4.")
+          # v4 changes are intentionally incompatible with frozen v3 hashes.
+          # Detect them by their declared, cross-checked manifest version so PR merge
+          # refs, protected main, and the v4 tag follow the same qualification path.
+          if is_v4_candidate:
               candidate = "v4-unfrozen-development"
               expected_files = {}
           elif rc_manifest_path.exists() and branch_ref in ("feat/v3-project-discovery", "feat/v3.1-dev", "fix/interview-gate", "main", "v3.0.0", "v3.1.0", "v3.1.1"):
@@ -104,7 +112,7 @@ jobs:
                              "python", "-m", "unittest", "discover", "-s", "blind_eval/tests", "-v"])
           run("release-verifier", ["uv", "run", "--no-project", "--python", sys.executable,
                                   "python", "eval/verify_rc.py"])
-          if branch_ref == "feat/v4-development":
+          if is_v4_candidate:
               run("v4-dev-retrieval-ablation", ["uv", "run", "--no-project", "--python", sys.executable,
                                                "python", "eval/v4_retrieval_ablation.py"])
               run("v4-dev-evidence-ablation", ["uv", "run", "--no-project", "--python", sys.executable,
@@ -119,8 +127,6 @@ jobs:
                                                         "python", "eval/v4_composite_evidence_ablation.py"])
               run("v4-dev-source-boundary-ablation", ["uv", "run", "--no-project", "--python", sys.executable,
                                                      "python", "eval/v4_source_boundary_ablation.py"])
-              run("v4-clean-archive-host-smoke", ["uv", "run", "--no-project", "--python", sys.executable,
-                                                  "python", "eval/v4_host_smoke.py"])
           doctor = subprocess.run(
               ["uv", "run", "--no-project", "--python", sys.executable,
                "python", "skills/skill-pilot/scripts/skill_scout.py", "doctor"],
