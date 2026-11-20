@@ -48,3 +48,18 @@ Evidence: GitHub Actions #44649502873, commit `89f7b8b`, Ubuntu Python 3.14. Onl
 The first-run baseline p50/p95 latency on the GitHub host was 4.495/5.339 ms (80 dev cases) and 3.985/5.542 ms (32 adversarial cases). It is not a controlled hardware benchmark. Abstention F1 was omitted from the initial output; later runs report it.
 
 **Decision:** Keep production ranking unchanged. Near-saturation on the synthetic dev set limits the value of further weight tuning. The next experiment needs independently sourced real queries and labels.
+
+## V4 follow-up: uncertainty is not exclusion
+
+Source inspection found a distinct bug outside the saturated retrieval-ablation corpus: `don't know how to use React`, `not sure how to build React`, and `không biết cách…` can be parsed as commands to exclude the only requested technology, leaving no positive intent. This is a deterministic intent-parser defect, not evidence from human retrieval labels.
+
+Compared candidates **before implementation**:
+
+| Candidate | License / dependencies | Estimated latency / trade-off | Decision |
+| --- | --- | --- | --- |
+| Bounded pseudo-negation phrases in stdlib clause parser | PSF; zero external runtime deps | Constant-pattern regex in the current scan; actual impact needs CI | **Selected** for specific reproduced intent ambiguity |
+| [negspacy/NegEx](https://github.com/jeniyat/negspacy) | MIT; spaCy required | Richer linguistic cues but larger runtime and model requirement | Rejected; keep pattern concept only |
+| [VnCoreNLP](https://github.com/vncorenlp/VnCoreNLP) | MIT; requires Java runtime | Vietnamese POS/segmentation but unnecessary for short phrase guard | Rejected for stdlib invariant |
+| Host LLM structured intent parsing | Host-model dependent; no extra Python package | Can generalize but model output not deterministic and CLI must work standalone | Complementary; defer enforcement until native host tests |
+
+New regression suite `tests/test_non_exclusion_v4.py` checks English/Vietnamese positive uncertainty and explicit exclusions, including CLI warehouse retrieval. The guard intentionally only skips `don't`/`do not`/`not` when followed by knowledge uncertainty, and `không` when followed by `biết`. It does not alter explicit `don't use`, `without`, or `không dùng` exclusions. **Measure results in hosted CI before claiming the change passed.**

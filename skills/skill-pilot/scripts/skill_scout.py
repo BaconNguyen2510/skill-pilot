@@ -1114,8 +1114,9 @@ _VI_NON_EXCLUSION_KHONG_BEFORE_RE = re.compile(
     r"\b(?:tai sao|lam sao|vi sao|khi nao|co the|sao|de|ma)\s*$"
 )
 _VI_NON_EXCLUSION_KHONG_AFTER_RE = re.compile(
-    r"^\s*(?:chay duoc|duoc|bi loi|can thiet|hoat dong|chay|hieu|ro)\b"
+    r"^\s*(?:chay duoc|duoc|bi loi|can thiet|hoat dong|chay|hieu|ro|biet)\b"
 )
+_EN_NON_EXCLUSION_AFTER_RE = re.compile(r"^\s*(?:know|understand|sure)\b")
 _BOOL_NOT_CONTEXT_BEFORE_RE = re.compile(r"\b(?:sql|logical|boolean|bitwise|unary)\s*$")
 _BOOL_NOT_CONTEXT_AFTER_RE = re.compile(
     r"^\s*(?:operators?|gates?|null|in|exists|like|between|equals?)\b"
@@ -1416,6 +1417,10 @@ def _split_query_negations(query: str) -> tuple[str, str]:
                 if matched == "khong" and (
                     _VI_NON_EXCLUSION_KHONG_BEFORE_RE.search(norm_clause[: m.start()])
                     or _VI_NON_EXCLUSION_KHONG_AFTER_RE.search(norm_clause[m.end() :])
+                ):
+                    continue
+                if matched in ("don't", "dont", "do not", "not") and (
+                    _EN_NON_EXCLUSION_AFTER_RE.search(norm_clause[m.end() :])
                 ):
                     continue
                 matches.append(m)
