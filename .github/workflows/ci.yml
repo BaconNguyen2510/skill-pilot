@@ -104,6 +104,9 @@ jobs:
                              "python", "-m", "unittest", "discover", "-s", "blind_eval/tests", "-v"])
           run("release-verifier", ["uv", "run", "--no-project", "--python", sys.executable,
                                   "python", "eval/verify_rc.py"])
+          if branch_ref == "feat/v4-development":
+              run("v4-dev-retrieval-ablation", ["uv", "run", "--no-project", "--python", sys.executable,
+                                               "python", "eval/v4_retrieval_ablation.py"])
           doctor = subprocess.run(
               ["uv", "run", "--no-project", "--python", sys.executable,
                "python", "skills/skill-pilot/scripts/skill_scout.py", "doctor"],
