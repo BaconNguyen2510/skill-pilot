@@ -31,11 +31,9 @@ class SourceRecoveryBetaTests(unittest.TestCase):
         self.assertEqual(len(cases), 12)
         for case in cases:
             with self.subTest(case=case["id"]):
-                calls: list[tuple[str, int]] = []
-
-                def discover(query: str, limit: int):
-                    calls.append((query, limit))
-                    return "completed", [], "No local matches"
+                discover = mock.Mock(
+                    return_value=("completed", [], "No local matches")
+                )
 
                 result = source_recovery.make_recovery_plan(
                     goal=case["request"],
@@ -65,10 +63,10 @@ class SourceRecoveryBetaTests(unittest.TestCase):
                     case["expected_recovery_path"]
                     == "skill_lookup_then_one_source_input"
                 ):
-                    self.assertEqual(calls, [(case["skill_query"], 5)])
+                    discover.assert_called_once_with(case["skill_query"], 5)
                     self.assertEqual(result["skill_discovery"]["status"], "completed")
                 else:
-                    self.assertEqual(calls, [])
+                    discover.assert_not_called()
 
     def test_private_url_removed_from_goal_and_never_used_as_skill_query(self) -> None:
         calls = []

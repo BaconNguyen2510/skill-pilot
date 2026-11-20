@@ -7,7 +7,8 @@ The caller is responsible for reporting an actual source-access observation.
 from __future__ import annotations
 
 import re
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 SOURCE_STATES = frozenset(
     {
@@ -47,7 +48,7 @@ def redact_urls(text: str) -> str:
 
 def bounded_text(value: str, *, label: str, maximum: int = 2000) -> str:
     if not isinstance(value, str):
-        raise ValueError(f"{label} must be text")
+        raise TypeError(f"{label} must be text")
     normalized = value.strip()
     if not normalized or len(normalized) > maximum or "\x00" in normalized:
         raise ValueError(f"{label} is empty, too long, or contains NUL")
@@ -134,7 +135,7 @@ def make_recovery_plan(
             if status not in {"completed", "unavailable"}:
                 raise ValueError("Unknown discovery status")
             if not isinstance(matches, list):
-                raise ValueError("Skill discovery returned invalid candidates")
+                raise TypeError("Skill discovery returned invalid candidates")
             # Candidate availability is not evidence that tools were invoked.
             safe_matches = [
                 {
