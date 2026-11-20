@@ -517,7 +517,7 @@ def run_plan_search(
         ev_check = verify_capability_evidence(
             assessed["capability_evidence"],
             verified_matches,
-            step_text=" ".join((title, query)),
+            step_text=f"{title} {query}",
         )
         if not verified_matches:
             coverage_level = "none"
