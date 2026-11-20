@@ -21,6 +21,15 @@
 
 This comparison informs implementation; **it is not a measured performance benchmark**. No new runtime package is introduced, and no paid service is required.
 
+## v4.0 milestone breakdown
+
+- **Milestone 21:** Persist the actual user goal when a reel/URL fetch fails; do not restart a clear Interview Gate.
+- **Milestone 22:** Use bounded permitted fallback sources, then offer a single concrete source-input request when material is still missing.
+- **Milestone 23:** Search suitable installed/warehouse skills by capability and inspect their SKILL.md, or record a truthful tool/skill abstention.
+- **Milestone 24:** Run frozen EN/VI link-failure cases inside **real** Codex and Antigravity hosts, independently review tool traces, and close all observed failures before release.
+
+These four milestones are **mandatory acceptance work for v4.0**. Deterministic CI is a prerequisite, not a replacement for native-host completion.
+
 ## v4 implementation contract
 
 1. **Preserve original intent:** distinguish the requested result from the input source. Clear intent + blocked material must not automatically restart interview/confirmation.

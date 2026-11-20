@@ -2,6 +2,8 @@
 
 ## v4.0 P0 release blocker: goal persistence and inaccessible media (open)
 
+**Numbered v4.0 submilestones:** 21 goal persistence, 22 fallback content recovery, 23 skill discovery or evidenced abstention, 24 native Codex/Antigravity EN/VI evaluation. All four belong in v4.0 and remain release-blocking until verified. See `V4_RELEASE_GATES.md`.
+
 **Tracking:** [GitHub issue #2](https://github.com/BaconNguyen2510/skill-pilot/issues/2). The user specifically requires this to be fixed **in v4.0, not v4.1**. A reported Facebook-reel interaction showed a blocked fetch and a caption request but no visible skill discovery or alternative permitted recovery. That screenshot does not prove hidden tools were absent; real host traces are still required.
 
 - Added a blocked-source recovery gate to `skills/skill-pilot/SKILL.md` and a detailed `references/source-recovery.md` workflow. A blocked link with an already-clear goal must not restart the Interview Gate or terminate the original task. Relevant media-analysis skills must be searched by capability when permitted; inspect candidate SKILL.md files and never invent tool activity.
