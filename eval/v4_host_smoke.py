@@ -114,12 +114,12 @@ def run_smoke(checkout: pathlib.Path, home: pathlib.Path) -> dict:
         raise AssertionError("Doctor reported inconsistent plugin manifests")
     inventory = invoke(canonical, home, "inventory", "--harness", "all")
     if not isinstance(inventory, dict):
-        raise AssertionError("Inventory did not emit JSON")
+        raise TypeError("Inventory did not emit JSON")
     intake = invoke(
         canonical, home, "intake", "--workspace", str(workspace), "--format", "json"
     )
     if not isinstance(intake, dict):
-        raise AssertionError("Intake did not emit JSON")
+        raise TypeError("Intake did not emit JSON")
     inspected = invoke(
         canonical,
         home,
