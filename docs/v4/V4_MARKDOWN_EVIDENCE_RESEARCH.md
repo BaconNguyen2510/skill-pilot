@@ -49,3 +49,7 @@ These percentages are not representative field accuracy. All labels were predecl
 The implementation candidate filters fenced code and HTML comments before heading, statement and quote extraction; a cited heading must match the standalone evidence text rather than merely appear as a substring in longer text. It follows the CommonMark 0–3-space fence indentation and marker-type/length rules, caps source line count, and fails closed on unclosed fences. The original 32-case EN/VI contradiction benchmark must remain green.
 
 The dev-only Markdown benchmark rejects a candidate if synthetic false positives or false negatives regress, or if neither improves. Full Windows/Linux CI and measured latency results must be recorded after implementation; this benchmark is not a v4 release gate or human semantic-validation claim.
+
+## Observed post-change CI #44695311575
+
+On 16 synthetic Markdown cases, pinned baseline TP=5,TN=0,FP=8,FN=3 and filtered verifier TP=8,TN=8,FP=0,FN=0. Sampled p50/p95 per-case median latency 0.1049/0.1191→0.1031/0.1137 ms. Four OS/Python CI jobs passed, including the previous EN/VI dev gate. Not a production/human-judged accuracy claim.

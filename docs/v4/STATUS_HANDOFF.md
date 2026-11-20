@@ -1,5 +1,18 @@
 # Skill Pilot V4 — Durable Engineering Handoff
 
+## Continuation milestones 15–16: capability-source integrity (2026-11-20)
+
+**Latest verified source SHA:** `be8e9ee965d995c7853803fc3fe913e7e9256827`, GitHub Actions #44695311575 **4/4 passed** (Ubuntu/Windows × Python 3.12/3.14). Ubuntu 3.12: 222 main-suite, 40 blind, 8 workflow tests passed; Ruff format/lint, configured type checks, release verifier, dev ablations and clean-archive simulated host smoke passed.
+
+- **Milestone 15 — scoped EN/VI capability denials:** commit `178ac1a9e5836fd88187bd9780f01332a1ecc0e3`, CI #44693872987 (4/4): the synthetic 32-case engineering fixture changed from **17 false positives / 0 false negatives** to **0 / 0**. English FP 9→0, Vietnamese FP 8→0; all 12 positives retained. Sampled p95 per-case median latency 0.0456→0.0672 ms.
+- **Milestone 16 — Markdown source provenance:** commit `be8e9ee965d995c7853803fc3fe913e7e9256827`, CI #44695311575 (4/4): the synthetic 16-case Markdown fixture changed from **8 false positives / 3 false negatives** to **0 / 0**. Sampled p95 per-case median latency 0.1191→0.1137 ms. Code fences, hidden comments and fabricated heading substrings are no longer positive direct evidence.
+- **Boundary:** these are deliberately synthetic *dev* cases, NOT external human evaluation, representative production error rates, or proof of semantic entailment. No hidden/holdout cases were used to select the changes. Latency readings are small/noisy CI samples.
+- **Rejected alternatives:** spaCy/negspaCy/RapidFuzz for negation, full Markdown-it-py/Mistune parsers for Markdown, pending independent value over the stdlib-only runtime. Neither change modifies protected main, plugin versions, sealed data or release tags.
+
+**Exact next step:** confirm the post-documentation branch head and its CI; independently review indented Markdown blocks, unusual HTML, encoded negation and multi-skill ambiguity using separate predeclared *dev* fixtures. Obtain real bilingual human labels and native Codex/Antigravity host tests before proposing any v4 release. Do not merge, tag or publish without separate authorization.
+
+---
+
 ## Continuation verified on 2026-11-20 (newer than milestones below)
 
 Protected baseline `main` remains at `2c917158ccc3105804d99552cae0b5daeb461d4a` (`v3.1.1`). Branch `feat/v4-development` now includes:

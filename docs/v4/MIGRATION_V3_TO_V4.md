@@ -47,3 +47,7 @@ Protected `main` remains on v3.1.1 at `2c917158ccc3105804d99552cae0b5daeb461d4a`
 ## Deferred / unsupported
 
 Native host model behavior, actual external human annotation, semantic evidence correctness and live deployment safety remain unverified. No high-level 'production ready' claim is justified yet.
+
+## New development-candidate evidence behavior
+
+As of v4 development commit `be8e9ee965d995c7853803fc3fe913e7e9256827`, source-backed direct coverage excludes Markdown fenced examples and hidden HTML comments, requires exact heading citations, and fails closed on relevant EN/VI contradictions. Old plans relying on these weaker source strings may downgrade to `unverified_fit` and require reinspection. This change is not published in v3.1.1.

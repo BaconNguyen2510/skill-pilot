@@ -38,3 +38,7 @@ The measured baseline false-positive rate was **17/20 = 85% on deliberately adve
 ## Candidate evaluation rule
 
 The scoped-contradiction candidate must reduce synthetic false positives and/or false negatives **without increasing either on the EN or VI slice**. The dev-only benchmark exits nonzero when this synthetic non-regression/improvement gate fails. It does not authorize release, modify rankings, or grant semantic-evidence status. The final post-change results must be collected from the exact CI commit and recorded rather than projected.
+
+## Observed post-change CI #44693872987
+
+On the 32 synthetic EN/VI engineering cases, pinned baseline FP/FN=17/0 and scoped-verifier FP/FN=0/0 (12 positives preserved). English FP 9→0; Vietnamese FP 8→0. Sampled p50/p95 per-case median latency 0.0407/0.0456→0.0512/0.0672 ms. Four OS/Python CI jobs passed. Synthetic accuracy is not an independent human estimate.

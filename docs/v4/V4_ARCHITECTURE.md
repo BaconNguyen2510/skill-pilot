@@ -59,3 +59,7 @@ Guided / Deep -> one-question interview + explicit user confirmation
 ## Architectural debt
 
 The canonical scout remains a large module. A clean modular decomposition is desirable but not urgent enough to risk breaking direct script entrypoints. Decompose only after defining stable interfaces and proving parity via clean-archive smoke and fault-injection benchmarks. Do not add embeddings or agent frameworks until independent relevance and latency tests support the extra dependencies.
+
+## 2026-11-20 evidence provenance evolution
+
+Scoped EN/VI contradiction checking now rejects direct evidence when a relevant source statement denies the requested capability. Markdown code fences (backtick/tilde) and HTML comments are excluded from evidence extraction; heading citations must match exactly. These are bounded stdlib heuristics, not a semantic model or full CommonMark renderer. Source code verified in four-cell CI #44695311575.
