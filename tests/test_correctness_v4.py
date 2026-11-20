@@ -253,6 +253,7 @@ class V4CorrectnessTests(unittest.TestCase):
     def test_spec_only_offers_handoff_for_direct_coverage(self) -> None:
         session = ready_session()
         session["discovery_stale"] = False
+        session["skill_selection_confirmed"] = True
         discovery = {
             "for_revision": session["revision"],
             "steps": [{"step_id": "ui", "coverage_level": "direct"}],

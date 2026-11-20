@@ -9,6 +9,12 @@ state as caller-reported, and requests only the missing source material. It
 does not scrape login-walled media, bypass access controls, execute discovered
 skill scripts, or invent unseen content.
 
+For Guided and Deep work, it now requires a two-stage approval flow: explicit
+intent confirmation before discovery, followed by a report of inspected skill
+recommendations and explicit selection confirmation before execution. A missing
+skill is never downloaded, enabled or promoted from ranking alone; acquisition
+requires its own explicit approval.
+
 ## Qualification model
 
 The stable release is qualified by executable repository contracts, not by

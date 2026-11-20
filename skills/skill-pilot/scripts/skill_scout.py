@@ -3613,7 +3613,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sess.add_argument(
         "action",
-        choices=["init", "update", "revise", "status", "spec"],
+        choices=["init", "update", "revise", "approve-selection", "status", "spec"],
         help="Session action",
     )
     sess.add_argument("--session", required=True, help="Path to session JSON file")
@@ -3776,6 +3776,10 @@ def cmd_session(args: argparse.Namespace) -> int:
             patch["replace_plan"] = True
         data = session_planner.update_session_file_locked(
             session_path, patch, revision_note=args.note
+        )
+    elif args.action == "approve-selection":
+        data = session_planner.confirm_skill_selection_file_locked(
+            session_path, note=args.note
         )
     elif args.action == "spec":
         data = session_planner.load_json_file(session_path)

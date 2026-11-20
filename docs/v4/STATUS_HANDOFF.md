@@ -1,5 +1,12 @@
 # Skill Pilot V4 — Durable Engineering Handoff
 
+## User-intent flow correction — release qualification reopened (2026-11-20)
+
+- The prior candidate was not complete for the user's intended Skill Pilot workflow. It had an intent-confirmation gate but no distinct user confirmation after skill discovery; Fast could also skip discovery too broadly. Do not release `fa6bded`.
+- Added a second, observable session gate: `skill_selection_confirmed`. Discovery now remains a report-only operation. `session approve-selection` only works for current persisted discovery, and any material session update invalidates both discovery and selection approval.
+- Updated `SKILL.md` to require: interview and confirm intent → discover/inspect → report and wait for selection approval → acquire missing skills only with separate explicit approval → execute/report. This preserves a narrow Fast exception only for explicitly direct mechanical work.
+- Added deterministic regression coverage and the design record [V4_USER_INTENT_FLOW.md](V4_USER_INTENT_FLOW.md). Full release qualification must be rerun and recorded after this correction before publishing v4.0.0.
+
 ## Stable 4.0.0 candidate — host-independent qualification (2026-11-20)
 
 - User direction supersedes the former host-evaluation release gate: do not run Codex or Antigravity for v4.0.0 qualification. The release scope is the executable repository contract, not model behavior inside a host.
