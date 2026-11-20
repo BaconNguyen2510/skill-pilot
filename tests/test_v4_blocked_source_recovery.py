@@ -52,12 +52,14 @@ class BlockedSourceV4Tests(unittest.TestCase):
             for line in SCENARIOS.read_text(encoding="utf-8").splitlines()
             if line.strip()
         ]
-        self.assertEqual(len(rows), 12)
-        self.assertEqual(len({item["id"] for item in rows}), 12)
-        self.assertEqual({r["language"] for r in rows}, {"en", "vi"})
+        self.assertEqual(len(rows), 28)
+        self.assertEqual(len({item["id"] for item in rows}), 28)
+        self.assertEqual(
+            {r["language"] for r in rows}, {"en", "vi", "vi_no_diacritic", "mixed"}
+        )
         self.assertEqual(
             {r["platform"] for r in rows},
-            {"facebook", "instagram", "tiktok", "youtube"},
+            {"facebook", "instagram", "tiktok", "youtube", "other"},
         )
         self.assertTrue(
             all(
@@ -80,6 +82,10 @@ class BlockedSourceV4Tests(unittest.TestCase):
             {"one_goal_question"},
         )
         self.assertTrue(all(r["goal_summary"] and r["skill_query"] for r in rows))
+        self.assertTrue(
+            {"unsupported", "unknown", "timeout", "rate_limit", "deleted", "404", "403"}
+            <= {r["observed_access"] for r in rows}
+        )
 
     def _search_warehouse(self, records: list[dict]) -> tuple[int, dict]:
         with tempfile.TemporaryDirectory() as temp:

@@ -28,7 +28,7 @@ class SourceRecoveryBetaTests(unittest.TestCase):
             for line in SCENARIOS.read_text(encoding="utf-8").splitlines()
             if line.strip()
         ]
-        self.assertEqual(len(cases), 12)
+        self.assertEqual(len(cases), 28)
         for case in cases:
             with self.subTest(case=case["id"]):
                 discover = mock.Mock(return_value=("completed", [], "No local matches"))

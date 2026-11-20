@@ -64,7 +64,7 @@ class BetaRunnerTests(unittest.TestCase):
             self.assertTrue(data.is_file())
             with reviews.open(encoding="utf-8", newline="") as stream:
                 rows = list(csv.DictReader(stream))
-            self.assertEqual(len(rows), 12)
+            self.assertEqual(len(rows), 28)
             self.assertEqual({row["host"] for row in rows}, {"codex"})
             self.assertTrue(all(not row["overall_pass"] for row in rows))
             self.assertTrue(all(not row["reviewer_id"] for row in rows))

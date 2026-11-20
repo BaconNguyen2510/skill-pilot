@@ -51,7 +51,7 @@ python eval/v4_host_trial_packet.py --host codex --output local-receipts/codex-b
 python eval/v4_host_trial_packet.py --host antigravity --output local-receipts/antigravity-beta-trials
 ```
 
-Each packet has `trial_prompts.jsonl` with 12 **synthetic EN/VI development scenarios** and an empty `human_review_template.csv`. These are tasks to **actually run**, not model output or automated success labels. When testing blocked links, use only public material/URLs you are authorized to access. Reproduce or explicitly mark the access state that the host really observed; don't pretend a public link was blocked if it loaded normally.
+Each packet has `trial_prompts.jsonl` with 28 **synthetic EN/VI, Vietnamese-without-diacritics and mixed-language development scenarios** and an empty `human_review_template.csv`. These are tasks to **actually run**, not model output or automated success labels. When testing blocked links, use only public material/URLs you are authorized to access. Reproduce or explicitly mark the access state that the host really observed; don't pretend a public link was blocked if it loaded normally.
 
 ### Prompt to run in Codex or Antigravity
 

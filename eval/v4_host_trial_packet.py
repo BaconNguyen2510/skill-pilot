@@ -35,7 +35,7 @@ def load_scenarios() -> list[dict]:
         for line in FIXTURES.read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
-    if len(records) != 12 or len({row["id"] for row in records}) != 12:
+    if len(records) != 28 or len({row["id"] for row in records}) != 28:
         raise ValueError("Unexpected or duplicate v4 synthetic host scenarios")
     for row in records:
         if (
