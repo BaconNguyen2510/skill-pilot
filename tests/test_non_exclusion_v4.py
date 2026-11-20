@@ -78,13 +78,23 @@ class NonExclusionV4Tests(unittest.TestCase):
             )
             buffer = io.StringIO()
             with (
-                mock.patch.object(skill_scout, "resolve_warehouses", return_value=[root]),
-                mock.patch.object(skill_scout, "collect_active_skills", return_value=[]),
+                mock.patch.object(
+                    skill_scout, "resolve_warehouses", return_value=[root]
+                ),
+                mock.patch.object(
+                    skill_scout, "collect_active_skills", return_value=[]
+                ),
                 mock.patch.object(skill_scout, "collect_codex_skills", return_value=[]),
                 mock.patch.object(
                     sys,
                     "argv",
-                    ["skill_scout.py", "search", "I don't know how to build React", "--format", "json"],
+                    [
+                        "skill_scout.py",
+                        "search",
+                        "I don't know how to build React",
+                        "--format",
+                        "json",
+                    ],
                 ),
                 contextlib.redirect_stdout(buffer),
             ):
