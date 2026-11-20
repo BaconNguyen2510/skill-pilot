@@ -107,6 +107,8 @@ jobs:
           if branch_ref == "feat/v4-development":
               run("v4-dev-retrieval-ablation", ["uv", "run", "--no-project", "--python", sys.executable,
                                                "python", "eval/v4_retrieval_ablation.py"])
+              run("v4-dev-evidence-ablation", ["uv", "run", "--no-project", "--python", sys.executable,
+                                              "python", "eval/v4_evidence_ablation.py"])
               run("v4-clean-archive-host-smoke", ["uv", "run", "--no-project", "--python", sys.executable,
                                                   "python", "eval/v4_host_smoke.py"])
           doctor = subprocess.run(
