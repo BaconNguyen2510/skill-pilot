@@ -36,7 +36,7 @@ def compute_readiness(session: dict[str, Any]) -> dict[str, Any]:
     dep_check = validate_plan_dependencies(plan_steps)
     criteria = {
         "has_confirmed_goal": len(confirmed) > 0,
-        "intent_confirmed": bool(session.get("intent_confirmed", True)),
+        "intent_confirmed": bool(session.get("intent_confirmed", False)),
         "has_success_criteria": len(success) > 0,
         "no_blocking_unresolved_questions": len(unresolved) == 0,
         "assumptions_acknowledged": len(unack_assumptions) == 0,
@@ -178,8 +178,12 @@ def update_session(
     if sanitized_patch.get("language"):
         updated["language"] = sanitized_patch["language"]
 
-    # Every material interview change invalidates recommendations from an older intent.
-    # A new plan in the same patch is treated as a deliberate replacement.
+    # Never let a no-op/partial plan patch revive a previously stale plan.
+    if "plan_steps" in sanitized_patch and not isinstance(
+        sanitized_patch["plan_steps"], list
+    ):
+        raise ValueError("plan_steps must be a list")
+
     material_changed = any(
         field in sanitized_patch
         for field in (
@@ -194,9 +198,18 @@ def update_session(
         )
     )
     plan_updated = "plan_steps" in sanitized_patch
-    if material_changed and not plan_updated and updated.get("plan_steps"):
+    new_steps = sanitized_patch.get("plan_steps", [])
+    existing_steps = session.get("plan_steps", [])
+    plan_reaffirmed = (
+        bool(new_steps)
+        and (
+            bool(sanitized_patch.get("replace_plan"))
+            or not existing_steps
+        )
+    )
+    if material_changed and updated.get("plan_steps") and not plan_reaffirmed:
         updated["plan_stale"] = True
-    elif plan_updated:
+    elif plan_reaffirmed:
         updated["plan_stale"] = False
 
     if material_changed or plan_updated:
@@ -543,26 +556,41 @@ def _session_lock_pid_alive(pid: int | None) -> bool | None:
     if pid == os.getpid():
         return True
     if os.name == "nt":
+        # PROCESS_QUERY is unnecessary: SYNCHRONIZE permits a zero-time wait.
+        # ctypes defaults to C int, so explicitly type every pointer-sized HANDLE.
         try:
             import ctypes
+            from ctypes import wintypes
 
             kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
-            handle = kernel32.OpenProcess(0x1000, False, pid)
+            open_process = kernel32.OpenProcess
+            open_process.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+            open_process.restype = wintypes.HANDLE
+            wait_process = kernel32.WaitForSingleObject
+            wait_process.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+            wait_process.restype = wintypes.DWORD
+            close_handle = kernel32.CloseHandle
+            close_handle.argtypes = [wintypes.HANDLE]
+            close_handle.restype = wintypes.BOOL
+
+            handle = open_process(0x00100000, False, pid)  # SYNCHRONIZE
             if not handle:
                 error = ctypes.get_last_error()
-                if error == 5:  # Access denied: process may still be alive.
+                if error == 5:  # Protected process; treat as possibly alive.
                     return True
-                if error == 87:  # Invalid PID on Windows.
+                if error == 87:  # ERROR_INVALID_PARAMETER (nonexistent PID).
                     return False
                 return None
             try:
-                code = ctypes.c_uint32(0)
-                if kernel32.GetExitCodeProcess(handle, ctypes.byref(code)):
-                    return code.value == 259  # STILL_ACTIVE
+                state = wait_process(handle, 0)
+                if state == 0x00000102:  # WAIT_TIMEOUT: still running.
+                    return True
+                if state == 0:  # WAIT_OBJECT_0: process terminated.
+                    return False
                 return None
             finally:
-                kernel32.CloseHandle(handle)
-        except (OSError, AttributeError):
+                close_handle(handle)
+        except (OSError, AttributeError, TypeError):
             return None
     try:
         os.kill(pid, 0)
@@ -738,6 +766,8 @@ def persist_discovery_to_session(
             raise ValueError(
                 f"Session revision changed during discovery ({expected_revision} -> {current.get('revision')}); stale discovery rejected."
             )
+        if not compute_readiness(current)["ready_for_discovery"]:
+            raise ValueError("Session no longer ready for discovery; results rejected.")
         annotated = copy.deepcopy(discovery)
         annotated["for_revision"] = expected_revision
         current["last_discovery"] = annotated

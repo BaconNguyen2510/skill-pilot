@@ -228,6 +228,76 @@ class V4CorrectnessTests(unittest.TestCase):
             self.assertEqual(session.read_text(encoding="utf-8"), invalid)
             self.assertFalse(session.with_name(f".{session.name}.lock").exists())
 
+    def test_empty_plan_patch_cannot_revalidate_stale_plan(self) -> None:
+        base = ready_session()
+        stale = session_planner.update_session(
+            base,
+            {"constraints": [{"id": "c1", "text": "New privacy requirement"}]},
+        )
+        self.assertTrue(stale["plan_stale"])
+        for patch in (
+            {"plan_steps": []},
+            {"plan_steps": [{"id": "ui", "title": "React UI", "depends_on": []}]},
+            {"success_criteria": [{"id": "a1", "text": "Login works"}], "plan_steps": []},
+        ):
+            with self.subTest(patch=patch):
+                updated = session_planner.update_session(stale, patch)
+                self.assertTrue(updated["plan_stale"])
+                self.assertFalse(
+                    session_planner.compute_readiness(updated)["ready_for_discovery"]
+                )
+
+    def test_material_change_with_partial_plan_update_stays_stale(self) -> None:
+        base = ready_session()
+        changed = session_planner.update_session(
+            base,
+            {
+                "constraints": [{"id": "c1", "text": "Mobile devices supported"}],
+                "plan_steps": [{"id": "ui", "title": "React UI", "depends_on": []}],
+            },
+        )
+        self.assertTrue(changed["plan_stale"])
+        replacement = session_planner.update_session(
+            changed,
+            {
+                "replace_plan": True,
+                "plan_steps": [{"id": "ui", "title": "Responsive UI", "depends_on": []}],
+            },
+        )
+        self.assertFalse(replacement["plan_stale"])
+        self.assertTrue(
+            session_planner.compute_readiness(replacement)["ready_for_discovery"]
+        )
+
+    def test_missing_intent_flag_fails_closed(self) -> None:
+        session = ready_session()
+        del session["intent_confirmed"]
+        readiness = session_planner.compute_readiness(session)
+        self.assertFalse(readiness["ready_for_discovery"])
+        self.assertIn("intent_confirmed", readiness["missing_for_planning"])
+
+    def test_malformed_plan_patch_is_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "plan_steps must be a list"):
+            session_planner.update_session(
+                ready_session(), {"plan_steps": {"id": "ui"}}
+            )
+
+    def test_persistence_cannot_bypass_readiness_gate(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            path = pathlib.Path(temp) / "session.json"
+            session = session_planner.init_session("Unconfirmed goal")
+            session_planner.save_json_file(path, session)
+            with self.assertRaisesRegex(ValueError, "no longer ready"):
+                session_planner.persist_discovery_to_session(
+                    path,
+                    session["session_id"],
+                    session["revision"],
+                    {"steps": [{"step_id": "ui"}]},
+                )
+            saved = session_planner.load_json_file(path)
+            self.assertNotIn("last_discovery", saved)
+            self.assertFalse(path.with_name(f".{path.name}.lock").exists())
+
     def test_cli_blocks_stale_and_incomplete_discovery(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             path = pathlib.Path(temp) / "session.json"
