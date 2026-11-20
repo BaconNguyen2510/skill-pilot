@@ -2246,6 +2246,16 @@ def cmd_search(args: argparse.Namespace) -> int:
         min_keep = ranked[0][1]["score"] * SEARCH_RATIO_CUTOFF
         ranked = [pair for pair in ranked if pair[1]["score"] >= min_keep]
 
+    # Do not echo recognizable instruction-override payloads from untrusted
+    # warehouse indexes directly into the agent's search result context.
+    for _label, item in kept_entries:
+        signals = _detect_prompt_injection_signals(
+            str(item.get("description") or "")
+        )
+        if signals:
+            item["description"] = "[untrusted description withheld]"
+            item["prompt_injection_signals"] = signals
+
     output: dict[str, Any] = {
         "query": query,
         "ranking_policy": "relevance_with_bounded_tier_bonus",

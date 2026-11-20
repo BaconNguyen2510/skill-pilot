@@ -297,12 +297,44 @@ _EVIDENCE_STOPWORDS = frozenset(
 )
 
 
+MAX_CAPABILITY_MD_BYTES = 1024 * 1024
+
+
 def extract_skill_capabilities(skill_md_path: str | pathlib.Path) -> dict[str, Any]:
-    """Extract real headings and normalized text from a verified SKILL.md on disk."""
+    """Bounded, non-following read of untrusted SKILL.md for evidence checks."""
     path = pathlib.Path(skill_md_path)
-    if not path.is_file():
-        return {"readable": False, "headings": [], "lower_text": ""}
-    text = path.read_text(encoding="utf-8", errors="replace")
+    unavailable: dict[str, Any] = {
+        "readable": False,
+        "headings": [],
+        "lower_text": "",
+    }
+    junction = getattr(os.path, "isjunction", None)
+    try:
+        for item in (path, *path.parents):
+            if item.is_symlink() or (callable(junction) and junction(item)):
+                return unavailable
+        entry = os.lstat(path)
+        if not stat.S_ISREG(entry.st_mode) or entry.st_size > MAX_CAPABILITY_MD_BYTES:
+            return unavailable
+        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+        flags |= getattr(os, "O_BINARY", 0) | getattr(os, "O_NONBLOCK", 0)
+        fd = os.open(path, flags)
+        try:
+            opened = os.fstat(fd)
+            if (
+                not stat.S_ISREG(opened.st_mode)
+                or opened.st_size > MAX_CAPABILITY_MD_BYTES
+                or (entry.st_dev, entry.st_ino) != (opened.st_dev, opened.st_ino)
+            ):
+                return unavailable
+            payload = os.read(fd, MAX_CAPABILITY_MD_BYTES + 1)
+        finally:
+            os.close(fd)
+    except (OSError, ValueError):
+        return unavailable
+    if len(payload) > MAX_CAPABILITY_MD_BYTES:
+        return unavailable
+    text = payload.decode("utf-8", errors="replace")
     headings = [
         m.group(1).strip()
         for m in re.finditer(r"^#{1,3}\s+(.+)$", text, flags=re.MULTILINE)
@@ -405,7 +437,13 @@ def run_plan_search(
             if rc == 0 and raw:
                 payload = json.loads(raw)
                 for m in payload.get("ranked_matches", []):
-                    verified = bool(m.get("exists")) and bool(m.get("skill_md_path"))
+                    verified = (
+                        bool(m.get("exists"))
+                        and bool(m.get("skill_md_path"))
+                        and extract_skill_capabilities(
+                            str(m["skill_md_path"])
+                        )["readable"]
+                    )
                     matches.append(
                         {
                             "id": m.get("id"),
