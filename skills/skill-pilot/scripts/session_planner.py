@@ -440,9 +440,9 @@ def run_plan_search(
                     verified = (
                         bool(m.get("exists"))
                         and bool(m.get("skill_md_path"))
-                        and extract_skill_capabilities(
-                            str(m["skill_md_path"])
-                        )["readable"]
+                        and extract_skill_capabilities(str(m["skill_md_path"]))[
+                            "readable"
+                        ]
                     )
                     matches.append(
                         {

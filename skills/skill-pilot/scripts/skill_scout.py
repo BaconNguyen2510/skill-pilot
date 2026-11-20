@@ -2249,9 +2249,7 @@ def cmd_search(args: argparse.Namespace) -> int:
     # Do not echo recognizable instruction-override payloads from untrusted
     # warehouse indexes directly into the agent's search result context.
     for _label, item in kept_entries:
-        signals = _detect_prompt_injection_signals(
-            str(item.get("description") or "")
-        )
+        signals = _detect_prompt_injection_signals(str(item.get("description") or ""))
         if signals:
             item["description"] = "[untrusted description withheld]"
             item["prompt_injection_signals"] = signals

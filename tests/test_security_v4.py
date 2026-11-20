@@ -23,7 +23,9 @@ class V4SecurityTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             path = pathlib.Path(temp) / "SKILL.md"
             path.write_bytes(b"x" * (session_planner.MAX_CAPABILITY_MD_BYTES + 1))
-            self.assertFalse(session_planner.extract_skill_capabilities(path)["readable"])
+            self.assertFalse(
+                session_planner.extract_skill_capabilities(path)["readable"]
+            )
             candidate = [{"id": "huge", "skill_md_path": str(path)}]
             self.assertFalse(
                 session_planner.verify_capability_evidence("x" * 32, candidate)[
@@ -41,7 +43,9 @@ class V4SecurityTests(unittest.TestCase):
                 os.symlink(original, link)
             except (OSError, NotImplementedError):
                 self.skipTest("Symlink creation unavailable on this host")
-            self.assertFalse(session_planner.extract_skill_capabilities(link)["readable"])
+            self.assertFalse(
+                session_planner.extract_skill_capabilities(link)["readable"]
+            )
 
     def test_warehouse_path_traversal_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -82,11 +86,17 @@ class V4SecurityTests(unittest.TestCase):
             )
             buf = io.StringIO()
             with (
-                mock.patch.object(skill_scout, "resolve_warehouses", return_value=[root]),
-                mock.patch.object(skill_scout, "collect_active_skills", return_value=[]),
+                mock.patch.object(
+                    skill_scout, "resolve_warehouses", return_value=[root]
+                ),
+                mock.patch.object(
+                    skill_scout, "collect_active_skills", return_value=[]
+                ),
                 mock.patch.object(skill_scout, "collect_codex_skills", return_value=[]),
                 mock.patch.object(
-                    sys, "argv", ["skill_scout.py", "search", "react", "--format", "json"]
+                    sys,
+                    "argv",
+                    ["skill_scout.py", "search", "react", "--format", "json"],
                 ),
                 contextlib.redirect_stdout(buf),
             ):
