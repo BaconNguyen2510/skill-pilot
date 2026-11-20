@@ -5,7 +5,7 @@
 - Created isolated branch `feat/v4-beta-validation` from immutable beta tag `v4.0.0-beta.1` (`878fc95e4139d593ebd5d4b4df9330b37862a3ef`); protected `main` was not changed.
 - Reproduced the deterministic caller-reported Facebook-403 recovery route. It retained the idea-evaluation goal, did not fetch or claim video content, made no access-control bypass, performed bounded read-only local skill discovery, and asked for one source input. This is CLI evidence, not a native model trace.
 - Full offline beta receipts passed on Python 3.12.10 and 3.14.2 before the fixture expansion: 251 main tests (2 Windows skips), 40 blind tests, 10 workflow tests, release verifier, seven dev ablations and simulated-host smoke. Local receipts and unscored 28-case Codex/Antigravity packets remain outside Git.
-- Expanded the synthetic blocked-source development matrix from 12 to 28 cases. Targeted v4 tests pass on both Python versions. Native Codex and Antigravity are still **NOT RUN**, and independent EN/VI review is still **NOT DONE**. See [V4_BETA_VALIDATION_REPORT.md](V4_BETA_VALIDATION_REPORT.md).
+- Expanded the synthetic blocked-source development matrix from 12 to 28 cases. Targeted v4 tests pass on both Python versions. Complete 13-check offline receipts passed on each runtime at `c3461be`, and separate Ruff 0.17.5 format/lint checks passed across 115 files. Native Codex and Antigravity are still **NOT RUN**, and independent EN/VI review is still **NOT DONE**. See [V4_BETA_VALIDATION_REPORT.md](V4_BETA_VALIDATION_REPORT.md).
 
 ## v4.0.0-beta.1 implementation handoff
 

@@ -44,8 +44,13 @@ findings. These results are local and pre-change; final branch verification must
 be rerun after the fixture commit.
 
 The expanded v4-focused discovery suite passed 38 tests on Python 3.12.10 and
-Python 3.14.2. It also caught and corrected a fixture-format hazard: JSONL must
-remain one JSON object per line and is not passed to Ruff's JSON formatter.
+Python 3.14.2. After commit `c3461beb1a898a9868b5c5b998efa11a42ec7b48`, the
+complete offline beta runner passed all 13 configured checks on each runtime.
+Ruff was run separately because the runner correctly reports it as `not_run`
+when it is not globally installed; `uvx` Ruff 0.17.5 then passed format and
+lint across 115 files. The fixture work also caught and corrected a
+fixture-format hazard: JSONL must remain one JSON object per line and is not
+passed to Ruff's JSON formatter.
 
 ## Native-host receipts
 
