@@ -69,9 +69,7 @@ def load_dev_cases(path: pathlib.Path = CASES_PATH) -> list[dict[str, Any]]:
     return rows
 
 
-def load_pinned_baseline(
-    temp: pathlib.Path, *, sha: str = BASELINE_SHA
-) -> Any:
+def load_pinned_baseline(temp: pathlib.Path, *, sha: str = BASELINE_SHA) -> Any:
     if sha not in ALLOWED_BASELINES:
         raise ValueError("Only reviewed, pinned development baselines are permitted")
     # Git source is from an exact verified project-owned commit, not network data.
