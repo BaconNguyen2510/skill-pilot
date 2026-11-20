@@ -8,6 +8,7 @@ import json
 import os
 import pathlib
 import random
+import tempfile
 from typing import Any
 
 LANGUAGES = frozenset({"en", "vi", "vi_no_diacritic", "mixed"})
@@ -46,6 +47,8 @@ def build_packets(
     seed: int = 42,
 ) -> list[dict[str, Any]]:
     """Accept only pre-anonymized queries and score-free candidate evidence."""
+    if not queries:
+        raise ValueError("Blind packet requires at least one anonymized query")
     query_map: dict[str, dict[str, Any]] = {}
     for query in queries:
         _only_keys(query, {"query_id", "language", "anonymized_query"})
@@ -227,12 +230,29 @@ def score_agreement(
 
 
 def write_once_jsonl(path: pathlib.Path, rows: list[dict[str, Any]]) -> None:
+    """Publish a fully written packet once; failed writes never expose partial data."""
+    if not rows:
+        raise ValueError("Refusing to publish an empty blind-evaluation packet")
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("x", encoding="utf-8") as stream:
-        for row in rows:
-            stream.write(json.dumps(row, ensure_ascii=False) + "\n")
-        stream.flush()
-        os.fsync(stream.fileno())
+    fd, temp_name = tempfile.mkstemp(
+        dir=path.parent, prefix=f".{path.name}.", suffix=".tmp"
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as stream:
+            for row in rows:
+                stream.write(
+                    json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n"
+                )
+            stream.flush()
+            os.fsync(stream.fileno())
+        # The temp file and destination are in one directory/filesystem.
+        # Unlike os.replace(), os.link() does not overwrite an existing packet.
+        os.link(temp_name, path)
+    finally:
+        try:
+            os.unlink(temp_name)
+        except FileNotFoundError:
+            pass
 
 
 def main() -> int:
