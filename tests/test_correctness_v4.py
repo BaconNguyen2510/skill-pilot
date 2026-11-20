@@ -35,7 +35,9 @@ def ready_session() -> dict:
 class V4CorrectnessTests(unittest.TestCase):
     def test_success_criteria_are_required_for_discovery(self) -> None:
         session = ready_session()
-        self.assertTrue(session_planner.compute_readiness(session)["ready_for_discovery"])
+        self.assertTrue(
+            session_planner.compute_readiness(session)["ready_for_discovery"]
+        )
         session["success_criteria"] = []
         readiness = session_planner.compute_readiness(session)
         self.assertFalse(readiness["ready_for_discovery"])
@@ -44,8 +46,16 @@ class V4CorrectnessTests(unittest.TestCase):
     def test_interview_change_invalidates_existing_plan(self) -> None:
         session = ready_session()
         for patch in (
-            {"assumptions": [{"id": "a1", "text": "Offline use", "acknowledged": True}]},
-            {"unresolved_questions": [{"id": "q1", "text": "Need privacy?", "resolved": True}]},
+            {
+                "assumptions": [
+                    {"id": "a1", "text": "Offline use", "acknowledged": True}
+                ]
+            },
+            {
+                "unresolved_questions": [
+                    {"id": "q1", "text": "Need privacy?", "resolved": True}
+                ]
+            },
             {"decisions": [{"id": "d1", "text": "New mobile constraint"}]},
             {"intent_confirmed": False},
         ):
@@ -161,7 +171,9 @@ class V4CorrectnessTests(unittest.TestCase):
                         rc = skill_scout.main()
                     self.assertEqual(rc, 1)
                     payload = json.loads(stdout.getvalue())
-                    self.assertEqual(payload["error_code"], "DISCOVERY_BLOCKED_NOT_READY")
+                    self.assertEqual(
+                        payload["error_code"], "DISCOVERY_BLOCKED_NOT_READY"
+                    )
                     self.assertIn(expected, payload["missing_criteria"])
 
 
