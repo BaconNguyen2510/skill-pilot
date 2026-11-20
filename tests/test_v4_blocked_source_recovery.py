@@ -42,7 +42,7 @@ class BlockedSourceV4Tests(unittest.TestCase):
         self.assertIn("one concrete source-input question", instructions)
         self.assertIn("does not authorize a full `plan-search` session", instructions)
         self.assertIn("Fast, Guided, and Deep", instructions)
-        self.assertIn("--harness all --format compact --limit 5", guide)
+        self.assertIn("--harness all --format json --limit 5", guide)
         self.assertIn("Host lacks video tool", guide)
         self.assertIn("No login bypass", guide)
 
