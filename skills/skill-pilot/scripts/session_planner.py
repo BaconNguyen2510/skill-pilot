@@ -361,6 +361,10 @@ def _visible_skill_markdown(text: str) -> str | None:
     fence_type: str | None = None
     fence_length = 0
     visible_lines: list[str] = []
+    indented_code = False
+    paragraph_active = False
+    heading_pattern = re.compile(r"^ {0,3}#{1,6}(?:\s|$)")
+    list_pattern = re.compile(r"^ {0,3}(?:[-+*]\s+|[0-9]{1,9}[.)]\s+)")
     for line_number, line in enumerate(text.splitlines(), start=1):
         if line_number > MAX_MARKDOWN_SOURCE_LINES:
             return None
@@ -374,16 +378,35 @@ def _visible_skill_markdown(text: str) -> str | None:
             ):
                 fence_type = None
             continue
+        if not line.strip():
+            # A blank line can start an indented block; it also terminates a
+            # paragraph. Preserve it so adjacent prose does not become one line.
+            paragraph_active = False
+            visible_lines.append("")
+            continue
+        expanded = line.expandtabs(4)
+        leading_spaces = len(expanded) - len(expanded.lstrip(" "))
+        if leading_spaces >= 4 and (indented_code or not paragraph_active):
+            indented_code = True
+            continue
+        indented_code = False
         if marker:
             opening = marker.group(1)
             if opening[0] == "`" and "`" in marker.group(2):
                 # CommonMark rejects backticks in a backtick fence's info string.
                 visible_lines.append(line)
+                paragraph_active = True
                 continue
             fence_type = opening[0]
             fence_length = len(opening)
+            paragraph_active = False
             continue
         visible_lines.append(line)
+        # Four spaces cannot interrupt an active paragraph. A list marker
+        # begins a paragraph that may contain an indented continuation line.
+        paragraph_active = bool(list_pattern.match(expanded)) or not bool(
+            heading_pattern.match(expanded)
+        )
 
     visible = "\n".join(visible_lines)
     return re.sub(r"<!--.*?(?:-->|\Z)", "", visible, flags=re.DOTALL)
