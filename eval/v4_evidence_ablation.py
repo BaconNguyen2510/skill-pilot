@@ -149,7 +149,7 @@ def aggregate(predictions: list[dict[str, Any]]) -> dict:
             language: summarize(
                 [record for record in predictions if record["language"] == language]
             )
-            for language in ("en", "vi")
+            for language in sorted({record["language"] for record in predictions})
         },
         "categories": {
             category: summarize(
