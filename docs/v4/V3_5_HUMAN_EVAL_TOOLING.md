@@ -2,7 +2,7 @@
 
 Status: **tooling only; no independent human evaluation performed**.
 
-This feature implements a blind packet generator and independent rater agreement scorer. It implements the roles and dimensions specified in \`docs/v3.1/HUMAN_EVAL_PROTOCOL_V3_1.md\`: two bilingual independent annotators, separate adjudicator, relevance, capability fit, evidence quality, unsafe recommendations, and explicit missing-capability judgments. It does **not** create judgments or claim that synthetic fixtures constitute human labels.
+This feature implements a blind packet generator and independent rater agreement scorer. It implements the roles and dimensions specified in \`docs/v3.1/HUMAN_EVAL_PROTOCOL_V3_1.md\`: two bilingual independent annotators, separate adjudicator, relevance, capability fit, evidence quality, unsafe recommendations, and flags for inappropriate recommendations. It does **not** create judgments or claim that synthetic fixtures constitute human labels.
 
 ## Research-first choices
 

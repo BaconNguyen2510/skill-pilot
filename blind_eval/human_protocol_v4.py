@@ -58,9 +58,7 @@ def build_packets(
             raise ValueError("Missing or oversized anonymized query")
         query_map[key] = query
 
-    by_query: dict[str, list[dict[str, str]]] = {
-        key: [] for key in query_map
-    }
+    by_query: dict[str, list[dict[str, str]]] = {key: [] for key in query_map}
     seen: set[tuple[str, str]] = set()
     for candidate in candidates:
         _only_keys(candidate, {"query_id", "candidate_id", "skill_md_excerpt"})
@@ -102,8 +100,7 @@ def cohens_kappa(first: list[str], second: list[str]) -> dict[str, Any]:
     left = collections.Counter(first)
     right = collections.Counter(second)
     expected = sum(
-        left[label] * right[label]
-        for label in left.keys() | right.keys()
+        left[label] * right[label] for label in left.keys() | right.keys()
     ) / (count * count)
     value = (observed - expected) / (1 - expected) if expected < 1 else None
     return {
@@ -165,12 +162,8 @@ def score_agreement(
         selected = [key for key in keys if left[key]["language"] == language]
         if not selected:
             continue
-        relevance_a = [
-            str(left[key]["relevance"] >= 2) for key in selected
-        ]
-        relevance_b = [
-            str(right[key]["relevance"] >= 2) for key in selected
-        ]
+        relevance_a = [str(left[key]["relevance"] >= 2) for key in selected]
+        relevance_b = [str(right[key]["relevance"] >= 2) for key in selected]
         fit_a = [left[key]["capability_fit"] for key in selected]
         fit_b = [right[key]["capability_fit"] for key in selected]
         by_language[language] = {

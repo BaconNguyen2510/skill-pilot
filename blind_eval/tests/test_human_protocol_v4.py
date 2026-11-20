@@ -59,9 +59,7 @@ class SyntheticHumanProtocolTests(unittest.TestCase):
         self.assertEqual(len(packet), 1)
         self.assertNotIn("score", str(packet))
         with self.assertRaises(ValueError):
-            protocol.build_packets(
-                queries, [{**candidates[0], "retrieval_score": 99}]
-            )
+            protocol.build_packets(queries, [{**candidates[0], "retrieval_score": 99}])
 
     def test_reviewer_agreement_flags_disagreement_without_adjudication(self) -> None:
         first = [
