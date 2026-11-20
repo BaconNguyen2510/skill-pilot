@@ -332,6 +332,17 @@ _EVIDENCE_STOPWORDS = frozenset(
         "features",
         "capability",
         "capabilities",
+        "tạo",
+        "làm",
+        "xây",
+        "dựng",
+        "viết",
+        "thiết",
+        "kế",
+        "dùng",
+        "cho",
+        "hỗ",
+        "trợ",
     }
 )
 
@@ -346,6 +357,7 @@ def extract_skill_capabilities(skill_md_path: str | pathlib.Path) -> dict[str, A
         "readable": False,
         "headings": [],
         "lower_text": "",
+        "statements": [],
     }
     junction = getattr(os.path, "isjunction", None)
     try:
@@ -374,6 +386,14 @@ def extract_skill_capabilities(skill_md_path: str | pathlib.Path) -> dict[str, A
     if len(payload) > MAX_CAPABILITY_MD_BYTES:
         return unavailable
     text = payload.decode("utf-8", errors="replace")
+    # Keep sentence boundaries: flattening all source text loses denial scope.
+    statements: list[str] = []
+    for line in text.splitlines():
+        for statement in re.split(r"(?<=[.!?;])\s+", line):
+            if statement.strip():
+                statements.append(statement.strip())
+                if len(statements) > 4096:
+                    return unavailable
     headings = [
         m.group(1).strip()
         for m in re.finditer(r"^#{1,3}\s+(.+)$", text, flags=re.MULTILINE)
@@ -382,6 +402,7 @@ def extract_skill_capabilities(skill_md_path: str | pathlib.Path) -> dict[str, A
         "readable": True,
         "headings": headings,
         "lower_text": re.sub(r"\s+", " ", text.lower()),
+        "statements": statements,
     }
 
 
@@ -394,16 +415,61 @@ def _evidence_terms(text: str) -> set[str]:
     }
 
 
-# Explicit capability denial must not be promoted by mere lexical overlap.
-# Conservative, bounded phrases only; this is not a general negation parser.
-_EVIDENCE_DENIAL = re.compile(
+# Prefix cues scope to the capability *after* the cue. Suffix cues scope
+# to the subject *before* the cue. Neither is semantic entailment.
+_EVIDENCE_DENIAL_PREFIX = re.compile(
     r"\b(?:"
-    r"(?:does|do|did|is|are|was|were)\s+not\s+(?:support|provide|implement|available|capable)"
-    r"|(?:cannot|can't|unable\s+to|not\s+supported|unsupported|not\s+available)"
-    r"|(?:không|chưa)\s+(?:hỗ\s+trợ|thể|có|được)"
+    r"(?:does|do|did)\s+not\s+(?:support|provide|implement|build|handle|allow)"
+    r"|(?:doesn't|don't|didn't)\s+(?:support|provide|implement|build|handle|allow)"
+    r"|(?:cannot|can't|unable\s+to)"
+    r"|no\s+support\s+for"
+    r"|not\s+(?:supported|implemented)\s*:"
+    r"|(?:không|chưa)\s+(?:hỗ\s+trợ|cung\s+cấp|triển\s+khai|thể|có|được)"
     r")\b",
     re.IGNORECASE,
 )
+_EVIDENCE_DENIAL_SUFFIX = re.compile(
+    r"\b(?:"
+    r"(?:is|are|was|were)\s+(?:not\s+(?:supported|available|implemented|provided)"
+    r"|unavailable|unsupported|out\s+of\s+scope)"
+    r"|out\s+of\s+scope"
+    r"|not\s+(?:supported|available|implemented)"
+    r"|nằm\s+ngoài\s+phạm\s+vi"
+    r"|chưa\s+(?:khả\s+dụng|được\s+(?:triển\s+khai|hỗ\s+trợ))"
+    r"|không\s+khả\s+dụng"
+    r")\b",
+    re.IGNORECASE,
+)
+_EVIDENCE_CONTRAST = re.compile(r"\s+(?:but|however|nhưng)\s+", re.IGNORECASE)
+_EVIDENCE_SENTENCES = re.compile(r"(?<=[.!?;])\s+|\n+")
+
+
+def _denies_step_capability(text: str, step_terms: set[str]) -> bool:
+    """Conservative EN/VI cue-scope detector for explicit capability denials.
+
+    Scope limits prevent an unrelated negative statement from vetoing a
+    positive capability. Caller-provided labels do not override this check.
+    """
+    min_overlap = min(2, len(step_terms))
+
+    def relevant(scope: str) -> bool:
+        if not step_terms:
+            return True
+        return len(_evidence_terms(scope) & step_terms) >= min_overlap
+
+    for statement in _EVIDENCE_SENTENCES.split(text):
+        if not statement.strip():
+            continue
+        for cue in _EVIDENCE_DENIAL_PREFIX.finditer(statement):
+            # "does not support GraphQL but supports React UI" denies only GraphQL.
+            tail = _EVIDENCE_CONTRAST.split(statement[cue.end() :], maxsplit=1)[0]
+            if relevant(tail):
+                return True
+        for cue in _EVIDENCE_DENIAL_SUFFIX.finditer(statement):
+            # "React UI is planned but not implemented" retains the subject.
+            if relevant(statement[: cue.start()]):
+                return True
+    return False
 
 
 def verify_capability_evidence(
@@ -427,6 +493,8 @@ def verify_capability_evidence(
     step_terms = _evidence_terms(step_text)
     if step_text and not step_terms:
         return {"verified": False, "matched_skill_id": None, "grounding_type": "none"}
+    if _denies_step_capability(cleaned, step_terms):
+        return {"verified": False, "matched_skill_id": None, "grounding_type": "none"}
 
     for m in matches:
         md_path = m.get("skill_md_path")
@@ -434,6 +502,13 @@ def verify_capability_evidence(
             continue
         caps = extract_skill_capabilities(md_path)
         if not caps["readable"]:
+            continue
+        # A source contradicting the requested capability cannot establish
+        # direct coverage, even if it also contains a positive quote/heading.
+        if step_text and any(
+            _denies_step_capability(statement, step_terms)
+            for statement in caps["statements"]
+        ):
             continue
         skill_id = str(m.get("id", "")).lower()
         for h in caps["headings"]:
@@ -443,7 +518,7 @@ def verify_capability_evidence(
                 and hl != skill_id
                 and hl in lower_cleaned
                 and (not step_text or step_terms & _evidence_terms(h))
-                and not _EVIDENCE_DENIAL.search(h)
+                and not _denies_step_capability(h, step_terms)
             ):
                 return {
                     "verified": True,
@@ -457,7 +532,7 @@ def verify_capability_evidence(
                 and cl != skill_id
                 and cl in caps["lower_text"]
                 and (not step_text or step_terms & _evidence_terms(cand))
-                and not _EVIDENCE_DENIAL.search(cand)
+                and not _denies_step_capability(cand, step_terms)
             ):
                 return {
                     "verified": True,

@@ -184,8 +184,23 @@ def main() -> int:
         },
         "integration_decision": "manual_review_only",
     }
+    no_language_regression = all(
+        candidate["languages"][language]["fp"] <= baseline["languages"][language]["fp"]
+        and candidate["languages"][language]["fn"]
+        <= baseline["languages"][language]["fn"]
+        for language in ("en", "vi")
+    )
+    improved = (
+        candidate["overall"]["fp"] < baseline["overall"]["fp"]
+        or candidate["overall"]["fn"] < baseline["overall"]["fn"]
+    )
+    output["gate"] = {
+        "language_nonregression": no_language_regression,
+        "improved_on_synthetic_dev": improved,
+        "eligible_for_manual_review": no_language_regression and improved,
+    }
     print(json.dumps(output, indent=2, ensure_ascii=False))
-    return 0
+    return 0 if output["gate"]["eligible_for_manual_review"] else 1
 
 
 if __name__ == "__main__":

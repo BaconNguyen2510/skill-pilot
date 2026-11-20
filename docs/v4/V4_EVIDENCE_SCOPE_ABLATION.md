@@ -23,4 +23,18 @@ It reports confusion counts (TP/TN/FP/FN), FPR/FNR, category/language slices, me
 
 **Selection criteria for any future candidate:** reduce synthetic false positives and/or false negatives without worsening the other; record all rejected proposals; retain positive-support checks, correct unrelated-limit handling and exact source grounding. Do not claim true field generalization or independent human validation from this synthetic set.
 
-Initial metrics must be populated only from actual GitHub Actions after this harness commit; no numerical improvements are claimed before the run.
+## Observed pre-change baseline (GitHub Actions #44693126540)
+
+The four-cell Ubuntu/Windows Python 3.12/3.14 matrix passed at `cb75eadb4c9cbf460b8bd29c7f6d5b1c90d1272d`. The harness loaded the pinned verifier from `642cd144` and compared it with an identical production verifier.
+
+| Slice | Synthetic cases | TP | TN | FP | FN |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Overall | 32 | 12 | 3 | 17 | 0 |
+| English | 18 | 7 | 2 | 9 | 0 |
+| Vietnamese | 14 | 5 | 1 | 8 | 0 |
+
+The measured baseline false-positive rate was **17/20 = 85% on deliberately adversarial synthetic negatives**, not on real-world traffic. Baseline p50/p95 median-per-case latency in the sampled Ubuntu 3.12 job was 0.1144/0.1270 ms. No real bilingual human judgments were collected. These measurements are an engineering red-team diagnostic only.
+
+## Candidate evaluation rule
+
+The scoped-contradiction candidate must reduce synthetic false positives and/or false negatives **without increasing either on the EN or VI slice**. The dev-only benchmark exits nonzero when this synthetic non-regression/improvement gate fails. It does not authorize release, modify rankings, or grant semantic-evidence status. The final post-change results must be collected from the exact CI commit and recorded rather than projected.
