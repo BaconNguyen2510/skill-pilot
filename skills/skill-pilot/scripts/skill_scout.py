@@ -2251,24 +2251,25 @@ def cmd_search(args: argparse.Namespace) -> int:
         min_keep = ranked[0][1]["score"] * SEARCH_RATIO_CUTOFF
         ranked = [pair for pair in ranked if pair[1]["score"] >= min_keep]
 
-    # Do not echo recognizable instruction-override payloads from untrusted
-    # warehouse indexes directly into the agent's search result context.
-    for _label, item in kept_entries:
-        signals = _detect_prompt_injection_signals(str(item.get("description") or ""))
-        if signals:
-            item["description"] = "[untrusted description withheld]"
-            item["prompt_injection_signals"] = signals
-
+    # Redact *every* emitted candidate representation (including tier arrays);
+    # modifying only the deduplicated ranked copy leaves raw index text exposed.
     output: dict[str, Any] = {
         "query": query,
         "ranking_policy": "relevance_with_bounded_tier_bonus",
         "warehouses_scanned": [str(w) for w in warehouses],
         "ranked_matches": [
-            {**item, "tier_label": label} for label, item in ranked[: args.limit]
+            _redact_skill_search_record({**item, "tier_label": label})
+            for label, item in ranked[: args.limit]
         ],
-        "tier1_active_matches": tier1_hits[: args.limit],
-        "inactive_codex_skill_matches": inactive_hits[: args.limit],
-        "tier2_warehouse_matches": tier2_hits[: args.limit],
+        "tier1_active_matches": [
+            _redact_skill_search_record(item) for item in tier1_hits[: args.limit]
+        ],
+        "inactive_codex_skill_matches": [
+            _redact_skill_search_record(item) for item in inactive_hits[: args.limit]
+        ],
+        "tier2_warehouse_matches": [
+            _redact_skill_search_record(item) for item in tier2_hits[: args.limit]
+        ],
     }
     if config_warning:
         output["config_warning"] = config_warning
@@ -2280,7 +2281,8 @@ def cmd_search(args: argparse.Namespace) -> int:
             print(
                 f"Warning: config:unparsed ({_sanitize_compact(config_warning, 100)})"
             )
-        for label, item in ranked[: args.limit]:
+        for label, raw_item in ranked[: args.limit]:
+            item = _redact_skill_search_record(raw_item)
             name_safe = _sanitize_compact(item.get("name") or "", 64)
             path_safe = _sanitize_compact(item.get("skill_md_path") or "", 140)
             risk_part = (
@@ -2610,6 +2612,29 @@ def _detect_prompt_injection_signals(text: str) -> list[str]:
     return found
 
 
+def _redact_skill_search_record(record: dict[str, Any]) -> dict[str, Any]:
+    """Copy and redact known instruction-override cues across nested output fields."""
+    detected: set[str] = set()
+
+    def _scrub(value: Any, field: str) -> Any:
+        if isinstance(value, str):
+            signals = _detect_prompt_injection_signals(value)
+            if signals:
+                detected.update(signals)
+                return f"[untrusted {field} withheld]"
+            return value
+        if isinstance(value, list):
+            return [_scrub(part, field) for part in value]
+        if isinstance(value, dict):
+            return {key: _scrub(part, str(key)) for key, part in value.items()}
+        return value
+
+    sanitized = _scrub(record, "text")
+    if detected:
+        sanitized["prompt_injection_signals"] = sorted(detected)
+    return sanitized
+
+
 LOCK_STALE_SECONDS = 300
 LOCK_MALFORMED_GRACE_SECONDS = 5.0
 
@@ -2621,45 +2646,10 @@ class _LockError(ValueError):
 
 
 def _is_pid_alive(pid: Any) -> bool | None:
-    """Return True if pid is a live local process, False if dead, None if indeterminate."""
-    if not isinstance(pid, int) or isinstance(pid, bool) or pid <= 0:
-        return None
-    if pid == os.getpid():
-        return True
-    if os.name == "nt":
-        if pid > 0xFFFFFFFF:
-            return None
-        try:
-            import ctypes
+    """Use the same conservative cross-platform probe as session locks."""
+    import session_planner
 
-            kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
-            process_query_limited = 0x1000
-            handle = kernel32.OpenProcess(process_query_limited, False, int(pid))
-            if not handle:
-                err = ctypes.get_last_error()
-                if err == 5:  # ERROR_ACCESS_DENIED -> process exists
-                    return True
-                if err == 87:  # ERROR_INVALID_PARAMETER -> no such PID
-                    return False
-                return None
-            try:
-                exit_code = ctypes.c_uint32(0)
-                if kernel32.GetExitCodeProcess(handle, ctypes.byref(exit_code)):
-                    return exit_code.value == 259  # STILL_ACTIVE
-                return None
-            finally:
-                kernel32.CloseHandle(handle)
-        except OSError:
-            return None
-    try:
-        os.kill(pid, 0)
-        return True
-    except ProcessLookupError:
-        return False
-    except PermissionError:
-        return True
-    except OSError:
-        return None
+    return session_planner._session_lock_pid_alive(pid)
 
 
 def _read_lock_metadata(lock_path: pathlib.Path) -> dict[str, Any]:

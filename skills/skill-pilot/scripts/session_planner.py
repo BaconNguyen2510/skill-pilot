@@ -552,6 +552,8 @@ def _session_lock_pid_alive(pid: int | None) -> bool | None:
     if pid == os.getpid():
         return True
     if os.name == "nt":
+        if pid > 0xFFFFFFFF:
+            return None
         # PROCESS_QUERY is unnecessary: SYNCHRONIZE permits a zero-time wait.
         # ctypes defaults to C int, so explicitly type every pointer-sized HANDLE.
         try:
