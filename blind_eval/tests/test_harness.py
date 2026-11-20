@@ -78,7 +78,7 @@ class BlindHarnessTests(unittest.TestCase):
                 [
                     "git",
                     "show",
-                    "HEAD:skills/skill-pilot/scripts/skill_scout.py",
+                    f"{harness.CANDIDATE}:skills/skill-pilot/scripts/skill_scout.py",
                 ],
                 cwd=harness.ROOT,
             )
