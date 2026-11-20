@@ -16,9 +16,16 @@ Respond in the user's language, including questions, summaries, and handoffs, un
 
 Classify by ambiguity, blast radius, and stakes; upgrade the track if evidence changes.
 
-- **Fast:** Bounded, clear, low-risk task. Act directly with one appropriate check; no interview or mandatory search.
-- **Guided:** Open-ended design, normal multi-step task, or a material unknown. Run an adaptive interview until material ambiguity is resolved or explicitly acknowledged as an assumption, build a dependency-aware plan, then run `plan-search` before choosing tools, design defaults, or skills.
-- **Deep:** High-stakes, uncertain, or cross-module work. Initialize a structured session (`skill_scout.py session init`), conduct an adaptive interview (`session update` / `session revise` if goals change), verify observable readiness (`ready_for_discovery`), decompose into dependency-aware `plan_steps`, run `plan-search`, inspect selected `SKILL.md` files, and present a detailed specification and execution-ready workflow. Existing authorization is sufficient for ordinary work.
+- **Fast:** Bounded, clear, low-risk task. Act directly with one appropriate check; no interview or mandatory search. Never fabricate requirements if the ask is actually ambiguous—upgrade to `Guided`.
+- **Guided:** Open-ended design, normal multi-step task, or material ambiguity. Follow the **Interview Gate** below before building a dependency-aware plan or running `plan-search`.
+- **Deep:** High-stakes, uncertain, or cross-module work. Initialize a structured session (`skill_scout.py session init`), follow the **Interview Gate** (`session update` / `session revise` if goals change), verify `ready_for_planning`, decompose into dependency-aware `plan_steps`, run `plan-search`, inspect selected `SKILL.md` files, and present a detailed specification and execution-ready workflow.
+
+## Interview Gate (for ambiguous or underspecified asks)
+
+- **One question per turn (Stop & Wait):** When material ambiguity remains (e.g., unclear goal, target user, success criteria, or binding constraint that affects the plan), ask **one** focused question—optionally with a brief `GUESS:` when helpful—and **stop and wait for the user's response**.
+- **Never skip ahead on a guess:** Do not treat a `GUESS` as user confirmation, do not write agent guesses into `confirmed_requirements` (`source: "agent_guess"` is rejected), and **do not generate a plan, specification, or skill recommendations in the same turn as an unanswered interview question**.
+- **Explicit confirmation:** Before planning or `plan-search` on an ambiguous request, restate the interpreted goal, success criteria, and key constraints in the user's language and ask the user to confirm or correct (`intent_confirmed: true`).
+- **Detailed initial prompts:** If the user has already supplied clear, unambiguous requirements and constraints, skip redundant questions and confirm concisely before planning.
 
 ## Scout, plan, and ground
 
