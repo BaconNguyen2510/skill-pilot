@@ -63,3 +63,7 @@ The canonical scout remains a large module. A clean modular decomposition is des
 ## 2026-11-20 evidence provenance evolution
 
 Scoped EN/VI contradiction checking now rejects direct evidence when a relevant source statement denies the requested capability. Markdown code fences (backtick/tilde) and HTML comments are excluded from evidence extraction; heading citations must match exactly. These are bounded stdlib heuristics, not a semantic model or full CommonMark renderer. Source code verified in four-cell CI #44695311575.
+
+## Milestones 17–20: evidence-source integrity (development only)
+
+The stdlib evidence extractor now excludes indented Markdown code and CommonMark type-1 raw HTML blocks, inserts non-whitespace separators when omitting entire blocks to prevent fabricated cross-block exact quotes, and requires coverage for each explicitly conjunctive step-title clause from the **same grounded skill**. Retrieval queries cannot hide a missing title requirement. These are conservative lexical checks, not semantic entailment or a complete CommonMark/HTML parser. GitHub Actions #44699486091 passed across Windows/Linux Python 3.12/3.14.

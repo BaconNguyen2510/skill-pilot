@@ -25,3 +25,7 @@ CommonMark states that an indented block cannot interrupt a paragraph; tab stops
 - This is **not** a full CommonMark implementation: nested lists, blockquotes, raw HTML and inline code are separately unresolved. Independent bilingual human and native-host evaluation are still required.
 
 **Metrics remain unverified until GitHub Actions runs on the exact post-change SHA.**
+
+## Measured post-change verification
+
+At source commit `e5611a7e6aaf915dabba760d197ba87261258a65`, CI #44697474119 passed all four OS/Python jobs. The separate 16-case synthetic indented Markdown development fixture measured **FP/FN 7/0 → 0/0**, preserving all 8 true positives. Sampled p95 median-per-case latency on one Ubuntu job changed 0.1212→0.1132 ms. This is not representative human-evaluation precision.

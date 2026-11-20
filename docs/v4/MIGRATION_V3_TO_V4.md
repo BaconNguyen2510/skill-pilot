@@ -51,3 +51,7 @@ Native host model behavior, actual external human annotation, semantic evidence 
 ## New development-candidate evidence behavior
 
 As of v4 development commit `be8e9ee965d995c7853803fc3fe913e7e9256827`, source-backed direct coverage excludes Markdown fenced examples and hidden HTML comments, requires exact heading citations, and fails closed on relevant EN/VI contradictions. Old plans relying on these weaker source strings may downgrade to `unverified_fit` and require reinspection. This change is not published in v3.1.1.
+
+## Additional unreleased v4 evidence behavior (milestones 17–20)
+
+Indented Markdown and raw HTML literal-content examples are no longer credited as direct capability evidence. A direct composite step containing explicit conjunctions (`and`, `và`, `&`, `+`) now requires source-backed grounding for each clause **within one skill**. Omitted code/HTML blocks form provenance boundaries, so quotes cannot span removed blocks. Some previous `direct` assessments may legitimately downgrade to `unverified_fit`; they require reinspection, not automatic overrides. No change has been published in v3.1.1.

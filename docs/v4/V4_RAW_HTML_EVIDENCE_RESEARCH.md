@@ -27,3 +27,7 @@ Primary specification: [CommonMark 0.31.2 HTML blocks](https://spec.commonmark.o
 Only CommonMark type-1 raw HTML blocks are filtered; visible formatting tags and ordinary prose remain eligible for evidence. Unclosed blocks stay inert until EOF. This narrow source-provenance mitigation is not a full HTML renderer, an instruction-injection defense, or proof of semantic capability fitness. It does not authorize tool execution. Further review of nested HTML, inline `<script>` inside paragraphs, and stitched cross-block quotations remains required.
 
 **No independent human labels, holdout case tuning, paid runtime dependencies, merge into main, or release are authorized.**
+
+## Measured post-change verification
+
+At source commit `4a38bb2298f2e0ee84920d1ea42646434c08f9ae`, CI #44698091690 passed all four OS/Python jobs. The separate 16-case synthetic raw HTML fixture measured **FP/FN 8/3 → 0/0**, preserving all 8 positives. Sampled p95 median-per-case latency on one Ubuntu job changed 0.0739→0.0759 ms. These are not field or human-label metrics.

@@ -29,3 +29,7 @@ Regression tests include separate-skill non-conflation and a real plan-search ca
 ## Known limitations
 
 This is a conservative lexical gate, not natural-language entailment. Ambiguous conjunctions, requirements linked by commas, implicit dependencies, synonyms, inflection/segmentation and different languages remain a review concern. The tool must not claim that a quote proves real capability, runtime safety or successful host-model execution. No main merge, version bump, sealed-data use, or release is authorized.
+
+## Measured post-change verification
+
+At source commit `dbaad6ec5ae8527c6c4e00fb74f87363cb9c751b`, CI #44698892964 passed all four OS/Python jobs. The separate 16-case synthetic composite-step fixture measured **FP/FN 8/0 → 0/0**, preserving all 8 positives. Sampled p95 median-per-case latency changed 0.1654→0.1780 ms on one Ubuntu job. Integration tests also proved that a repeated React query cannot mask a missing PostgreSQL title capability. No human evaluation implied.

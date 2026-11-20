@@ -1,5 +1,24 @@
 # Skill Pilot V4 — Durable Engineering Handoff
 
+## Verified continuation: milestones 17–20 (2026-11-20)
+
+**Latest verified source commit:** `b827876d9beaeb2e82461c4ac14bf601e374283b`, GitHub Actions **#44699486091**, four of four Windows/Ubuntu × Python 3.12/3.14 jobs passed. On Ubuntu Python 3.12: 232 main regression tests, 40 blind-tooling tests and 8 workflow tests; Ruff format/check, configured type checks, release verifier, dev ablations and simulated clean-archive host smoke passed.
+
+| Milestone | Source commit | Verified Actions | Synthetic dev confusion counts FP/FN (before → after) | Sampled p95 latency (ms) |
+| --- | --- | --- | --- | --- |
+| 17: indented Markdown code provenance | `e5611a7e6aaf915dabba760d197ba87261258a65` | #44697474119 4/4 | 7/0 → **0/0** on 16 | 0.1212 → 0.1132 |
+| 18: raw HTML literal-content blocks | `4a38bb2298f2e0ee84920d1ea42646434c08f9ae` | #44698091690 4/4 | 8/3 → **0/0** on 16 | 0.0739 → 0.0759 |
+| 19: explicit composite-step coverage | `dbaad6ec5ae8527c6c4e00fb74f87363cb9c751b` | #44698892964 4/4 | 8/0 → **0/0** on 16 | 0.1654 → 0.1780 |
+| 20: hidden-block cross-boundary quote protection | `b827876d9beaeb2e82461c4ac14bf601e374283b` | #44699486091 4/4 | 8/0 → **0/0** on 16 | 0.1244 → 0.1184 |
+
+**Important:** Every fixture is a deliberately authored *synthetic development challenge*, not representative real-world accuracy, an independent human-evaluation study or a semantic guarantee. Latency is noisy median-per-case timing from one CI runner, not a throughput SLA. Holdout was not used to choose these changes.
+
+Research and rejected candidates are in `V4_INDENTED_MARKDOWN_RESEARCH.md`, `V4_RAW_HTML_EVIDENCE_RESEARCH.md`, `V4_COMPOSITE_EVIDENCE_RESEARCH.md` and `V4_SOURCE_BOUNDARY_RESEARCH.md`. Across these, full Markdown parsers and spaCy/RapidFuzz were rejected as new production dependencies without reproducible advantage over the stdlib-only narrow fixes; blanket line/HTML removal and merging a single skill's evidence from unrelated skill files were rejected as unsound.
+
+**Next session priority:** confirm the exact docs-only final commit/CI, review inline-code and inline/multiline HTML comment provenance as independent threat cases, then arrange **real** bilingual human labels and native Antigravity/Codex task completion. The current heuristics do not prove semantic skill fit, host prompt-injection safety or real user success. Main is protected at `2c917158ccc3105804d99552cae0b5daeb461d4a`; do not merge, tag, deploy, release, or expose sealed data.
+
+---
+
 ## Continuation milestones 15–16: capability-source integrity (2026-11-20)
 
 **Latest verified source SHA:** `be8e9ee965d995c7853803fc3fe913e7e9256827`, GitHub Actions #44695311575 **4/4 passed** (Ubuntu/Windows × Python 3.12/3.14). Ubuntu 3.12: 222 main-suite, 40 blind, 8 workflow tests passed; Ruff format/lint, configured type checks, release verifier, dev ablations and clean-archive simulated host smoke passed.

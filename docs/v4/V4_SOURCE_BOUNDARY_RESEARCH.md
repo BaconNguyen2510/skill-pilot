@@ -32,3 +32,7 @@ The source extraction path adds an internal Unicode unit-separator symbol at ent
 Inline HTML comments currently remain a separate provenance ambiguity: removing one can produce text that the renderer displays contiguously. Overbroad sentinel insertion could incorrectly reject valid inline prose, so that behavior is deferred for a focused study. The marker is not a semantic entailment checker, tool sandbox, or protection against arbitrary novel prompt injection. Human labels and native Antigravity/Codex execution remain release prerequisites.
 
 **Do not infer production accuracy from this synthetic challenge set.**
+
+## Measured post-change verification
+
+At source commit `b827876d9beaeb2e82461c4ac14bf601e374283b`, CI #44699486091 passed all four OS/Python jobs. The separate 16-case synthetic quote-boundary fixture measured **FP/FN 8/0 → 0/0**, with all 8 true positives retained. Sampled p95 median-per-case latency changed 0.1244→0.1184 ms on one Ubuntu job. The inline HTML-comment boundary remains an unresolved research item; results do not establish semantic correctness.
