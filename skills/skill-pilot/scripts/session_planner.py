@@ -358,6 +358,11 @@ def _visible_skill_markdown(text: str) -> str | None:
     parser. A malformed/unclosed code fence remains inert through EOF.
     """
     fence_pattern = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
+    raw_start = re.compile(
+        r"^ {0,3}<(?:pre|script|style|textarea)(?:[\s>]|$)", re.IGNORECASE
+    )
+    raw_end = re.compile(r"</(?:pre|script|style|textarea)\s*>", re.IGNORECASE)
+    raw_html = False
     fence_type: str | None = None
     fence_length = 0
     visible_lines: list[str] = []
@@ -369,6 +374,11 @@ def _visible_skill_markdown(text: str) -> str | None:
         if line_number > MAX_MARKDOWN_SOURCE_LINES:
             return None
         marker = fence_pattern.match(line)
+        if raw_html:
+            # CommonMark type-1 HTML remains inert until an end tag or EOF.
+            if raw_end.search(line):
+                raw_html = False
+            continue
         if fence_type is not None:
             if (
                 marker
@@ -390,6 +400,10 @@ def _visible_skill_markdown(text: str) -> str | None:
             indented_code = True
             continue
         indented_code = False
+        if raw_start.match(expanded):
+            raw_html = raw_end.search(line) is None
+            paragraph_active = False
+            continue
         if marker:
             opening = marker.group(1)
             if opening[0] == "`" and "`" in marker.group(2):

@@ -113,6 +113,8 @@ jobs:
                                                        "python", "eval/v4_markdown_evidence_ablation.py"])
               run("v4-dev-indented-evidence-ablation", ["uv", "run", "--no-project", "--python", sys.executable,
                                                        "python", "eval/v4_indented_evidence_ablation.py"])
+              run("v4-dev-raw-html-evidence-ablation", ["uv", "run", "--no-project", "--python", sys.executable,
+                                                       "python", "eval/v4_raw_html_evidence_ablation.py"])
               run("v4-clean-archive-host-smoke", ["uv", "run", "--no-project", "--python", sys.executable,
                                                   "python", "eval/v4_host_smoke.py"])
           doctor = subprocess.run(
