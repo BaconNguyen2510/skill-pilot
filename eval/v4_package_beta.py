@@ -45,9 +45,7 @@ def read_versions() -> tuple[str, str, str]:
 
 
 def package_paths() -> list[pathlib.Path]:
-    tracked = subprocess.check_output(
-        ["git", "ls-files", "-z"], cwd=ROOT, timeout=20
-    )
+    tracked = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT, timeout=20)
     paths = []
     for raw in tracked.decode("utf-8").split("\x00"):
         if not raw:

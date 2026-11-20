@@ -133,9 +133,7 @@ class SourceRecoveryBetaTests(unittest.TestCase):
                 goal="Analyze video", source_status="403", kind="video", limit=100
             )
 
-    def _invoke_cli(
-        self, args: list[str], warehouse: pathlib.Path
-    ) -> tuple[int, dict]:
+    def _invoke_cli(self, args: list[str], warehouse: pathlib.Path) -> tuple[int, dict]:
         stdout = io.StringIO()
         with (
             mock.patch.object(

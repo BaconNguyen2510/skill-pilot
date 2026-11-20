@@ -152,7 +152,7 @@ def main() -> int:
 
     report = create_report(quick=args.quick, strict_tools=args.strict_tools)
     for check in report["checks"]:
-        print(f'{check["name"]}: {check["status"]}', file=sys.stderr)
+        print(f"{check['name']}: {check['status']}", file=sys.stderr)
     if args.output is None:
         print(json.dumps(report, ensure_ascii=False, indent=2))
     else:

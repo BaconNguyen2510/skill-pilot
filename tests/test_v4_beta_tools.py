@@ -74,9 +74,7 @@ class BetaRunnerTests(unittest.TestCase):
     def test_packet_rejects_unsupported_host(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             with self.assertRaises(ValueError):
-                v4_host_trial_packet.prepare(
-                    "unknown", pathlib.Path(folder) / "trials"
-                )
+                v4_host_trial_packet.prepare("unknown", pathlib.Path(folder) / "trials")
 
 
 if __name__ == "__main__":
