@@ -95,15 +95,15 @@ python scripts/skill_scout.py promote "<skill-id>" --target codex
 
 ## Guided session walkthrough
 
-Use the packaged script directly from a checkout. The first request may be ambiguous, so \`session init\` does **not** authorize planning or discovery. In an actual agent conversation, Skill Pilot asks one focused question at a time; only the user can confirm the intended goal and constraints.
+Use the packaged script directly from a checkout. The first request may be ambiguous, so `session init` does **not** authorize planning or discovery. In an actual agent conversation, Skill Pilot asks one focused question at a time; only the user can confirm the intended goal and constraints.
 
-\`\`\`bash
+```bash
 python scripts/skill_scout.py session init --session .skill-pilot/session.json --request "Build a workout tracker" --language en
-\`\`\`
+```
 
-After the user confirms the goal, prepare a JSON patch file (illustrative \`confirmed.json\`; this example is **not** an automatic user confirmation):
+After the user confirms the goal, prepare a JSON patch file (illustrative `confirmed.json`; this example is **not** an automatic user confirmation):
 
-\`\`\`json
+```json
 {
   "intent_confirmed": true,
   "confirmed_requirements": [{"id": "r1", "text": "Build a web workout tracker", "source": "user_confirmed"}],
@@ -113,16 +113,16 @@ After the user confirms the goal, prepare a JSON patch file (illustrative \`conf
     {"id": "ui", "title": "Build workout logging UI", "query": "react frontend", "depends_on": ["data"]}
   ]
 }
-\`\`\`
+```
 
-\`\`\`bash
+```bash
 python scripts/skill_scout.py session update --session .skill-pilot/session.json --patch confirmed.json
 python scripts/skill_scout.py session status --session .skill-pilot/session.json
 python scripts/skill_scout.py plan-search --session .skill-pilot/session.json --harness all
 python scripts/skill_scout.py session spec --session .skill-pilot/session.json
-\`\`\`
+```
 
-If a goal changes, use \`session revise\` with an explicit new plan and recheck readiness. Stale/unverified skill recommendations are not authority to run scripts. A \`direct\` label means text evidence is grounded, not that a human verified semantic capability.
+If a goal changes, use `session revise` with an explicit new plan and recheck readiness. Stale/unverified skill recommendations are not authority to run scripts. A `direct` label means text evidence is grounded, not that a human verified semantic capability.
 
 For the ongoing v4 engineering program, see [v4 development research and migration notes](docs/v4/). The public plugin version remains v3.1.1 until an explicitly approved release.
 

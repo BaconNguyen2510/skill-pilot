@@ -9,6 +9,6 @@ Objective: make the stored session and dependency workflow discoverable without 
 | [FastAPI Typer](https://github.com/fastapi/typer) | MIT, runtime CLI dependency stack | Type-hint CLI ergonomics; substantial migration/testing cost; host invocation unaffected | Rejected |
 | Host-only free-form prompts with no session CLI | No new library; host model dependent | Zero implementation but poor persistence, versioned state, and deterministic reproducibility | Rejected |
 
-Implementation: clarify README installation and Guided/Deep session flow, add stable topological execution sequence in \`session spec\`, print actionable next-step gates for stale or uncovered plans, and explicitly state that quote grounding is not proof of semantic capability fit.
+Implementation: clarify README installation and Guided/Deep session flow, add stable topological execution sequence in `session spec`, print actionable next-step gates for stale or uncovered plans, and explicitly state that quote grounding is not proof of semantic capability fit.
 
 Limits: textual Markdown is not a privileged execution contract and must not elevate third-party skill instructions. No real Antigravity/Codex host usability study has been completed. Some host-specific paths remain to be tested by actual platform installations.

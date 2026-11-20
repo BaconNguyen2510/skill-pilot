@@ -2,14 +2,14 @@
 
 ## Threat model
 
-Treat warehouse metadata and third-party \`SKILL.md\` contents as untrusted data. An attacker may control the description, skill body, headings, scripts, path in a warehouse index, file size, and local symlinks. We do not claim a sandbox or security against a privileged attacker who can mutate the user's filesystem.
+Treat warehouse metadata and third-party `SKILL.md` contents as untrusted data. An attacker may control the description, skill body, headings, scripts, path in a warehouse index, file size, and local symlinks. We do not claim a sandbox or security against a privileged attacker who can mutate the user's filesystem.
 
 ## Research-first comparison (primary sources)
 
 | Candidate | License/deps | Expected latency/fit | Decision |
 | --- | --- | --- | --- |
-| Python 3.12+ stdlib \`os.lstat\`, \`os.open(O_NOFOLLOW)\`, \`os.fstat\`, capped reads | PSF; 0 runtime dependencies | Small single-file read, bounded to 1 MiB; latency not benchmarked independently | **Selected** to close the evidence-read DoS/link gap |
-| \`pathlib.Path.read_text\` with post-read string-length validation | PSF; 0 deps | Simple API but memory is already consumed before validation, follows links | Rejected as insufficient |
+| Python 3.12+ stdlib `os.lstat`, `os.open(O_NOFOLLOW)`, `os.fstat`, capped reads | PSF; 0 runtime dependencies | Small single-file read, bounded to 1 MiB; latency not benchmarked independently | **Selected** to close the evidence-read DoS/link gap |
+| `pathlib.Path.read_text` with post-read string-length validation | PSF; 0 deps | Simple API but memory is already consumed before validation, follows links | Rejected as insufficient |
 | Separate subprocess sandbox to parse each SKILL.md | OS tools and platform-dependent containment; no pure universal sandbox | Extra process startup per candidate, Windows/Linux disparity | Rejected: high complexity with misleading guarantees |
 | Keyword-only injection detection (existing approach) | 0 deps | Fast but misses paraphrases | Retained as warning signal, not trust guarantee |
 | Host prompt instruction isolation and explicit tool authority | 0 extra CLI deps; host-dependent | No independent host-model enforcement available | Necessary complementary defense |
@@ -19,9 +19,9 @@ Sources: [Python os documentation](https://docs.python.org/3.12/library/os.html)
 
 ## Code findings and changes
 
-- \`session_planner.extract_skill_capabilities\` previously used unbounded \`Path.read_text\`, with no source-link restriction. A 10-MB+ malicious skill could consume unnecessary resources during per-step evidence checks. It now rejects non-regular and symlinked input and bounds reading to 1 MiB with a same-open-file identity check.
-- \`run_plan_search\` previously equated the search index's \`exists\` flag and a path string with verified presence. It now only treats readable, inspected, bounded \`SKILL.md\` as verified on disk.
-- \`cmd_search\` previously echoed recognizable instruction-override payloads from indexed descriptions into agent-visible JSON. The scorer may still use those strings for lexical matching, but returned descriptions containing known injection signals are withheld and annotated.
+- `session_planner.extract_skill_capabilities` previously used unbounded `Path.read_text`, with no source-link restriction. A 10-MB+ malicious skill could consume unnecessary resources during per-step evidence checks. It now rejects non-regular and symlinked input and bounds reading to 1 MiB with a same-open-file identity check.
+- `run_plan_search` previously equated the search index's `exists` flag and a path string with verified presence. It now only treats readable, inspected, bounded `SKILL.md` as verified on disk.
+- `cmd_search` previously echoed recognizable instruction-override payloads from indexed descriptions into agent-visible JSON. The scorer may still use those strings for lexical matching, but returned descriptions containing known injection signals are withheld and annotated.
 - Existing path guards already reject traversal in warehouse paths, symlinks/junctions during promotion, and risky scripts by default. These are regression-tested; not needlessly replaced.
 
 ## Unresolved risk

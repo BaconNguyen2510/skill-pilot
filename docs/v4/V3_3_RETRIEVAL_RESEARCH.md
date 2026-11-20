@@ -2,7 +2,7 @@
 
 ## Objective and invariants
 
-Improve EN / VI / unaccented VI / mixed search without increasing forbidden recommendations. Do not tune on \`eval/queries.jsonl\` holdout. Do not promote synthetic scoring results to semantic capability validation. No external runtime dependencies.
+Improve EN / VI / unaccented VI / mixed search without increasing forbidden recommendations. Do not tune on `eval/queries.jsonl` holdout. Do not promote synthetic scoring results to semantic capability validation. No external runtime dependencies.
 
 ## Research candidates considered (primary sources)
 
@@ -17,10 +17,10 @@ Alternatives like Reciprocal Rank Fusion can combine rankings but require meanin
 
 ## Reproducible experiment
 
-\`python eval/v4_retrieval_ablation.py\` runs **only** the \`dev\` split of two checked-in datasets:
+`python eval/v4_retrieval_ablation.py` runs **only** the `dev` split of two checked-in datasets:
 
-1. \`eval/v4_dev_snapshot.jsonl\` (80 checked-in dev cases; contains no holdout records).
-2. \`eval/dev_v2_challenge.jsonl\` (32 dev adversarial cases).
+1. `eval/v4_dev_snapshot.jsonl` (80 checked-in dev cases; contains no holdout records).
+2. `eval/dev_v2_challenge.jsonl` (32 dev adversarial cases).
 
 It compares baseline to three non-production experimental scoring variants: extra name-field weighting, field-frequency/length normalization (BM25F-inspired, *not true corpus-IDF BM25F*), and lower alias contribution.
 
@@ -34,7 +34,7 @@ This does not independently validate natural-language host translation, real-use
 
 ## Observed initial dev ablation and rejected experiments
 
-Evidence: GitHub Actions #44649502873, commit \`89f7b8b\`, Ubuntu Python 3.14. Only the original evaluator's \`dev\` split was ranked. The harness now uses a physically separate 80-case dev-only snapshot, with no holdout rows.
+Evidence: GitHub Actions #44649502873, commit `89f7b8b`, Ubuntu Python 3.14. Only the original evaluator's `dev` split was ranked. The harness now uses a physically separate 80-case dev-only snapshot, with no holdout rows.
 
 | Dataset / variant | MRR@5 | Recall@5 | nDCG@5 | Forbidden@5 | Result |
 | --- | ---: | ---: | ---: | ---: | --- |
