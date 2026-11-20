@@ -1,5 +1,11 @@
 # Skill Pilot V4 — Durable Engineering Handoff
 
+## v4.0.0-beta.1 implementation handoff
+
+The user authorized extensive coding, research, debugging, testing and a **beta prerelease** so Codex/Antigravity can install it for actual host evaluations. This authorizes the beta tag/GitHub prerelease, **not** a stable main merge, deployment or issue #2 closure. The beta adds a deterministic `recover-source` CLI, offline verification runner, synthetic unscored host trial packets, reproducible plugin ZIP/SHA256, and installation/testing instructions. All new checks must pass full CI on the exact beta candidate commit. Native host and independent EN/VI human validation remain **NOT RUN / HOLD** until real evidence is provided.
+
+---
+
 ## v4.0 P0 release blocker: goal persistence and inaccessible media (open)
 
 **Numbered v4.0 submilestones:** 21 goal persistence, 22 fallback content recovery, 23 skill discovery or evidenced abstention, 24 native Codex/Antigravity EN/VI evaluation. All four belong in v4.0 and remain release-blocking until verified. See `V4_RELEASE_GATES.md`.

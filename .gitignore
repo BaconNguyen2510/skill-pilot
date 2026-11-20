@@ -19,3 +19,7 @@ docs/v3/SEALED_EVAL_REPORT.json
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Local beta test receipts and generated release assets (never commit)
+local-receipts/
+dist/

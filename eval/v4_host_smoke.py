@@ -217,7 +217,10 @@ def run_smoke(checkout: pathlib.Path, home: pathlib.Path) -> dict:
         check=False,
         timeout=40,
     )
-    if version.returncode or "3.1.1" not in version.stdout:
+    expected_version = json.loads(
+        (checkout / "plugin.json").read_text(encoding="utf-8")
+    )["version"]
+    if version.returncode or expected_version not in version.stdout:
         raise AssertionError("Repository CLI wrapper did not delegate correctly")
 
     # Human-host UI testing remains out of scope.

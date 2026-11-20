@@ -24,7 +24,7 @@ import unicodedata
 import uuid
 from typing import Any
 
-__version__ = "3.1.1"
+__version__ = "4.0.0-beta.1"
 
 HOME = pathlib.Path.home()
 _HERE = pathlib.Path(__file__).resolve()
@@ -3648,7 +3648,115 @@ def build_parser() -> argparse.ArgumentParser:
     psearch.add_argument("--allow-risky", action="store_true")
     psearch.set_defaults(func=cmd_plan_search)
 
+    recover = sub.add_parser(
+        "recover-source",
+        help="Preserve a known goal after external-source failure and inspect local skills",
+    )
+    recover.add_argument("--goal", required=True, help="Original user goal")
+    recover.add_argument(
+        "--source-status",
+        required=True,
+        choices=[
+            "403",
+            "404",
+            "login_wall",
+            "deleted",
+            "timeout",
+            "rate_limit",
+            "blocked",
+            "unsupported",
+            "unknown",
+        ],
+        help="Observed status reported by the caller (not independently fetched)",
+    )
+    recover.add_argument(
+        "--kind",
+        choices=["video", "article", "image", "document", "other"],
+        default="video",
+    )
+    recover.add_argument("--goal-ambiguous", action="store_true")
+    recover.add_argument("--material-provided", action="store_true")
+    recover.add_argument("--skill-query", help="Capability terms only; no source URL")
+    recover.add_argument("--limit", type=positive_int, default=5)
+    recover.add_argument("--workspace", help="Optional local skill workspace")
+    recover.add_argument(
+        "--harness", choices=["auto", "antigravity", "codex", "all"], default="all"
+    )
+    recover.add_argument("--warehouse", help="Optional local skill warehouse")
+    recover.add_argument("--format", choices=["json", "compact"], default="json")
+    recover.set_defaults(func=cmd_recover_source)
+
     return parser
+
+
+def cmd_recover_source(args: argparse.Namespace) -> int:
+    """Run bounded, read-only skill lookup; never fetch the blocked source."""
+    import contextlib
+    import importlib.util
+    import io
+
+    # Load the sibling module even through the repository compatibility
+    # wrapper, whose sys.path points at scripts/ rather than this directory.
+    spec = importlib.util.spec_from_file_location(
+        "_skill_pilot_source_recovery", _HERE.parent / "source_recovery.py"
+    )
+    if spec is None or spec.loader is None:
+        raise ValueError("Cannot load packaged source recovery module")
+    source_recovery = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(source_recovery)
+
+    def discover(query: str, limit: int) -> tuple[str, list[dict[str, Any]], str]:
+        buf = io.StringIO()
+        search_args = argparse.Namespace(
+            query=[query],
+            limit=limit,
+            workspace=args.workspace,
+            harness=args.harness,
+            warehouse=args.warehouse,
+            include_active=True,
+            allow_risky=False,
+            explain=False,
+            format="json",
+        )
+        with contextlib.redirect_stdout(buf):
+            exit_code = cmd_search(search_args)
+        raw = buf.getvalue()
+        if len(raw) > 1024 * 1024:
+            raise ValueError("Local skill search output exceeds size limit")
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise ValueError("Local skill search did not produce JSON") from exc
+        if exit_code:
+            return "unavailable", [], str(parsed.get("error_code", "SEARCH_FAILED"))
+        matches = parsed.get("ranked_matches", [])
+        return (
+            "completed",
+            matches,
+            str(parsed.get("config_warning") or "Read-only local lookup completed"),
+        )
+
+    result = source_recovery.make_recovery_plan(
+        goal=args.goal,
+        source_status=args.source_status,
+        kind=args.kind,
+        goal_ambiguous=args.goal_ambiguous,
+        material_provided=args.material_provided,
+        skill_query=args.skill_query,
+        discover=discover,
+        limit=args.limit,
+    )
+    if args.format == "compact":
+        print("Goal: " + result["original_goal"])
+        print("Source status (caller reported): " + result["source_status"])
+        discovery = result["skill_discovery"]
+        print("Skill discovery: " + discovery["status"])
+        for candidate in discovery["candidates"]:
+            print(" - " + candidate["name"] + " (inspect SKILL.md before use)")
+        print("Next: " + result["next_action"])
+    else:
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+    return 0
 
 
 def cmd_session(args: argparse.Namespace) -> int:

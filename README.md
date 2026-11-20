@@ -124,7 +124,25 @@ python scripts/skill_scout.py session spec --session .skill-pilot/session.json
 
 If a goal changes, use `session revise` with an explicit new plan and recheck readiness. Stale/unverified skill recommendations are not authority to run scripts. A `direct` label means text evidence is grounded, not that a human verified semantic capability.
 
-For the ongoing v4 engineering program, see [v4 development research and migration notes](docs/v4/). The public plugin version remains v3.1.1 until an explicitly approved release.
+For the v4.0.0-beta.1 test build, see [beta installation and host test instructions](docs/v4/BETA_INSTALL_AND_TEST.md). **This is a prerelease and does not mean stable v4.0 is approved.** The protected main branch and its v3.1.1 release remain unchanged. See the [stable v4.0 release gate](docs/v4/V4_RELEASE_GATES.md) and [issue #2](https://github.com/BaconNguyen2510/skill-pilot/issues/2) for the pending real Codex/Antigravity tests.
+
+## Blocked-source recovery (v4 beta)
+
+A failed reel/video/article fetch is not the user's failed goal. The beta adds a structured, read-only recovery command; it **does not fetch private media or claim to have viewed inaccessible content**:
+
+```bash
+python scripts/skill_scout.py recover-source --goal "Evaluate the idea behind this reel" --source-status 403 --kind video --harness all --format json
+```
+
+To run all offline regression and development benchmarks from a **full Git clone** (not a shallow checkout):
+
+```bash
+python eval/v4_beta_runner.py --output local-receipts/beta-1.json
+python eval/v4_host_trial_packet.py --host codex --output local-receipts/codex-trials
+python eval/v4_host_trial_packet.py --host antigravity --output local-receipts/antigravity-trials
+```
+
+The native host trial packets contain **unscored** EN/VI cases. No human-evaluation or real host success is claimed until independently observed.
 
 ## Optional Local Skill Warehouses
 

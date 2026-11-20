@@ -1,6 +1,6 @@
 # Skill Pilot v4.0 — Non-negotiable release qualification
 
-**Status: HOLD.**
+**Stable v4.0 status: HOLD.** A public `v4.0.0-beta.1` **prerelease** is separately authorized as a test vehicle; it does **not** close the P0 or approve stable publication.
 
 ## Mandatory v4.0 submilestones (no v4.1 deferral)
 
@@ -24,7 +24,7 @@
 | **Goal persistence on blocked links (P0 issue #2)** | Host preserves objective after 403/login/deleted/timeout; does relevant authorized skill discovery or logs grounded abstention, does not invent content or dead-end, asks only for missing source | **OPEN — RELEASE BLOCKER** |
 | Real EN/VI human evaluation | Independent bilingual raters and adjudication, with predefined minimum acceptance thresholds | **NOT DONE** |
 | Documentation/migration | Accurate version, changed behaviors, rollback, remaining risks and release receipts | Requires final review |
-| Release authorization | Separate explicit approval for version bump, protected main merge, tag, GitHub Release or deployment | **NOT GRANTED** |
+| Release authorization | Beta-only tag/GitHub prerelease authorized; stable v4.0 tag, protected main merge and deployment require separate approval | **BETA ONLY** |
 
 No “good enough” workaround may silently move a P0 release blocker to v4.1. A release decision requires explicit recorded resolution, with test evidence and independent review. A limitation external to the product, such as a platform denying access, is not itself a release defect; **failing to recover helpfully within permitted scope is**.
 

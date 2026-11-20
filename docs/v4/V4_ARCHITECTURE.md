@@ -1,6 +1,6 @@
 # Skill Pilot v4 Architecture — Development Candidate
 
-**Unreleased:** `feat/v4-development` is a technical development branch, not an approved v4.0 release. Plugin manifests remain `3.1.1`. No main merge, tag, release or deployment has been authorized.
+**Beta candidate:** `feat/v4-development` carries version `4.0.0-beta.1` for an explicitly authorized **GitHub prerelease only**. Stable `main` remains v3.1.1; no protected main merge, stable v4.0 tag or production deployment is authorized. Real native-host and independent human validation are pending.
 
 The v4.0 host-level contract also includes **goal-persistent source recovery**: external fetch failure is a subtask failure, not permission to abandon an otherwise clear user objective. Recovery uses existing read-only skill discovery and permitted alternative content; no bypass of authentication or unsupported video-content claims.
 
@@ -25,6 +25,8 @@ Guided / Deep -> one-question interview + explicit user confirmation
 | `skills/skill-pilot/SKILL.md` | Triage, interview, trust boundaries, host instructions | Host model |
 | `references/compiler.md` and `pipeline-blueprints.md` | On-demand handoff and domain hints | None |
 | `skills/skill-pilot/scripts/skill_scout.py` | Inventory, EN/VI retrieval, exclusion parsing, inspection, promotion and CLI | Python 3.12+ stdlib |
+| `skills/skill-pilot/scripts/source_recovery.py` | Read-only goal-preserving source-failure contract and bounded skill-discovery state | Python 3.12+ stdlib |
+| `eval/v4_beta_runner.py` and `eval/v4_host_trial_packet.py` | Local reproducible receipts and **unscored** native host test packs | Python stdlib + Git CLI for historical ablations |
 | `skills/skill-pilot/scripts/session_planner.py` | Revisioned sessions, readiness, DAG, evidence, lock, specs | Python 3.12+ stdlib |
 | `scripts/skill_scout.py` | Repository compatibility entrypoint | Python stdlib |
 | `eval/v4_retrieval_ablation.py` | Dev-only candidate ranking comparisons | Python stdlib |

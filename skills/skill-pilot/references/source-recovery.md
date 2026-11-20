@@ -8,7 +8,7 @@
 2. **Permitted recovery and skill lookup:** Before ending, check relevant already-available public source context (public caption, official transcript, metadata, alternate link provided by the user) only if accessible and allowed. If domain work needs help, search the installed skills by *capability*, not by URL. Example:
    
    ```text
-   python <skill-dir>/scripts/skill_scout.py search "video content analysis transcript short-form creative idea evaluation" --harness all --format compact --limit 5
+   python <skill-dir>/scripts/skill_scout.py recover-source --goal "Evaluate the reel idea" --source-status 403 --kind video --skill-query "video content analysis transcript short-form creative idea evaluation" --harness all --format json --limit 5
    ```
    
    For Vietnamese input, a corresponding query is `"phân tích nội dung video phụ đề đánh giá ý tưởng"`. Resolve `<skill-dir>` from the containing SKILL.md file; do not literally use the placeholder. Inspect the actual SKILL.md of any promising result and verify the tools are enabled and authorized. Warehouse matches are candidates, **not** proof that a script or plugin is available. A failed lookup or zero matches must be reported truthfully. Do not promote, install or run untrusted scripts solely to fetch a social video.
@@ -47,3 +47,7 @@
 Retain a redacted, source-grounded trace with `original_goal`, `failed_source_role`, `access_observation`, `public_alternatives_checked`, `skill_discovery_observation`, `skill_files_inspected`, `content_actually_seen`, `limitation_disclosure`, `next_source_input`, and `final_response`. Native Codex and Antigravity trial reviewers must check tool logs; self-reported model statements alone do not prove discovery or content access.
 
 No login bypass, unauthorized credential use, independent human-label fabrication, or promise to access every platform is permitted.
+
+## Beta CLI implementation
+
+The `recover-source` command is a deterministic, offline **read-only local skill search**. Its `--source-status` is *caller reported*, not independently fetched. It never downloads a source, runs an untrusted skill, or claims a URL was watched. It redacts source URLs from the echoed goal, exposes relevant local skill candidates for inspection, and provides one source-input request if none was accessible. Use `--goal-ambiguous` only for genuinely unknown goals and `--material-provided` when the caller already has content. An unavailable search must be reported as such, not as zero discovered skills. Do not treat beta CLI success as native host model compliance.
