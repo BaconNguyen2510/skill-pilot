@@ -60,14 +60,12 @@ def main() -> int:
         after = score_cases(candidate_module, cases, temporary / "candidate")
     before_total, after_total = before["overall"], after["overall"]
     nonregression = all(
-        after["languages"][language][metric]
-        <= before["languages"][language][metric]
+        after["languages"][language][metric] <= before["languages"][language][metric]
         for language in ("en", "vi")
         for metric in ("fp", "fn")
     )
     improvement = (
-        after_total["fp"] < before_total["fp"]
-        or after_total["fn"] < before_total["fn"]
+        after_total["fp"] < before_total["fp"] or after_total["fn"] < before_total["fn"]
     )
     result = {
         "protocol": "synthetic_dev_indented_markdown_only",
