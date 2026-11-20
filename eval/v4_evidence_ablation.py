@@ -78,7 +78,9 @@ def load_pinned_baseline(temp: pathlib.Path) -> Any:
         raise ValueError("Baseline module exceeds verified source budget")
     file = temp / "pinned_baseline_session_planner.py"
     file.write_bytes(src)
-    spec = importlib.util.spec_from_file_location("pinned_baseline_session_planner", file)
+    spec = importlib.util.spec_from_file_location(
+        "pinned_baseline_session_planner", file
+    )
     if spec is None or spec.loader is None:
         raise RuntimeError("Unable to import pinned baseline")
     module = importlib.util.module_from_spec(spec)
