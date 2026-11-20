@@ -118,8 +118,7 @@ def summarize(result: dict) -> dict:
         "count": result["overall"]["count_total"],
         "overall": metrics(result["overall"]),
         "by_language": {
-            lang: metrics(result["by_language"].get(lang, {}))
-            for lang in LANGUAGES
+            lang: metrics(result["by_language"].get(lang, {})) for lang in LANGUAGES
         },
         "latency_ms": result["latency_ms"],
     }
@@ -154,10 +153,7 @@ def gate(candidate: dict, baseline: dict) -> dict:
         <= baseline["by_language"][lang]["forbidden_hit_rate@5"]
         for lang in LANGUAGES
     )
-    english_ok = all(
-        c_en[key] >= b_en[key]
-        for key in ("mrr@5", "recall@5")
-    )
+    english_ok = all(c_en[key] >= b_en[key] for key in ("mrr@5", "recall@5"))
     overall_gain = (
         candidate["overall"]["mrr@5"] > baseline["overall"]["mrr@5"]
         and candidate["overall"]["recall@5"] >= baseline["overall"]["recall@5"]
