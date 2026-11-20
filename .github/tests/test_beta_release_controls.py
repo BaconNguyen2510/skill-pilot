@@ -30,9 +30,7 @@ class BetaReleaseWorkflowTests(unittest.TestCase):
         self.assertNotIn("git push", release_job)
 
     def test_no_unreviewed_external_release_action(self) -> None:
-        job = WORKFLOW.read_text(encoding="utf-8").split(
-            "\n  beta_release:\n", 1
-        )[1]
+        job = WORKFLOW.read_text(encoding="utf-8").split("\n  beta_release:\n", 1)[1]
         self.assertNotIn("softprops/action-gh-release", job)
         self.assertIn("gh release create", job)
         self.assertIn("docs/v4/BETA_RELEASE_NOTES.md", job)
