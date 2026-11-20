@@ -57,6 +57,22 @@ class BetaRunnerTests(unittest.TestCase):
         self.assertFalse(report["all_required_checks_passed"])
         self.assertEqual(report["checks"][-1]["status"], "failed")
 
+    def test_stable_qualification_can_exclude_simulated_hosts(self) -> None:
+        fake = {
+            "name": "test",
+            "status": "passed",
+            "returncode": 0,
+            "duration_s": 0.01,
+        }
+        with (
+            mock.patch.object(v4_beta_runner, "run_check", return_value=fake),
+            mock.patch.object(v4_beta_runner.shutil, "which", return_value=None),
+        ):
+            report = v4_beta_runner.create_report(
+                quick=False, include_simulated_hosts=False
+            )
+        self.assertNotIn("simulated_hosts", {item["name"] for item in report["checks"]})
+
     def test_native_packet_has_no_claimed_results(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             output = pathlib.Path(folder) / "codex_trials"

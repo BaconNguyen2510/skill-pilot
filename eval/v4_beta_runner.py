@@ -93,8 +93,15 @@ def repository_sha() -> str | None:
     return value if len(value) == 40 else None
 
 
-def create_report(*, quick: bool = False, strict_tools: bool = False) -> dict[str, Any]:
+def create_report(
+    *,
+    quick: bool = False,
+    strict_tools: bool = False,
+    include_simulated_hosts: bool = True,
+) -> dict[str, Any]:
     checks = list(REQUIRED_CHECKS)
+    if not include_simulated_hosts:
+        checks = [check for check in checks if check[0] != "simulated_hosts"]
     if quick:
         checks = [check for check in checks if check[0] in QUICK_CHECK_NAMES]
     ruff = shutil.which("ruff")

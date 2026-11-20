@@ -81,7 +81,7 @@ full alternatives and rejected options.
 
 ## Release readiness
 
-Stable v4.0 remains **HOLD**. The missing evidence is genuine native Codex and
-Antigravity tool traces for the beta skill plus independent bilingual human
-review. Synthetic packets, deterministic tests, and simulated host smoke are
-prerequisites only and must not close issue #2.
+The beta evidence remains historical. The current stable candidate is qualified
+through the host-independent executable contract in
+[V4_RELEASE_GATES.md](V4_RELEASE_GATES.md). Native-host and human-review
+materials are not used as release evidence and no claim about them is made.

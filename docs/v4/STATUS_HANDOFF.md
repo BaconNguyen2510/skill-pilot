@@ -1,5 +1,16 @@
 # Skill Pilot V4 — Durable Engineering Handoff
 
+## Stable 4.0.0 candidate — host-independent qualification (2026-11-20)
+
+- User direction supersedes the former host-evaluation release gate: do not run Codex or Antigravity for v4.0.0 qualification. The release scope is the executable repository contract, not model behavior inside a host.
+- Bumped all three package manifests and `skill_scout.__version__` to `4.0.0`. `skill_scout doctor` reports `manifest_versions_consistent: true` and `cli_matches_manifests: true`.
+- Added `eval/v4_release_qualification.py`. It runs the existing complete offline matrix, pinned Ruff 0.17.5, manifest/CLI parity and a two-build byte-reproducible allowlisted package check. Its create-only receipt explicitly records that no host runtime was evaluated or required.
+- Added a manual, main-only `stable-release.yml` workflow. It requires the literal `publish-v4.0.0` confirmation, reruns qualification on the exact main SHA, packages the archive, and refuses an existing tag or release before `gh release create`.
+- Local rerun on Python 3.14.2 wrote a passing receipt outside Git: 253 main tests with 2 Windows skips, 40 blind tests, 10 workflow tests, the RC verifier, seven development ablations, Ruff format/lint, manifest parity and reproducible package all passed. This is local evidence only; no push, merge, tag, release or host trial was performed.
+- Research basis: GitHub documents manual workflows as `workflow_dispatch` and artifact provenance as a separate supply-chain control; the package remains checksum-based rather than claiming attestation. Python documents inspecting archives before extraction, consistent with the allowlisted package design. See [V4_RELEASE_GATES.md](V4_RELEASE_GATES.md).
+
+**Exact next action:** review the stable-candidate diff, commit it locally, then obtain explicit authorization to push/merge it into protected `main` and dispatch the manual stable-release workflow. Do not infer a public release from local qualification.
+
 ## Local beta-validation continuation (2026-11-20)
 
 - Created isolated branch `feat/v4-beta-validation` from immutable beta tag `v4.0.0-beta.1` (`878fc95e4139d593ebd5d4b4df9330b37862a3ef`); protected `main` was not changed.

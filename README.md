@@ -124,9 +124,11 @@ python scripts/skill_scout.py session spec --session .skill-pilot/session.json
 
 If a goal changes, use `session revise` with an explicit new plan and recheck readiness. Stale/unverified skill recommendations are not authority to run scripts. A `direct` label means text evidence is grounded, not that a human verified semantic capability.
 
-For the v4.0.0-beta.1 test build, see [beta installation and host test instructions](docs/v4/BETA_INSTALL_AND_TEST.md). **This is a prerelease and does not mean stable v4.0 is approved.** The protected main branch and its v3.1.1 release remain unchanged. See the [stable v4.0 release gate](docs/v4/V4_RELEASE_GATES.md) and [issue #2](https://github.com/BaconNguyen2510/skill-pilot/issues/2) for the pending real Codex/Antigravity tests.
+The `4.0.0` candidate is qualified by executable repository contracts. See the
+[stable release qualification](docs/v4/V4_RELEASE_GATES.md) and
+[release notes](docs/v4/STABLE_RELEASE_NOTES.md) for its exact scope and limits.
 
-## Blocked-source recovery (v4 beta)
+## Blocked-source recovery (v4)
 
 A failed reel/video/article fetch is not the user's failed goal. The beta adds a structured, read-only recovery command; it **does not fetch private media or claim to have viewed inaccessible content**:
 
@@ -137,12 +139,11 @@ python scripts/skill_scout.py recover-source --goal "Evaluate the idea behind th
 To run all offline regression and development benchmarks from a **full Git clone** (not a shallow checkout):
 
 ```bash
-python eval/v4_beta_runner.py --output local-receipts/beta-1.json
-python eval/v4_host_trial_packet.py --host codex --output local-receipts/codex-trials
-python eval/v4_host_trial_packet.py --host antigravity --output local-receipts/antigravity-trials
+python eval/v4_release_qualification.py --output local-receipts/v4-qualification.json
 ```
 
-The native host trial packets contain **unscored** EN/VI cases. No human-evaluation or real host success is claimed until independently observed.
+This checks the repository's executable contract. It intentionally makes no
+claim about behavior inside any AI host or access to unavailable media.
 
 ## Optional Local Skill Warehouses
 

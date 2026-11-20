@@ -1,4 +1,4 @@
-"""Build reproducible, allowlisted Skill Pilot v4 beta plugin ZIP and checksum.
+"""Build reproducible, allowlisted Skill Pilot v4 plugin ZIP and checksum.
 
 Never package arbitrary git-tracked files, sealed evaluation, logs, or .git.
 Full source + benchmarks remain available from the GitHub release's source ZIP.
@@ -14,7 +14,6 @@ import subprocess
 import zipfile
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-VERSION = "4.0.0-beta.1"
 PACKAGE_FILES = frozenset(
     {
         "plugin.json",
@@ -44,6 +43,21 @@ def read_versions() -> tuple[str, str, str]:
     )
 
 
+def package_version() -> str:
+    """Return the single declared plugin version or fail before packaging."""
+
+    versions = read_versions()
+    if len(set(versions)) != 1:
+        raise ValueError("Plugin manifest versions do not match")
+    version = versions[0]
+    if not version or any(char.isspace() for char in version):
+        raise ValueError("Plugin version must be a non-empty token")
+    return version
+
+
+VERSION = package_version()
+
+
 def package_paths() -> list[pathlib.Path]:
     tracked = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT, timeout=20)
     paths = []
@@ -64,8 +78,8 @@ def package_paths() -> list[pathlib.Path]:
 
 
 def build(output: pathlib.Path) -> tuple[pathlib.Path, pathlib.Path]:
-    if read_versions() != (VERSION, VERSION, VERSION):
-        raise ValueError("Beta plugin versions do not match the package version")
+    if package_version() != VERSION:
+        raise ValueError("Plugin version changed after package module import")
     output.mkdir(parents=True, exist_ok=True)
     archive = output / f"skill-pilot-v{VERSION}-plugin.zip"
     checksum = output / "SHA256SUMS"
