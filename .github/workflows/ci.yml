@@ -109,6 +109,8 @@ jobs:
                                                "python", "eval/v4_retrieval_ablation.py"])
               run("v4-dev-evidence-ablation", ["uv", "run", "--no-project", "--python", sys.executable,
                                               "python", "eval/v4_evidence_ablation.py"])
+              run("v4-dev-markdown-evidence-ablation", ["uv", "run", "--no-project", "--python", sys.executable,
+                                                       "python", "eval/v4_markdown_evidence_ablation.py"])
               run("v4-clean-archive-host-smoke", ["uv", "run", "--no-project", "--python", sys.executable,
                                                   "python", "eval/v4_host_smoke.py"])
           doctor = subprocess.run(

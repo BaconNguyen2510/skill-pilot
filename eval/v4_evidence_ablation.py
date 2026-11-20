@@ -21,6 +21,8 @@ from typing import Any
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SCRIPT_PATH = "skills/skill-pilot/scripts/session_planner.py"
 BASELINE_SHA = "642cd144795a0b048eed9221fa45bddbcae7b40f"
+MARKDOWN_BASELINE_SHA = "178ac1a9e5836fd88187bd9780f01332a1ecc0e3"
+ALLOWED_BASELINES = frozenset((BASELINE_SHA, MARKDOWN_BASELINE_SHA))
 CASES_PATH = ROOT / "eval" / "v4_evidence_challenges.jsonl"
 sys.path.insert(0, str(ROOT / "skills" / "skill-pilot" / "scripts"))
 import session_planner as candidate_module
@@ -67,10 +69,14 @@ def load_dev_cases(path: pathlib.Path = CASES_PATH) -> list[dict[str, Any]]:
     return rows
 
 
-def load_pinned_baseline(temp: pathlib.Path) -> Any:
+def load_pinned_baseline(
+    temp: pathlib.Path, *, sha: str = BASELINE_SHA
+) -> Any:
+    if sha not in ALLOWED_BASELINES:
+        raise ValueError("Only reviewed, pinned development baselines are permitted")
     # Git source is from an exact verified project-owned commit, not network data.
     src = subprocess.check_output(
-        ["git", "show", f"{BASELINE_SHA}:{SCRIPT_PATH}"],
+        ["git", "show", f"{sha}:{SCRIPT_PATH}"],
         cwd=ROOT,
         timeout=20,
     )
