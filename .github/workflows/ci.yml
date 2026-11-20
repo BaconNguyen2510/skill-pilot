@@ -66,7 +66,12 @@ jobs:
 
           rc_manifest_path = Path("docs/v3/CANDIDATE_MANIFEST_V3_RC.json")
           branch_ref = os.environ.get("GITHUB_REF_NAME", "")
-          if rc_manifest_path.exists() and branch_ref in ("feat/v3-project-discovery", "feat/v3.1-dev", "fix/interview-gate", "main", "v3.0.0", "v3.1.0", "v3.1.1"):
+          # A moving v4 development branch cannot match the frozen v3 release hashes.
+          # Keep strict canonical hash checks on main and release tags unchanged.
+          if branch_ref == "feat/v4-development":
+              candidate = "v4-unfrozen-development"
+              expected_files = {}
+          elif rc_manifest_path.exists() and branch_ref in ("feat/v3-project-discovery", "feat/v3.1-dev", "fix/interview-gate", "main", "v3.0.0", "v3.1.0", "v3.1.1"):
               manifest = json.loads(rc_manifest_path.read_text(encoding="utf-8"))
               candidate = manifest["runtime_commit"]
               expected_files = manifest["file_sha256_lf_git_archive"]
