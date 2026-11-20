@@ -31,9 +31,7 @@ class SourceRecoveryBetaTests(unittest.TestCase):
         self.assertEqual(len(cases), 12)
         for case in cases:
             with self.subTest(case=case["id"]):
-                discover = mock.Mock(
-                    return_value=("completed", [], "No local matches")
-                )
+                discover = mock.Mock(return_value=("completed", [], "No local matches"))
 
                 result = source_recovery.make_recovery_plan(
                     goal=case["request"],
