@@ -54,11 +54,14 @@ passed to Ruff's JSON formatter.
 
 ## Native-host receipts
 
-The Codex CLI is installed, but this session has not demonstrated that it loaded
-this isolated beta skill. Running a model session could consume account-backed
-service capacity, which this validation did not assume was free or authorized.
-Therefore **native Codex is NOT RUN**. The Codex packet is prepared outside the
-repository with 28 unscored prompts and an empty review template.
+One fresh Codex CLI session was executed against a project-local beta skill. It
+identified the catalog entry but host shell policy rejected both reads of the
+candidate `SKILL.md`; no valid capability discovery or candidate-skill inspection
+occurred. It is a **FAILED native acceptance**, not a pass. The redacted receipt
+and a precise Antigravity procedure are in
+[V4_NATIVE_HOST_RECEIPTS.md](V4_NATIVE_HOST_RECEIPTS.md). The Codex packet is
+prepared outside the repository with 28 unscored prompts and an empty review
+template.
 
 No Antigravity command-line host was found. No graphical controlled trial or
 loaded beta skill was observed. Therefore **native Antigravity is NOT RUN**. Its
