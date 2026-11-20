@@ -349,6 +349,7 @@ _EVIDENCE_STOPWORDS = frozenset(
 
 MAX_CAPABILITY_MD_BYTES = 1024 * 1024
 MAX_MARKDOWN_SOURCE_LINES = 8192
+_OMITTED_SOURCE_BOUNDARY = "\u241f"  # Prevent fabricated cross-block quotes.
 
 
 def _visible_skill_markdown(text: str) -> str | None:
@@ -397,10 +398,13 @@ def _visible_skill_markdown(text: str) -> str | None:
         expanded = line.expandtabs(4)
         leading_spaces = len(expanded) - len(expanded.lstrip(" "))
         if leading_spaces >= 4 and (indented_code or not paragraph_active):
+            if not indented_code:
+                visible_lines.append(_OMITTED_SOURCE_BOUNDARY)
             indented_code = True
             continue
         indented_code = False
         if raw_start.match(expanded):
+            visible_lines.append(_OMITTED_SOURCE_BOUNDARY)
             raw_html = raw_end.search(line) is None
             paragraph_active = False
             continue
@@ -414,6 +418,7 @@ def _visible_skill_markdown(text: str) -> str | None:
             fence_type = opening[0]
             fence_length = len(opening)
             paragraph_active = False
+            visible_lines.append(_OMITTED_SOURCE_BOUNDARY)
             continue
         visible_lines.append(line)
         # Four spaces cannot interrupt an active paragraph. A list marker
