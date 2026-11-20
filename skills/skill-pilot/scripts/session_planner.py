@@ -596,9 +596,9 @@ def render_specification(
 ) -> str:
     """Render a structured Markdown specification and execution-ready workflow."""
     readiness = compute_readiness(session)
-    is_stale = bool(session.get("discovery_stale")) or not readiness[
-        "ready_for_discovery"
-    ]
+    is_stale = (
+        bool(session.get("discovery_stale")) or not readiness["ready_for_discovery"]
+    )
     # Unversioned discovery is untrusted even if its content appears plausible.
     if discovery is not None and discovery.get("for_revision") != session.get(
         "revision", 1
