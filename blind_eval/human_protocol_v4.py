@@ -28,7 +28,7 @@ def load_jsonl(path: pathlib.Path) -> list[dict[str, Any]]:
                 continue
             value = json.loads(line)
             if not isinstance(value, dict):
-                raise ValueError(f"Expected JSON object at line {line_number}")
+                raise TypeError(f"Expected JSON object at line {line_number}")
             records.append(value)
     return records
 
@@ -225,7 +225,7 @@ def main() -> int:
             result = score_agreement(
                 load_jsonl(args.reviewer_a), load_jsonl(args.reviewer_b)
             )
-    except (OSError, ValueError, json.JSONDecodeError) as exc:
+    except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
         print(json.dumps({"error_code": "HUMAN_EVAL_INPUT_ERROR", "error": str(exc)}))
         return 1
     print(json.dumps(result, indent=2, ensure_ascii=False))
