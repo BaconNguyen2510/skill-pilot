@@ -840,7 +840,7 @@ def render_specification(
     plan_check = validate_plan_dependencies(session.get("plan_steps", []))
     if plan_check["valid"] and plan_check["execution_order"]:
         for index, sid in enumerate(plan_check["execution_order"], start=1):
-            lines.append(f"{index}. \`{sid}\`")
+            lines.append(f"{index}. `{sid}`")
     else:
         lines.append("- Plan dependency graph is incomplete or invalid.")
 

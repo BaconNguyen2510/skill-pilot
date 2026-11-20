@@ -150,8 +150,8 @@ class V4CorrectnessTests(unittest.TestCase):
         }
         rendered = session_planner.render_specification(session, discovery)
         self.assertIn("## 6. Dependency Order & Next Action", rendered)
-        self.assertIn("1. \`ui\`", rendered)
-        self.assertIn("2. \`verify\`", rendered)
+        self.assertIn("1. `ui`", rendered)
+        self.assertIn("2. `verify`", rendered)
         self.assertIn("REVIEW REQUIRED", rendered)
         self.assertNotIn("**Handoff:**", rendered)
 
