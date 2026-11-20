@@ -8,7 +8,7 @@ import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "eval"))
-import v4_evidence_ablation as evidence_ablation  # noqa: E402
+import v4_evidence_ablation as evidence_ablation
 
 
 class EvidenceAblationTests(unittest.TestCase):
