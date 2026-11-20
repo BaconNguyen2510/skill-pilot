@@ -733,6 +733,16 @@ def save_json_file(path: pathlib.Path, data: dict[str, Any]) -> None:
         raise
 
 
+def create_session_file_locked(
+    session_path: pathlib.Path, data: dict[str, Any]
+) -> None:
+    """Never overwrite an existing session or its revision history during init."""
+    with session_lock(session_path):
+        if session_path.exists() or session_path.is_symlink():
+            raise FileExistsError(f"Session already exists: {session_path}")
+        save_json_file(session_path, data)
+
+
 def update_session_file_locked(
     session_path: pathlib.Path,
     patch: dict[str, Any],

@@ -57,6 +57,56 @@ class CrossProcessLockV4Tests(unittest.TestCase):
                     child.kill()
                     child.wait(timeout=8)
 
+    def test_init_is_create_only_and_preserves_existing_session(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            path = pathlib.Path(temp) / "session.json"
+            initial = session_planner.init_session("Original approved task")
+            session_planner.create_session_file_locked(path, initial)
+            original = path.read_bytes()
+            with self.assertRaises(FileExistsError):
+                session_planner.create_session_file_locked(
+                    path, session_planner.init_session("Unauthorized replacement")
+                )
+            self.assertEqual(path.read_bytes(), original)
+            self.assertFalse(path.with_name(f".{path.name}.lock").exists())
+
+    def test_two_cli_initializers_cannot_overwrite_each_other(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            path = pathlib.Path(temp) / "session.json"
+            script = ROOT / "skills" / "skill-pilot" / "scripts" / "skill_scout.py"
+            processes = [
+                subprocess.Popen(
+                    [
+                        sys.executable,
+                        str(script),
+                        "session",
+                        "init",
+                        "--session",
+                        str(path),
+                        "--request",
+                        request,
+                    ],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                )
+                for request in ("First task", "Second task")
+            ]
+            try:
+                responses = [proc.communicate(timeout=15) for proc in processes]
+            finally:
+                for proc in processes:
+                    if proc.poll() is None:
+                        proc.kill()
+                        proc.wait(timeout=5)
+            self.assertCountEqual([p.returncode for p in processes], [0, 1])
+            self.assertEqual(len(responses), 2)
+            stored = session_planner.load_json_file(path)
+            self.assertIn(stored["initial_request"], ("First task", "Second task"))
+            self.assertEqual(stored["revision"], 1)
+            self.assertEqual(len(stored["revision_history"]), 1)
+            self.assertFalse(path.with_name(f".{path.name}.lock").exists())
+
     def test_invalid_pid_never_reclaims_unknown_process(self) -> None:
         self.assertIsNone(session_planner._session_lock_pid_alive(None))
         self.assertIsNone(session_planner._session_lock_pid_alive(-1))

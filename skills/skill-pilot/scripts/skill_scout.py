@@ -3657,7 +3657,7 @@ def cmd_session(args: argparse.Namespace) -> int:
     session_path = pathlib.Path(args.session)
     if args.action == "init":
         data = session_planner.init_session(args.request, language=args.language)
-        session_planner.save_json_file(session_path, data)
+        session_planner.create_session_file_locked(session_path, data)
     elif args.action in ("update", "revise"):
         patch = (
             session_planner.load_json_file(pathlib.Path(args.patch))
