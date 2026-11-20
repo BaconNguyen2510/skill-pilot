@@ -21,6 +21,16 @@ execution-policy limitation, not evidence that the beta contract was followed.
 Raw traces remain outside the repository because they include local paths and
 host diagnostics.
 
+## Codex trial 2: reproduced policy block
+
+A second fresh standalone session (`01a1f84b-3517-7200-92cc-cef773596429`) used
+the same disposable project skill and a workspace-write sandbox while the prompt
+prohibited writes. Its first `SKILL.md` read was again rejected by host policy.
+The final response disclosed that limitation and requested source material, but
+it could not perform the mandated recovery discovery. This confirms an
+environment-level native-host blocker across two independent sessions; no more
+retries were run.
+
 ## Antigravity: not run
 
 No `antigravity` command-line host was available in this environment, and no

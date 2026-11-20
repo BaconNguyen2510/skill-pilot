@@ -7,6 +7,7 @@
 - Full offline beta receipts passed on Python 3.12.10 and 3.14.2 before the fixture expansion: 251 main tests (2 Windows skips), 40 blind tests, 10 workflow tests, release verifier, seven dev ablations and simulated-host smoke. Local receipts and unscored 28-case Codex/Antigravity packets remain outside Git.
 - Expanded the synthetic blocked-source development matrix from 12 to 28 cases. Targeted v4 tests pass on both Python versions. Complete 13-check offline receipts passed on each runtime at `c3461be`, and separate Ruff 0.17.5 format/lint checks passed across 115 files. Native Codex and Antigravity are still **NOT RUN**, and independent EN/VI review is still **NOT DONE**. See [V4_BETA_VALIDATION_REPORT.md](V4_BETA_VALIDATION_REPORT.md).
 - A fresh native Codex CLI attempt was then executed. The host catalog identified the local beta skill but shell policy rejected both attempts to read its `SKILL.md`; no required discovery or inspection occurred. It is a **FAILED native acceptance**, not a pass. Antigravity has no available CLI or controlled GUI host in this environment, so it remains **NOT RUN**. Redacted evidence and the executable GUI procedure: [V4_NATIVE_HOST_RECEIPTS.md](V4_NATIVE_HOST_RECEIPTS.md).
+- A second independent standalone Codex session reproduced the same policy rejection at the first beta `SKILL.md` read. Treat native Codex as an **environment blocker**, not as beta acceptance evidence, until a controlled session permits project-skill reads. No more retries were run.
 
 ## v4.0.0-beta.1 implementation handoff
 
