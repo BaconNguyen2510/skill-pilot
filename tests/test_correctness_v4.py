@@ -119,6 +119,37 @@ class V4CorrectnessTests(unittest.TestCase):
                 self.assertEqual(result["covered_steps"], 0)
                 search.assert_not_called()
 
+    def test_unrelated_exact_quote_does_not_verify_direct_coverage(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            skill = pathlib.Path(temp) / "SKILL.md"
+            skill.write_text(
+                "# General helper\nBuild React web and mobile UI components.\n"
+                "Deploy Kubernetes clusters with Helm charts.\n",
+                encoding="utf-8",
+            )
+            matches = [{"id": "helper", "skill_md_path": str(skill)}]
+            check = session_planner.verify_capability_evidence(
+                '"Deploy Kubernetes clusters with Helm charts."',
+                matches,
+                step_text="Build React UI",
+            )
+            self.assertFalse(check["verified"])
+
+    def test_related_exact_quote_still_grounds_matching_step(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            skill = pathlib.Path(temp) / "SKILL.md"
+            skill.write_text(
+                "# React UI\nBuild React web and mobile UI components.\n",
+                encoding="utf-8",
+            )
+            matches = [{"id": "react", "skill_md_path": str(skill)}]
+            check = session_planner.verify_capability_evidence(
+                '"Build React web and mobile UI components."',
+                matches,
+                step_text="Build React UI",
+            )
+            self.assertTrue(check["verified"])
+
     def test_partial_without_uncovered_is_not_verified(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             skill = pathlib.Path(temp) / "SKILL.md"

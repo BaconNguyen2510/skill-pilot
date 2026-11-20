@@ -365,10 +365,25 @@ def extract_skill_capabilities(skill_md_path: str | pathlib.Path) -> dict[str, A
     }
 
 
+def _evidence_terms(text: str) -> set[str]:
+    """Unicode-aware conservative content terms, not semantic equivalence."""
+    return {
+        token
+        for token in re.findall(r"[^\W_]+", text.casefold())
+        if len(token) >= 2 and token not in _EVIDENCE_STOPWORDS
+    }
+
+
 def verify_capability_evidence(
-    evidence_text: str, matches: list[dict[str, Any]]
+    evidence_text: str,
+    matches: list[dict[str, Any]],
+    *,
+    step_text: str = "",
 ) -> dict[str, Any]:
-    """Verify capability_evidence via exact quoted passage or exact SKILL.md heading match."""
+    """Ground a quote/heading and require overlap with the specific plan step.
+
+    This is a lexical sanity check, NOT proof of semantic capability fit.
+    """
     cleaned = re.sub(r"\s+", " ", evidence_text.strip())
     if not cleaned or not matches:
         return {"verified": False, "matched_skill_id": None, "grounding_type": "none"}
@@ -377,6 +392,9 @@ def verify_capability_evidence(
     quoted = [q.strip() for q in re.findall(r'"([^"]{12,})"', cleaned)]
     candidates = quoted or [cleaned]
     lower_cleaned = cleaned.lower()
+    step_terms = _evidence_terms(step_text)
+    if step_text and not step_terms:
+        return {"verified": False, "matched_skill_id": None, "grounding_type": "none"}
 
     for m in matches:
         md_path = m.get("skill_md_path")
@@ -388,7 +406,12 @@ def verify_capability_evidence(
         skill_id = str(m.get("id", "")).lower()
         for h in caps["headings"]:
             hl = h.lower()
-            if len(hl) >= 4 and hl != skill_id and hl in lower_cleaned:
+            if (
+                len(hl) >= 4
+                and hl != skill_id
+                and hl in lower_cleaned
+                and (not step_text or step_terms & _evidence_terms(h))
+            ):
                 return {
                     "verified": True,
                     "matched_skill_id": m.get("id"),
@@ -396,7 +419,12 @@ def verify_capability_evidence(
                 }
         for cand in candidates:
             cl = cand.lower()
-            if len(cl) >= 12 and cl != skill_id and cl in caps["lower_text"]:
+            if (
+                len(cl) >= 12
+                and cl != skill_id
+                and cl in caps["lower_text"]
+                and (not step_text or step_terms & _evidence_terms(cand))
+            ):
                 return {
                     "verified": True,
                     "matched_skill_id": m.get("id"),
@@ -487,7 +515,9 @@ def run_plan_search(
         verified_matches = [m for m in matches if m.get("verified_on_disk")]
         assessed = normalize_step_coverage(step)
         ev_check = verify_capability_evidence(
-            assessed["capability_evidence"], verified_matches
+            assessed["capability_evidence"],
+            verified_matches,
+            step_text=" ".join((title, query)),
         )
         if not verified_matches:
             coverage_level = "none"
