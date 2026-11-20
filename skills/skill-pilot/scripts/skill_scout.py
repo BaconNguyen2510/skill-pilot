@@ -24,7 +24,7 @@ import unicodedata
 import uuid
 from typing import Any
 
-__version__ = "3.1.0"
+__version__ = "3.1.1"
 
 HOME = pathlib.Path.home()
 _HERE = pathlib.Path(__file__).resolve()
